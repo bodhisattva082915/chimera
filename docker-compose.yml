@@ -11,10 +11,11 @@ services:
         volumes:
             - ./init:/docker-entrypoint-initdb.d/
             - mongodata:/data/db
+        env_file:
+            - ./env/.env
         environment:
             MONGO_INITDB_ROOT_USERNAME: root
             MONGO_INITDB_ROOT_PASSWORD: root
-            MONGO_INITDB_DATABASE: chimera
 
     mongo-express:
         image: 'mongo-express'
