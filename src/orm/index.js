@@ -1,6 +1,3 @@
-import store from "./store";
-
-store.defineMapper('initdb', {collection: 'initdb'});
-store.findAll('initdb').then(console.log);
+import store from './store';
 
 export default store;
