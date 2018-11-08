@@ -18,5 +18,14 @@ module.exports = {
 	externals: [nodeExternals()],
 	plugins: [
 		new NodemonPlugin()
-	]
+	],
+	module: {
+		rules: [
+			{
+				test: /\.js$/,
+				exclude: /node_modules/,
+				loader: 'eslint-loader'
+			}
+		]
+	}
 };
