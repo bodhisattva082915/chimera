@@ -9,6 +9,13 @@
         },
         "app": {
             "type": "string"
+        },
+        "fields": {
+            "type": "object"
         }
-    }
+    },
+    "required": [
+        "name",
+        "app"
+    ]
 }
