@@ -25,9 +25,17 @@ describe('ChimeraField', function () {
 			isNotValid.should.be.an('array');
 		});
 	});
-	describe('relationships', function () {
-		it('should belongsTo ChimeraModel', function () {
+	describe('relations', function () {
+		it('should belongsTo ChimeraModel', async function () {
+			const field = this.mapper.createRecord({
+				_id: faker.random.uuid(),
+				modelId: faker.random.uuid()
+			});
 
+			await field.loadRelations(['model']);
+
+			field.should.have.property('model');
+			should.equal(field.model, undefined);
 		});
 	});
 });

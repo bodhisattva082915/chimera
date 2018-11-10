@@ -17,7 +17,7 @@ describe('ChimeraModel', function () {
 		});
 	});
 
-	describe('relationships', function () {
+	describe('relations', function () {
 		it('should hasMany ChimeraField', async function () {
 			const model = this.mapper.createRecord({
 				_id: faker.random.uuid(),
