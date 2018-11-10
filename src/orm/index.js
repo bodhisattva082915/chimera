@@ -1,16 +1,18 @@
 import ChimeraModel from './model';
+import ChimeraField from './field';
+import ChimeraMapper from './mapper';
 import store from './store';
 
-const ontology = [ChimeraModel];
+const ontology = [
+	ChimeraModel,
+	ChimeraField
+];
 
 ontology.forEach(resource => {
-	const { name, ...opts } = resource;
-	const mapper = store.defineMapper(name, opts);
-
-	store.models = {
-		...store.models,
-		[name]: mapper
-	};
+	store.defineMapper(resource.collection, {
+		mapperClass: ChimeraMapper,
+		...resource
+	});
 });
 
 export default store;

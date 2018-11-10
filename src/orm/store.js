@@ -2,12 +2,7 @@ import 'env';
 import { Container } from 'js-data';
 import { MongoDBAdapter } from 'js-data-mongodb';
 
-const store = new Container({
-	mapperDefaults: {
-		idAttribute: '_id'
-	}
-});
-
+const store = new Container();
 const adapter = new MongoDBAdapter({
 	uri: 'mongodb://' +
 		`${process.env.CHIMERADB_USERNAME}:` +

@@ -3,11 +3,11 @@ import schema from './schema';
 import relations from './relations';
 import ChimeraSchema from '../Schema';
 
-class ChimeraModel extends Record {};
+class ChimeraField extends Record {};
 
 export default {
-	collection: 'ChimeraModel',
-	recordClass: ChimeraModel,
+	collection: 'ChimeraField',
+	recordClass: ChimeraField,
 	schema: new ChimeraSchema(schema),
 	relations
 };

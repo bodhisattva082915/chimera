@@ -4,9 +4,12 @@
         "json",
         "mocha"
     ],
+    "env": {
+        "node": true,
+        "mocha": true
+    },
     "globals": {
-        "describe": true,
-        "it": true
+        "should": true
     },
     "rules": {
         "no-tabs":"off",
