@@ -5,6 +5,7 @@ export default {
 	title: 'Chimera Field',
 	description: 'Validates data as a JSON Schema property.',
 	definitions: jsonSchemaDraft07.definitions,
+	type: 'object',
 	properties: {
 		name: {
 			type: 'string'

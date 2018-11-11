@@ -7,7 +7,7 @@ const ajv = new Ajv({
 
 class ChimeraSchema extends Schema {
 	constructor (definition) {
-		super();
+		super(definition);
 		this.validator = ajv.compile(definition);
 	}
 
