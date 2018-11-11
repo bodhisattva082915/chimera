@@ -1,4 +1,4 @@
-import faker from 'faker';
+import factory from 'factory-girl';
 
 describe('ChimeraField', function () {
 	before(function () {
@@ -9,7 +9,7 @@ describe('ChimeraField', function () {
 		it('should validate suitable JSON Schema property syntax', function () {
 			const isValid = this.mapper.validate({
 				name: 'testField',
-				modelId: faker.random.uuid(),
+				modelId: factory.chance('guid')(),
 				type: 'string',
 				format: 'email',
 				minLength: 2,
@@ -28,8 +28,8 @@ describe('ChimeraField', function () {
 	describe('relations', function () {
 		it('should belongsTo ChimeraModel', async function () {
 			const field = this.mapper.createRecord({
-				_id: faker.random.uuid(),
-				modelId: faker.random.uuid()
+				_id: factory.chance('guid')(),
+				modelId: factory.chance('guid')()
 			});
 
 			await field.loadRelations(['model']);

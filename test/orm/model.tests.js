@@ -1,4 +1,4 @@
-import faker from 'faker';
+import factory from 'factory-girl';
 
 describe('ChimeraModel', function () {
 	before(function () {
@@ -9,7 +9,7 @@ describe('ChimeraModel', function () {
 		it('should enforce required fields', function () {
 			const isNotValid = this.mapper.validate({});
 			const isValid = this.mapper.validate({
-				name: faker.random.word()
+				name: factory.chance('word')()
 			});
 
 			isNotValid.should.be.an('array');
@@ -20,7 +20,7 @@ describe('ChimeraModel', function () {
 	describe('relations', function () {
 		it('should hasMany ChimeraField', async function () {
 			const model = this.mapper.createRecord({
-				_id: faker.random.uuid(),
+				_id: factory.chance('guid')(),
 				name: 'TestModel'
 			});
 
