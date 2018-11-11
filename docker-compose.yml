@@ -22,10 +22,8 @@ services:
         container_name: 'mongo-express'
         ports:
             - 27018:27018
-        environment:
-            VCAP_APP_PORT: 27018
-            ME_CONFIG_MONGODB_ADMINUSERNAME: root
-            ME_CONFIG_MONGODB_ADMINPASSWORD: root
+        env_file:
+            - ./env/.env
 
 volumes:
     mongodata:
