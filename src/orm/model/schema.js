@@ -1,5 +1,6 @@
-export default {
-	$schema: 'http://json-schema.org/draft-07/schema#',
+import { Schema } from 'js-data';
+
+export default new Schema({
 	title: 'Chimera Model',
 	description: 'Schema document for Chimera models.',
 	type: 'object',
@@ -14,4 +15,4 @@ export default {
 	required: [
 		'name'
 	]
-};
+});

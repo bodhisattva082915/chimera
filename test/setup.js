@@ -1,4 +1,5 @@
 import 'env';
+import './factories';
 import chai from 'chai';
 import MongoMemoryServer from 'mongodb-memory-server';
 

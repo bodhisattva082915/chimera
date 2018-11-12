@@ -1,23 +1,19 @@
-import jsonSchemaDraft07 from 'ajv/lib/refs/json-schema-draft-07.json';
+import { Schema } from 'js-data';
 
-export default {
-	$schema: 'http://json-schema.org/draft-07/schema#',
+export default new Schema({
 	title: 'Chimera Field',
-	description: 'Validates data as a JSON Schema property.',
-	definitions: jsonSchemaDraft07.definitions,
+	description: 'Schema document for Chimera models. Should emulate JSON Schema property syntax.',
 	type: 'object',
 	properties: {
 		name: {
 			type: 'string'
 		},
 		modelId: {
-			type: 'string',
-			format: 'uuid'
-		},
-		...jsonSchemaDraft07.properties
+			type: 'string'
+		}
 	},
 	required: [
 		'modelId',
 		'name'
 	]
-};
+});

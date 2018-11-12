@@ -18,6 +18,13 @@ describe('ChimeraModel', function () {
 	});
 
 	describe('relations', function () {
+		before(async function () {
+			const model = await factory.create('ChimeraModel');
+			const field = await factory.create('ChimeraField', {
+				title: 'fuck youooooooooo'
+			});
+		});
+
 		it('should hasMany ChimeraField', async function () {
 			const model = this.mapper.createRecord({
 				_id: factory.chance('guid')(),

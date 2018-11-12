@@ -1,13 +1,10 @@
-import { Record } from 'js-data';
+import ChimeraModel from './class';
 import schema from './schema';
 import relations from './relations';
-import ChimeraSchema from '../Schema';
-
-class ChimeraModel extends Record {};
 
 export default {
 	collection: 'ChimeraModel',
 	recordClass: ChimeraModel,
-	schema: new ChimeraSchema(schema),
+	schema: schema,
 	relations
 };

@@ -1,5 +1,5 @@
 --require @babel/register
---file ./test/_setup.js
+--file ./test/setup.js
 --ui bdd
 --recursive
 --exit
