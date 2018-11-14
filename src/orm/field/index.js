@@ -1,10 +1,6 @@
-import ChimeraField from './class';
+import mongoose from 'mongoose';
 import schema from './schema';
-import relations from './relations';
 
-export default {
-	collection: 'ChimeraField',
-	recordClass: ChimeraField,
-	schema,
-	relations
-};
+const ChimeraField = mongoose.model('ChimeraField', schema);
+
+export default ChimeraField;

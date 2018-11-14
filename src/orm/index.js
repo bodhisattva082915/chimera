@@ -1,18 +1,8 @@
-import ChimeraModel from './model';
-import ChimeraField from './field';
-import ChimeraMapper from './mapper';
-import store from './store';
+import fs from 'fs';
 
-const ontology = [
-	ChimeraModel,
-	ChimeraField
-];
-
-ontology.forEach(resource => {
-	store.defineMapper(resource.collection, {
-		mapperClass: ChimeraMapper,
-		...resource
+fs
+	.readdirSync(__dirname)
+	.filter(file => !file.includes('.js'))
+	.forEach(model => {
+		require(`${__dirname}/${model}`);
 	});
-});
-
-export default store;

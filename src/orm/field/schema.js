@@ -1,19 +1,33 @@
-import { Schema } from 'js-data';
+import mongoose from 'mongoose';
 
-export default new Schema({
-	title: 'Chimera Field',
-	description: 'Schema document for Chimera models. Should emulate JSON Schema property syntax.',
-	type: 'object',
-	properties: {
-		name: {
-			type: 'string'
-		},
-		modelId: {
-			type: 'string'
-		}
+const { ObjectId } = mongoose.Types;
+const schema = new mongoose.Schema({
+	modelId: {
+		type: ObjectId,
+		ref: 'ChimeraModel'
 	},
-	required: [
-		'modelId',
-		'name'
-	]
-});
+	name: {
+		type: Object,
+		required: true
+	},
+	type: {
+		type: String,
+		required: true,
+		enum: [
+			'string',
+			'text',
+			'richText',
+			'mdText'
+		]
+	},
+	alias: {
+		type: String
+	},
+	required: Boolean,
+	unique: Boolean,
+	index: Boolean
+})
+	/** Indexing */
+	.index({ name: 1, module: 1 }, { unique: true });
+
+export default schema;

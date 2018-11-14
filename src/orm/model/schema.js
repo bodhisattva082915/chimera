@@ -1,18 +1,15 @@
-import { Schema } from 'js-data';
+import mongoose from 'mongoose';
 
-export default new Schema({
-	title: 'Chimera Model',
-	description: 'Schema document for Chimera models.',
-	type: 'object',
-	properties: {
-		'module': {
-			'type': 'string'
-		},
-		'name': {
-			'type': 'string'
-		}
+const schema = new mongoose.Schema({
+	name: {
+		type: String,
+		required: true
 	},
-	required: [
-		'name'
-	]
-});
+	module: {
+		type: String
+	}
+})
+	/** Indexing */
+	.index({ name: 1, module: 1 }, { unique: true });
+
+export default schema;
