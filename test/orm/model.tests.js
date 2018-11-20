@@ -1,40 +1,48 @@
+import mongoose from "mongoose";
 import factory from 'factory-girl';
 
 describe('ChimeraModel', function () {
-	before(function () {
-		this.mapper = this.store.getMapper('ChimeraModel');
+	before(function(){
+		this.model = mongoose.model('ChimeraModel');
 	});
 
 	describe('schema', function () {
-		it('should enforce required fields', function () {
-			const isNotValid = this.mapper.validate({});
-			const isValid = this.mapper.validate({
-				name: factory.chance('word')()
+		before(async function(){
+			this.testModel = await factory.create('ChimeraModel', {
+				name: 'TestModelA',
+				module: 'TestModuleA'
 			});
+		});
 
-			isNotValid.should.be.an('array');
-			should.equal(isValid, undefined);
+		it('should enforce required fields', function () {
+			return new this.model().validate()
+				.should.eventually.be.rejectedWith(mongoose.Error.ValidationError)
+				.and.containSubset({
+					errors: {
+						name: {kind: 'required'}
+					}
+				});
+		});
+
+		it('should enforce a uniqueness constraint {name, module}', function(){
+			return new this.model(this.testModel.toObject()).validate()
+				.should.eventually.be.rejectedWith(mongoose.Error.ValidationError)
+				.and.containSubset({
+					errors: {
+						name: {kind: 'unique'},
+						module: {kind: 'unique'}
+					}
+				});
 		});
 	});
 
 	describe('relations', function () {
 		before(async function () {
-			const model = await factory.create('ChimeraModel');
-			const field = await factory.create('ChimeraField', {
-				title: 'fuck youooooooooo'
-			});
+			
 		});
 
 		it('should hasMany ChimeraField', async function () {
-			const model = this.mapper.createRecord({
-				_id: factory.chance('guid')(),
-				name: 'TestModel'
-			});
-
-			await model.loadRelations(['fields']);
-
-			model.should.have.property('fields');
-			model.fields.should.have.length(0);
+			
 		});
 	});
 });
