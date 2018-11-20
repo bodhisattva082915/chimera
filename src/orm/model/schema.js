@@ -6,7 +6,8 @@ const schema = new mongoose.Schema({
 		required: true
 	},
 	module: {
-		type: String
+		type: String,
+		default: ''
 	}
 })
 	/** Indexing */

@@ -1,7 +1,6 @@
 import express from 'express';
 import proxy from 'express-http-proxy';
 import './db';
-import model from './orm/model';
 
 const app = express();
 

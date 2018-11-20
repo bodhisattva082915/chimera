@@ -6,7 +6,6 @@ const env = dotenv.load({
 	defaults: path.resolve(__dirname, '.env.defaults'),
 	schema: path.resolve(__dirname, '.env.schema'),
 	overrideProcessEnv: true,
-	errorOnMissing: true,
 	debug: process.env.NODE_ENV !== 'production'
 });
 
