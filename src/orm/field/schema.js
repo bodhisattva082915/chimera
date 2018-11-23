@@ -1,12 +1,11 @@
 /**
- * Defines a model that loosely resembles the structure of a mongoose
- * document property.
+ * Defines a model that loosely resembles the structure of a mongoose document property.
  * @mongoose-option - Denotes that the given value will be used to defined the mongoose SchemaType option of the same name.
  */
 
 import mongoose from 'mongoose';
 
-const { ObjectId, Mixed } = mongoose;
+const { ObjectId, Mixed } = mongoose.Schema.Types;
 const schema = new mongoose.Schema({
 	/** 
 	 * The ChimeraModel that should include this field. 
