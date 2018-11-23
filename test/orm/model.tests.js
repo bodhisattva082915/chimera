@@ -36,13 +36,16 @@ describe('ChimeraModel', function () {
 		});
 	});
 
-	describe('relations', function () {
-		before(async function () {
-			
-		});
+	// describe('relations', function () {
+	// 	before(async function () {
+	// 		await factory.create('ChimeraField', {
+	// 			modelId: this.model._id,
+	// 		});
+	// 	});
 
-		it('should hasMany ChimeraField', async function () {
-			
-		});
-	});
+	// 	it('should have one-to-many relationship with ChimeraField', async function () {
+	// 		const modelWithFields = await this.model.populate('fields');
+	// 		console.log(modelWithFields);
+	// 	});
+	// });
 });

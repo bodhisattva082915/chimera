@@ -1,8 +1,10 @@
 import 'env';
 import mongoose from 'mongoose';
 import uniqueValidator from 'mongoose-unique-validator';
+import associations from './orm/associations';
 
 mongoose.plugin(uniqueValidator);
+mongoose.plugin(associations);
 
 export default mongoose
 	.connect(

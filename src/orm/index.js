@@ -4,5 +4,7 @@ fs
 	.readdirSync(__dirname)
 	.filter(file => !file.includes('.js'))
 	.forEach(model => {
-		require(`${__dirname}/${model}`);
+		const cls = require(`${__dirname}/${model}`).default;
+
+		cls.associate();
 	});
