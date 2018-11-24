@@ -33,7 +33,7 @@ describe('ChimeraModel', function () {
 		});
 	});
 
-	describe('relations', function () {
+	describe('associations', function () {
 		before(async function () {
 			this.associatedFields = await factory.createMany('ChimeraField', 2, {
 				chimeraModelId: this.testModel._id
@@ -42,7 +42,7 @@ describe('ChimeraModel', function () {
 
 		it('should have one-to-many association with ChimeraField', async function () {
 			const model = await this.ChimeraModel.findById(this.testModel._id).populate('chimeraFields').exec();
-			
+
 			model.should.have.property('chimeraFields');
 			model.chimeraFields.should.have.lengthOf(this.associatedFields.length);
 		});
