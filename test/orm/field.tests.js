@@ -8,22 +8,21 @@ describe('ChimeraField', function () {
 	});
 
 	describe('schema', function () {
-		it('should enforce uniquness constraint {name, modelId}', function () {
+		it('should enforce uniquness constraint {name, chimeraModelId}', function () {
 			return new this.ChimeraField(this.testField.toObject()).validate()
 				.should.eventually.be.rejectedWith(mongoose.Error.ValidationError)
 				.and.containSubset({
 					errors: {
 						name: {kind: 'unique'},
-						modelId: {kind: 'unique'}
+						chimeraModelId: {kind: 'unique'}
 					}
 				});
 		});
 	});
 	describe('associations', function () {
 		it('should have a foreign-key association with ChimeraModel', async function () {
-			const field = await this.ChimeraField.findById(this.testField._id).populate('model').exec();
-			
-			field.should.have.property('model');
+			const field = await this.ChimeraField.findById(this.testField._id).populate('chimeraModel').exec();
+			field.should.have.property('chimeraModel');
 		});
 	});
 });

@@ -4,18 +4,10 @@
  */
 
 import mongoose from 'mongoose';
+import ChimeraSchema from '../schema';
 
-const { ObjectId, Mixed } = mongoose.Schema.Types;
-const schema = new mongoose.Schema({
-	/** 
-	 * The ChimeraModel that should include this field. 
-	 */
-	modelId: {
-		type: ObjectId,
-		ref: 'ChimeraModel',
-		relatedName: 'fields',
-	},
-
+const { Mixed } = mongoose.Schema.Types;
+const schema = new ChimeraSchema({
 	/** 
 	 * The name that will be used to uniquely identify the property on the model. 
 	 * This will be set as the key value in the generated mongoose schema.
@@ -77,14 +69,22 @@ const schema = new mongoose.Schema({
 
 	/** 
 	 * @mongoose-option
-	 * Used to determine if this field should be indexed for quicker searching. 
+	 * Used to determine if this field should be indexed for quicker filtering. 
 	 */
 	index: {
 		type: Boolean,
 		default: false
 	}
 })
+	/** Associations */
+	.belongsTo('ChimeraModel', {
+		localField: 'chimeraModelId',
+		as: 'chimeraModel',
+	}, {
+		required: true
+	})
+
 	/** Indexing */
-	.index({ name: 1, modelId: 1 }, { unique: true });
+	.index({ name: 1, chimeraModelId: 1 }, { unique: true })
 
 export default schema;
