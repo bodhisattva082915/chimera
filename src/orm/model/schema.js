@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+import ChimeraSchema from '../schema';
 
-const schema = new mongoose.Schema({
+const schema = new ChimeraSchema({
 	name: {
 		type: String,
 		required: true
@@ -10,6 +10,12 @@ const schema = new mongoose.Schema({
 		default: ''
 	}
 })
+	/** Associations */
+	.hasMany('ChimeraField', {
+		foreignField: 'chimeraModelId',
+		as: 'chimeraFields'
+	})
+
 	/** Indexing */
 	.index({ name: 1, module: 1 }, { unique: true });
 

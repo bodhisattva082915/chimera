@@ -19,8 +19,9 @@ describe('ChimeraField', function () {
 				});
 		});
 	});
+
 	describe('associations', function () {
-		it('should have a foreign-key association with ChimeraModel', async function () {
+		it('should have a belongsTo association with ChimeraModel', async function () {
 			const field = await this.ChimeraField.findById(this.testField._id).populate('chimeraModel').exec();
 			field.should.have.property('chimeraModel');
 		});
