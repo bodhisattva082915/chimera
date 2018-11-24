@@ -14,7 +14,7 @@ class ChimeraSchema extends mongoose.Schema {
      * Creates a foriegn key association, treating this as the dependent schema of the relationship.
      * @param {string} modelName - The name of the mongoose model to associate.
      * @param {object} [options] - Configuration options for the virtual field declaration.
-     * @param {string} [options.localField] - The name of the field in this schema that holds the foreign key reference.localField
+     * @param {string} [options.localField] - The name of the field in this schema that holds the foreign key reference.
      * @param {string} [options.foreignField] - The name of the field on the associated schema that matches the foreign key reference.
      * @param {string} [options.as] - The name to use for the virtual field that describes the association.
      * @param {object} [schemaOptions] - Mongoose schema type options to pass to the localField declaration. 
@@ -55,7 +55,7 @@ class ChimeraSchema extends mongoose.Schema {
      * Creates a one-to-many association, treating this as the independent schema of the relationship.
      * @param {string} modelName - The name of the mongoose model to associate.
      * @param {object} options - Configuration options for the virtual field declaration.
-     * @param {string} options.localField - The name of the field in this schema that holds the foreign key reference.localField
+     * @param {string} options.localField - The name of the field in this schema that holds the foreign key reference.
      * @param {string} [options.foreignField] - The name of the field on the associated schema that matches the foreign key reference.
      * @param {string} [options.as] - The name to use for the virtual field that describes the association.
      * @returns {ChimeraSchema} - Mutates the schema by adding a virtual field to describe this association.
@@ -91,7 +91,7 @@ class ChimeraSchema extends mongoose.Schema {
      * dependent schema of the relationship to protect a one-to-many relationship from forming.
      * @param {string} modelName - The name of the mongoose model to associate.
      * @param {object} options - Configuration options for the virtual field declaration.
-     * @param {string} options.localField - The name of the field in this schema that holds the foreign key reference.localField
+     * @param {string} options.localField - The name of the field in this schema that holds the foreign key reference.
      * @param {string} [options.foreignField] - The name of the field on the associated schema that matches the foreign key reference.
      * @param {string} [options.as] - The name to use for the virtual field that describes the association.
      * @returns {ChimeraSchema} - Mutates the schema by adding a virtual field to describe this association.
@@ -120,6 +120,29 @@ class ChimeraSchema extends mongoose.Schema {
         this.virtual(associationName, association);
 
         return this;
+    }
+
+    /**
+     * Creates a many-to-many association, treating this as an independent schema of the relationship.
+     * @param {string} modelName - The name of the mongoose model to associate.
+     * @param {object} [options] - Configuration options for the virtual field declaration.
+     * @param {string} [options.localField] - The name of the field in this schema that holds the foreign key reference.
+     * @param {string} [options.through] - The name of the model that will contain the association entries.
+     * @param {string} [options.foreignField] - The name of the field on the associated schema that matches the foreign key reference.
+     * @param {string} [options.as] - The name to use for the virtual field that describes the association.
+     * @returns {ChimeraSchema} - Mutates the schema by adding a virtual field to describe this association.
+     */
+    belongsToMany(model, options){
+        if(!modelName){
+            throw new ChimeraSchemaError(`Missing required parameter 'modelName'.`);
+        }
+
+        const localField = options.localField || `_id`;
+        const foreignField = options.foreignField || '';
+        const through = options.through || '';
+        const as = options.as || `${'as'}`;
+
+
     }
 
 }
