@@ -87,6 +87,8 @@ class ChimeraSchema extends mongoose.Schema {
 
     /**
      * Creates a one-to-one association, treating this as the independent schema of the relationship.
+     * To ensure the integrity of the association, a unique index should also be placed on the on the 
+     * dependent schema of the relationship to protect a one-to-many relationship from forming.
      * @param {string} modelName - The name of the mongoose model to associate.
      * @param {object} options - Configuration options for the virtual field declaration.
      * @param {string} options.localField - The name of the field in this schema that holds the foreign key reference.localField
