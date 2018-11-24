@@ -40,7 +40,7 @@ describe('ChimeraModel', function () {
 			});
 		});
 
-		it('should have one-to-many association with ChimeraField', async function () {
+		it('should have a hasMany association with ChimeraField', async function () {
 			const model = await this.ChimeraModel.findById(this.testModel._id).populate('chimeraFields').exec();
 
 			model.should.have.property('chimeraFields');
