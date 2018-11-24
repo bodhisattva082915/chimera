@@ -12,7 +12,8 @@ const schema = new mongoose.Schema({
 	 */
 	modelId: {
 		type: ObjectId,
-		ref: 'ChimeraModel'
+		ref: 'ChimeraModel',
+		relatedName: 'fields',
 	},
 
 	/** 
