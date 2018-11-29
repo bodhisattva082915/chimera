@@ -1,4 +1,5 @@
-import camelCase from "lodash";
+import camelCase from "lodash/camelCase";
+import set from "lodash/set";
 import mongoose from "mongoose";
 
 class ChimeraSchemaError extends Error {
@@ -9,6 +10,26 @@ class ChimeraSchemaError extends Error {
 };
 
 class ChimeraSchema extends mongoose.Schema {
+
+    /**
+     * Enhances functionality of the base mongoose Schema class for use by Chimera.
+     * * Add a naming identity at the schema level. This value will be used to name the mongoose model and mongodb collection.
+     * * Adds association support between collections.
+     * @param {string} name - The name to associate with the schema. 
+     * @param {object} fields - A mongoose schema fields definition object.
+     * @param {object} options - A mongoose schema options object.
+     */
+    constructor(name, fields, options){
+        if(!name){
+            throw new ChimeraSchemaError(`Missing required parameter 'name'`);
+        }
+
+        set(options, 'collection', name);
+
+        super(fields, options);
+
+        this.name = name;
+    }
 
     /**
      * Creates a foriegn key association, treating this as the dependent schema of the relationship.
@@ -60,7 +81,7 @@ class ChimeraSchema extends mongoose.Schema {
      * @param {string} [options.as] - The name to use for the virtual field that describes the association.
      * @returns {ChimeraSchema} - Mutates the schema by adding a virtual field to describe this association.
      */
-    hasMany(modelName, options){
+    hasMany(modelName, options = {}){
         if(!modelName){
             throw new ChimeraSchemaError(`Missing required parameter 'modelName'.`);
         }
@@ -96,7 +117,7 @@ class ChimeraSchema extends mongoose.Schema {
      * @param {string} [options.as] - The name to use for the virtual field that describes the association.
      * @returns {ChimeraSchema} - Mutates the schema by adding a virtual field to describe this association.
      */
-    hasOne(modelName, options){
+    hasOne(modelName, options = {}){
         if(!modelName){
             throw new ChimeraSchemaError(`Missing required parameter 'modelName'.`);
         }
@@ -126,23 +147,31 @@ class ChimeraSchema extends mongoose.Schema {
      * Creates a many-to-many association, treating this as an independent schema of the relationship.
      * @param {string} modelName - The name of the mongoose model to associate.
      * @param {object} [options] - Configuration options for the virtual field declaration.
-     * @param {string} [options.localField] - The name of the field in this schema that holds the foreign key reference.
      * @param {string} [options.through] - The name of the model that will contain the association entries.
+     * @param {string} [options.localField] - The name of the field in this schema that holds the foreign key reference.
      * @param {string} [options.foreignField] - The name of the field on the associated schema that matches the foreign key reference.
      * @param {string} [options.as] - The name to use for the virtual field that describes the association.
      * @returns {ChimeraSchema} - Mutates the schema by adding a virtual field to describe this association.
      */
-    belongsToMany(model, options){
+    belongsToMany(modelName, options = {}){
         if(!modelName){
             throw new ChimeraSchemaError(`Missing required parameter 'modelName'.`);
         }
-
+ 
+        const through = options.through || `${this.name}_${modelName}`;
         const localField = options.localField || `_id`;
-        const foreignField = options.foreignField || '';
-        const through = options.through || '';
-        const as = options.as || `${'as'}`;
+        const foreignField = options.foreignField || `${camelCase(this.name)}Id`;
 
+        const associationName = options.as || `${modelName}Set`;
+        const association = {
+            ref: through,
+            localField,
+            foreignField,
+        }
 
+        this.virtual(associationName, association);
+
+        return this;
     }
 
 }

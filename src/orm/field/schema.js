@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 import ChimeraSchema from '../schema';
 
 const { Mixed } = mongoose.Schema.Types;
-const schema = new ChimeraSchema({
+const schema = new ChimeraSchema('ChimeraField', {
 	/** 
 	 * The name that will be used to uniquely identify the property on the model. 
 	 * This will be set as the key value in the generated mongoose schema.
