@@ -1,6 +1,6 @@
 import ChimeraSchema from '../schema';
 
-const schema = new ChimeraSchema({
+const schema = new ChimeraSchema('ChimeraModel', {
 	name: {
 		type: String,
 		required: true
