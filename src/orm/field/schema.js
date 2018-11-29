@@ -8,8 +8,8 @@ import ChimeraSchema from '../schema';
 
 const { Mixed } = mongoose.Schema.Types;
 const schema = new ChimeraSchema('ChimeraField', {
-	/** 
-	 * The name that will be used to uniquely identify the property on the model. 
+	/**
+	 * The name that will be used to uniquely identify the property on the model.
 	 * This will be set as the key value in the generated mongoose schema.
 	 */
 	name: {
@@ -17,17 +17,17 @@ const schema = new ChimeraSchema('ChimeraField', {
 		required: true
 	},
 
-	/** 
+	/**
 	 * @mongoose-option
-	 * A secondary name to use to reference the field. 
+	 * A secondary name to use to reference the field.
 	 */
 	alias: {
 		type: String,
 		default: ''
 	},
 
-	/** 
-	 * The primitive data-type for the contents of the field. 
+	/**
+	 * The primitive data-type for the contents of the field.
 	 */
 	type: {
 		type: String,
@@ -36,20 +36,20 @@ const schema = new ChimeraSchema('ChimeraField', {
 			'string',
 			'number',
 			'boolean',
-			'object',
+			'object'
 		]
 	},
 
-	/** 
+	/**
 	 * @mongoose-option
-	 * Used to enforce if this field should require a value (neither null nor undefined) 
+	 * Used to enforce if this field should require a value (neither null nor undefined)
 	*/
 	required: {
 		type: Boolean,
 		default: false
 	},
 
-	/** 
+	/**
 	 * @mongoose-option
 	 * Used to specify a default value that should be set when this field is left blank.
 	 */
@@ -58,18 +58,18 @@ const schema = new ChimeraSchema('ChimeraField', {
 		default: undefined
 	},
 
-	/** 
+	/**
 	 * @mongoose-option
-	 * Used to enforce unique values in the field by enabling unique indexing in the ODM 
+	 * Used to enforce unique values in the field by enabling unique indexing in the ODM
 	 */
 	unique: {
 		type: Boolean,
 		default: false
 	},
 
-	/** 
+	/**
 	 * @mongoose-option
-	 * Used to determine if this field should be indexed for quicker filtering. 
+	 * Used to determine if this field should be indexed for quicker filtering.
 	 */
 	index: {
 		type: Boolean,
@@ -79,12 +79,12 @@ const schema = new ChimeraSchema('ChimeraField', {
 	/** Associations */
 	.belongsTo('ChimeraModel', {
 		localField: 'chimeraModelId',
-		as: 'chimeraModel',
+		as: 'chimeraModel'
 	}, {
 		required: true
 	})
 
 	/** Indexing */
-	.index({ name: 1, chimeraModelId: 1 }, { unique: true })
+	.index({ name: 1, chimeraModelId: 1 }, { unique: true });
 
 export default schema;

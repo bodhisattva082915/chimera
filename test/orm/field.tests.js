@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 import factory from 'factory-girl';
 
 describe('ChimeraField', function () {
@@ -13,8 +13,8 @@ describe('ChimeraField', function () {
 				.should.eventually.be.rejectedWith(mongoose.Error.ValidationError)
 				.and.containSubset({
 					errors: {
-						name: {kind: 'unique'},
-						chimeraModelId: {kind: 'unique'}
+						name: { kind: 'unique' },
+						chimeraModelId: { kind: 'unique' }
 					}
 				});
 		});
