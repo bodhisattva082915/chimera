@@ -14,5 +14,5 @@ export default mongoose
 		`${process.env.CHIMERADB_NAME}`, {
 			useNewUrlParser: true,
 			useCreateIndex: true
-	})
+		})
 	.catch(console.error);

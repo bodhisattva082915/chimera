@@ -1,9 +1,9 @@
 import 'env';
 import chai from 'chai';
-import chaiAsPromised from "chai-as-promised";
-import chaiSubset from "chai-subset";
+import chaiAsPromised from 'chai-as-promised';
+import chaiSubset from 'chai-subset';
 import MongoMemoryServer from 'mongodb-memory-server';
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 chai.use(chaiSubset);
 chai.use(chaiAsPromised);

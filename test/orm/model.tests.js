@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 import factory from 'factory-girl';
 
 describe('ChimeraModel', function () {
-	before(async function(){
+	before(async function () {
 		this.ChimeraModel = mongoose.model('ChimeraModel');
 		this.testModel = await factory.create('ChimeraModel', {
 			name: 'TestModelA',
@@ -16,18 +16,18 @@ describe('ChimeraModel', function () {
 				.should.eventually.be.rejectedWith(mongoose.Error.ValidationError)
 				.and.containSubset({
 					errors: {
-						name: {kind: 'required'}
+						name: { kind: 'required' }
 					}
 				});
 		});
 
-		it('should enforce a uniqueness constraint {name, module}', function(){
+		it('should enforce a uniqueness constraint {name, module}', function () {
 			return new this.ChimeraModel(this.testModel.toObject()).validate()
 				.should.eventually.be.rejectedWith(mongoose.Error.ValidationError)
 				.and.containSubset({
 					errors: {
-						name: {kind: 'unique'},
-						module: {kind: 'unique'}
+						name: { kind: 'unique' },
+						module: { kind: 'unique' }
 					}
 				});
 		});
