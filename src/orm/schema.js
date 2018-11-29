@@ -1,5 +1,4 @@
 import camelCase from 'lodash/camelCase';
-import set from 'lodash/set';
 import mongoose from 'mongoose';
 
 class ChimeraSchemaError extends Error {
