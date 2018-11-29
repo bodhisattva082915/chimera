@@ -55,10 +55,9 @@ const schema = new ChimeraSchema('ChimeraField', {
 	},
 
 	/**
-	 * @mongoose-option
-	 * Used to specify a validation scheme that should performed for this field
+	 * Used to specify a validation pattern that should be performed for this field
 	 */
-	validate: {
+	validators: {
 		type: Object,
 		default: undefined
 	},
