@@ -12,6 +12,7 @@ class ChimeraSchema extends mongoose.Schema {
 	/**
      * Enhances functionality of the base mongoose Schema class for use by Chimera.
      * * Add a naming identity at the schema level. This value will be used to name the mongoose model and mongodb collection.
+	 * * Enables timestamps by default. This can be disabled throught the options argument.
      * * Adds association support between collections.
      * @param {string} name - The name to associate with the schema.
      * @param {object} fields - A mongoose schema fields definition object.
