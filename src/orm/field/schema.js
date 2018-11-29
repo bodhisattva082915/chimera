@@ -27,17 +27,13 @@ const schema = new ChimeraSchema('ChimeraField', {
 	},
 
 	/**
+	 * @mongoose-option
 	 * The primitive data-type for the contents of the field.
 	 */
 	type: {
 		type: String,
 		required: true,
-		enum: [
-			'string',
-			'number',
-			'boolean',
-			'object'
-		]
+		enum: Object.keys(mongoose.SchemaTypes)
 	},
 
 	/**
@@ -45,7 +41,7 @@ const schema = new ChimeraSchema('ChimeraField', {
 	 * Used to enforce if this field should require a value (neither null nor undefined)
 	*/
 	required: {
-		type: Boolean,
+		type: Mixed,
 		default: false
 	},
 
@@ -55,6 +51,15 @@ const schema = new ChimeraSchema('ChimeraField', {
 	 */
 	default: {
 		type: Mixed,
+		default: undefined
+	},
+
+	/**
+	 * @mongoose-option
+	 * Used to specify a validation scheme that should performed for this field
+	 */
+	validate: {
+		type: Object,
 		default: undefined
 	},
 
