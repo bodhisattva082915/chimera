@@ -2,6 +2,24 @@ import mongoose from 'mongoose';
 import ChimeraSchema from 'app/orm/schema';
 
 describe('ChimeraSchema', function () {
+	describe('config', function () {
+		it('should add new properties to mongoose schema {name}', function () {
+			const schema = new ChimeraSchema('TestSchema');
+
+			schema.name.should.equal('TestSchema');
+		});
+
+		it('should automatically enable timestamps', function () {
+			const schema = new ChimeraSchema('TestSchema');
+
+			schema.options.timestamps.should.be.true;
+			schema['$timestamps'].should.include({
+				'createdAt': 'createdAt',
+				'updatedAt': 'updatedAt'
+			});
+		});
+	});
+
 	describe('associations', function () {
 		describe('belongsTo', function () {
 			before(function () {

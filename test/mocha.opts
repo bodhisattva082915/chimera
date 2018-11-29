@@ -2,6 +2,7 @@
 --file ./test/setup.js
 --ui bdd
 --recursive
+--sort
 --timeout
 --exit
 ./test/**/*.tests.js

@@ -18,12 +18,15 @@ class ChimeraSchema extends mongoose.Schema {
      * @param {object} fields - A mongoose schema fields definition object.
      * @param {object} options - A mongoose schema options object.
      */
-	constructor (name, fields, options) {
+	constructor (name, fields, options = {}) {
 		if (!name) {
 			throw new ChimeraSchemaError(`Missing required parameter 'name'`);
 		}
 
-		set(options, 'collection', name);
+		options = {
+			timestamps: true,
+			...options
+		};
 
 		super(fields, options);
 
