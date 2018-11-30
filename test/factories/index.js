@@ -1,4 +1,7 @@
 import fs from 'fs';
+import factory, { MongooseAdapter } from 'factory-girl';
+
+factory.setAdapter(new MongooseAdapter());
 
 fs
 	.readdirSync(__dirname)
