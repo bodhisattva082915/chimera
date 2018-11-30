@@ -8,6 +8,13 @@ describe('ChimeraModel', function () {
 			name: 'TestModelA',
 			module: 'TestModuleA'
 		});
+		this.associatedFields = await factory.createMany('ChimeraField', 3, {
+			chimeraModelId: this.testModel.id
+		});
+	});
+
+	after(async function () {
+		await factory.cleanUp();
 	});
 
 	describe('schema', function () {
@@ -34,17 +41,20 @@ describe('ChimeraModel', function () {
 	});
 
 	describe('associations', function () {
-		before(async function () {
-			this.associatedFields = await factory.createMany('ChimeraField', 2, {
-				chimeraModelId: this.testModel._id
-			});
-		});
-
 		it('should have a hasMany association with ChimeraField', async function () {
-			const model = await this.ChimeraModel.findById(this.testModel._id).populate('chimeraFields').exec();
+			const model = await this.ChimeraModel.findById(this.testModel.id).populate('chimeraFields').exec();
 
 			model.should.have.property('chimeraFields');
 			model.chimeraFields.should.have.lengthOf(this.associatedFields.length);
+		});
+	});
+
+	describe('compile', function () {
+		it('should successfully register a mongoose model with a schema compiled from ChimeraFields', async function () {
+			const CompiledModel = await this.testModel.compile();
+			const instance = new CompiledModel();
+
+			instance.schema.paths.should.include.keys(...this.associatedFields.map(field => field.name));
 		});
 	});
 });
