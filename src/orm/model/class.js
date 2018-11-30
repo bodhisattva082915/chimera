@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import debounce from 'lodash/debounce';
 import ChimeraSchema from '../schema';
 
 class ChimeraModel extends mongoose.Model {
@@ -52,8 +53,6 @@ class ChimeraModel extends mongoose.Model {
 	}
 }
 
-ChimeraModel.on('compile', function (modelId) {
-	this.compile(modelId);
-});
+ChimeraModel.on('compile', ChimeraModel.compile);
 
 export default ChimeraModel;
