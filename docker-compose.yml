@@ -1,0 +1,29 @@
+version: '3.1'
+
+services:
+
+    mongo:
+        image: 'mongo'
+        container_name: 'mongo'
+        restart: 'always'
+        ports:
+            - 27017:27017
+        volumes:
+            - ./init:/docker-entrypoint-initdb.d/
+            - mongodata:/data/db
+        env_file:
+            - ./env/.env
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: root
+
+    mongo-express:
+        image: 'mongo-express'
+        container_name: 'mongo-express'
+        ports:
+            - 27018:27018
+        env_file:
+            - ./env/.env
+
+volumes:
+    mongodata:

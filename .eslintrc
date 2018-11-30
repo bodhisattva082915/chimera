@@ -1,0 +1,25 @@
+{
+    "extends": "standard",
+    "plugins": [
+        "json",
+        "mocha",
+        "chai-friendly"
+    ],
+    "env": {
+        "node": true,
+        "mocha": true
+    },
+    "globals": {
+        "should": true
+    },
+    "rules": {
+        "no-tabs":"off",
+        "semi": ["warn", "always"],
+        "indent": ["error", "tab"],
+        "no-mixed-spaces-and-tabs": ["error"],
+        "no-unused-expressions": 0,
+        "require-jsdoc": ["error"],
+        "mocha/no-exclusive-tests": "error",
+        "chai-friendly/no-unused-expressions": 2
+    }
+}
