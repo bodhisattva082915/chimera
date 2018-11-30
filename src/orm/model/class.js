@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import debounce from 'lodash/debounce';
 import ChimeraSchema from '../schema';
 
 class ChimeraModel extends mongoose.Model {
