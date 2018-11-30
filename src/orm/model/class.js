@@ -10,9 +10,9 @@ class ChimeraModel extends mongoose.Model {
      * @async
      * @returns {Promise<mongoose.Model>} - The newly registered mongoose Model
      */
-	static async compile (name) {
+	static async compile (id) {
 		const chimeraModel = await this
-			.findOne({ name })
+			.findById(id)
 			.populate('chimeraFields')
 			.exec();
 
@@ -48,8 +48,12 @@ class ChimeraModel extends mongoose.Model {
      * @returns {Promise<mongoose.Model>} - The newly registered mongoose Model
      */
 	async compile () {
-		return this.constructor.compile(this.name);
+		return this.constructor.compile(this.id);
 	}
 }
+
+ChimeraModel.on('compile', function (modelId) {
+	this.compile(modelId);
+});
 
 export default ChimeraModel;
