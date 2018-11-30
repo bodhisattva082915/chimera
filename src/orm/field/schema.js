@@ -89,6 +89,12 @@ const schema = new ChimeraSchema('ChimeraField', {
 	})
 
 	/** Indexing */
-	.index({ name: 1, chimeraModelId: 1 }, { unique: true });
+	.index({ name: 1, chimeraModelId: 1 }, { unique: true })
+
+	/** Middleware */
+	.post('save', function (field, next) {
+		mongoose.model('ChimeraModel').emit('compile', field.chimeraModelId);
+		next();
+	});
 
 export default schema;

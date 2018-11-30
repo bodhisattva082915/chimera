@@ -26,4 +26,8 @@ describe('ChimeraField', function () {
 			field.should.have.property('chimeraModel');
 		});
 	});
+
+	describe('hooks', function () {
+
+	});
 });
