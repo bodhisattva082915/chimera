@@ -1,6 +1,14 @@
 import { Router } from 'express';
 
+/**
+ * Basic resource class to generate RESTful style APIs from model definitions
+ */
 class ChimeraResource {
+	/**
+	 * Constructor
+	 * @param {object} model - The mongoose model used to generate the resource routes and controller methods
+	 * @returns {ChimeraResource} - The resource containing the model's router and route resolvers
+	 */
 	constructor (model) {
 		this.model = model;
 
@@ -13,6 +21,8 @@ class ChimeraResource {
 		this.create = this.create.bind(this);
 		this.updateById = this.updateById.bind(this);
 		this.deleteById = this.deleteById.bind(this);
+
+		this.router.use(this.defaultHeaders);
 
 		/* eslint-disable indent */
 		this.router
@@ -30,6 +40,17 @@ class ChimeraResource {
 				.patch(this.updateById)
 				.delete(this.deleteById);
 		/* eslint-enable indent */
+	}
+
+	/**
+	 * Adds default headers to route response
+	 * @param {object} req
+	 * @param {object} res
+	 * @param {function} next
+	 */
+	defaultHeaders (req, res, next) {
+		res.type('application/json');
+		next();
 	}
 
 	/**
