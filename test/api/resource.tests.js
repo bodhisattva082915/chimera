@@ -26,10 +26,18 @@ describe('ChimeraResource', function () {
 			this.res = mockRes();
 		});
 
+		it('should respond with meta information about the response data', function () {
+
+		});
+
 		it('should return a list of objects by the resource type', async function () {
 			await this.testResource.getList(this.req, this.res);
 
 			this.res.send.should.be.called;
+		});
+
+		it(`should return a filtered list of objects by using the 'filter' query param`, function () {
+
 		});
 	});
 });
