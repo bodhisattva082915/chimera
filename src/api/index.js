@@ -11,6 +11,7 @@ each(models, model => {
 	const resource = new ChimeraResource(model);
 
 	resources[resource.root] = resource;
+
 	apiRouter.use(`/${resource.root}`, resource.router);
 });
 
