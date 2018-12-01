@@ -3,15 +3,11 @@ import proxy from 'express-http-proxy';
 import './db';
 import './orm';
 import api from './api';
-// import graphql from './graphql';
 
 const app = express();
 
 /* REST API */
-app.use('/', api);
-
-/* GraphQL API */
-// app.use(graphql);
+app.use('/api', api);
 
 /* Mongo-Express UI */
 app.use('/', proxy('localhost:27018'));
