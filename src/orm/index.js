@@ -1,4 +1,8 @@
 import fs from 'fs';
+import mongoose from 'mongoose';
+import jsonschemaSupport from 'mongoose-schema-jsonschema';
+
+jsonschemaSupport(mongoose);
 
 fs
 	.readdirSync(__dirname)
