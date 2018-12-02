@@ -76,9 +76,9 @@ class ChimeraResource {
 			sort
 		};
 
-		const query = this.model.find()
+		const FilteredQuery = this.model.find().where(where).toConstructor();
+		const query = FilteredQuery()
 			.select(select)
-			.where(where)
 			.sort(sort)
 			.limit(limit)
 			.skip(skip)
@@ -88,7 +88,7 @@ class ChimeraResource {
 		let documents = [];
 		try {
 			documents = await query;
-			results.meta.count = await query.countDocuments();
+			results.meta.count = await FilteredQuery().countDocuments();
 			results.objects = documents;
 
 			res.json(results);
