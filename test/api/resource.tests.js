@@ -65,10 +65,24 @@ describe('ChimeraResource', function () {
 			results.objects.should.containSubset(this.testModelInstances.map(obj => ({ _id: obj._id })));
 		});
 
-		it(`should respond with a filtered list of objects by using the 'filter' query param`, async function () {
+		it(`should respond with a filtered list of objects by using the 'where' query param`, async function () {
+			this.req.query = {
+				where: {
+					[this.cFields[0].name]: {
+						$gte: 2,
+						$lte: 5
+					}
+				}
+			};
+
 			await this.testResource.getList(this.req, this.res, this.next);
 
 			const results = this.wasSuccessful();
+
+			results.objects.length.should.be.lt(7);
+			results.objects.forEach(obj => obj.should.satisfy(obj => {
+				return obj[this.cFields[0].name] >= 2 && obj[this.cFields[0].name] <= 5;
+			}));
 		});
 	});
 });

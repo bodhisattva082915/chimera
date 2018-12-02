@@ -81,14 +81,15 @@ class ChimeraResource {
 			.where(where)
 			.sort(sort)
 			.limit(limit)
-			.skip(skip);
+			.skip(skip)
+			.lean();
 
 		let results = { meta };
 		let documents = [];
 		try {
 			documents = await query;
 			results.meta.count = await query.countDocuments();
-			results.objects = documents.map(doc => doc.toObject());
+			results.objects = documents;
 
 			res.json(results);
 			next();
