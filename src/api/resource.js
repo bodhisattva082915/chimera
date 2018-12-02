@@ -63,8 +63,38 @@ class ChimeraResource {
 	/**
 	 * Retrieves a list of objects of the resource type
 	 */
-	getList (req, res, next) {
-		res.send('getting resource list');
+	async getList (req, res, next) {
+		const select = req.query.select || {};
+		const where = req.query.where || {};
+		const sort = req.query.sort || { createdAt: 'desc' };
+		const limit = req.query.limit || 10;
+		const page = req.query.page || 1;
+		const skip = (page - 1) * limit;
+		const meta = {
+			page,
+			limit,
+			sort
+		};
+
+		const query = this.model.find()
+			.select(select)
+			.where(where)
+			.sort(sort)
+			.limit(limit)
+			.skip(skip);
+
+		let results = { meta };
+		let documents = [];
+		try {
+			documents = await query;
+			results.meta.count = await query.countDocuments();
+			results.objects = documents.map(doc => doc.toObject());
+
+			res.json(results);
+			next();
+		} catch (err) {
+			res.status(400).json(err);
+		}
 	}
 
 	/**
