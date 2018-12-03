@@ -154,5 +154,17 @@ describe('ChimeraResource', function () {
 			results.objects[0][this.testField.name].should.equal(5);
 			results.objects[1][this.testField.name].should.equal(4);
 		});
+
+		it(`should respond with list of objects with only properties as specified by the 'select' query param`, async function () {
+			this.req.query = {
+				select: [this.testField.name]
+			};
+
+			await this.testResource.getList(this.req, this.res, this.next);
+
+			const results = this.wasSuccessful();
+
+			results.objects.forEach(obj => Object.keys(obj).should.deep.equal(this.req.query.select));
+		});
 	});
 });
