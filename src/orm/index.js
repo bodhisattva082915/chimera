@@ -1,8 +1,11 @@
 import fs from 'fs';
 import mongoose from 'mongoose';
 import jsonschemaSupport from 'mongoose-schema-jsonschema';
+import toJSONTransformation from './plugins/toJSONTransformations';
 
 jsonschemaSupport(mongoose);
+
+mongoose.plugin(toJSONTransformation);
 
 fs
 	.readdirSync(__dirname)

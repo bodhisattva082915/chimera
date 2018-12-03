@@ -81,13 +81,16 @@ class ChimeraResource {
 			.select(select)
 			.sort(sort)
 			.limit(limit)
-			.skip(skip)
-			.lean();
+			.skip(skip);
 
 		let results = { meta };
 		let documents = [];
 		try {
 			documents = await query;
+			documents = documents.map(doc => doc.toJSON());
+
+			this._applySelectToVirutals(documents, select);
+
 			results.meta.count = await FilteredQuery().countDocuments();
 			results.objects = documents;
 
@@ -125,6 +128,28 @@ class ChimeraResource {
 	 */
 	deleteById (req, res, next) {
 		res.send('deleting resource');
+	}
+
+	/**
+	 * By default, toJSON includes virtual properties during transformation. The method mutates the supplied obj/objs by
+	 * removing virtual properties not in the list of selected fields.
+	 * @param {(object|[object])} input - An object or array objects to apply transformations
+	 * @param {[string]} select - An array of properties to keep on the obj/objs
+	 * @returns {void} - Transforms the input to conform to the select argument.
+	 */
+	_applySelectToVirutals (objs, select) {
+		let applyTo;
+		if (!Array.isArray(objs)) {
+			applyTo = [objs];
+		} else {
+			applyTo = objs;
+		}
+
+		applyTo.forEach(obj => {
+			Object.keys(obj)
+				.filter(field => !select.includes(field))
+				.forEach(fieldToRemove => delete obj[fieldToRemove]);
+		});
 	}
 }
 
