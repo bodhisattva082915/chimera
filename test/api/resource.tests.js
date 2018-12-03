@@ -225,4 +225,10 @@ describe('ChimeraResource', function () {
 			results.data.should.containSubset(this.req.body);
 		});
 	});
+
+	describe('updateById', function () {
+		it('should update by id', async function () {
+			await this.testResource.updateById(this.req, this.res, this.next);
+		});
+	});
 });

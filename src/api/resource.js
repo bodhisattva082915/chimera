@@ -88,8 +88,8 @@ class ChimeraResource {
 			results.data = document;
 			res.status(200).json(results);
 			next();
-		} catch (error) {
-			res.status(400).json(error);
+		} catch (err) {
+			next(err);
 		}
 	}
 
@@ -135,7 +135,7 @@ class ChimeraResource {
 			res.status(200).json(results);
 			next();
 		} catch (err) {
-			res.status(400).json(err);
+			next(err);
 		}
 	}
 
@@ -174,11 +174,8 @@ class ChimeraResource {
 			results.data = document.toJSON();
 
 			res.status(201).json(results);
-		} catch (error) {
-			results.error = {
-				code: http.STATUS_CODES[400],
-				message: error.message
-			};
+		} catch (err) {
+			next(err);
 		}
 
 	}
@@ -187,7 +184,7 @@ class ChimeraResource {
 	 * Updates a single object by id of the resource type
 	 */
 	updateById (req, res, next) {
-		res.send('updating resource');
+
 	}
 
 	/**
