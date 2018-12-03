@@ -61,6 +61,7 @@ class ChimeraResource {
 		const select = req.query.select || [];
 		const query = await this.model.findById(id).select(select);
 
+		let results = {};
 		let document;
 		try {
 			document = await query;
@@ -68,7 +69,8 @@ class ChimeraResource {
 
 			this._applySelectToVirutals(document, select);
 
-			res.json(document);
+			results.data = document;
+			res.json(results);
 			next();
 		} catch (error) {
 			res.status(400).json(error);
@@ -112,7 +114,7 @@ class ChimeraResource {
 			}
 
 			results.meta.count = await FilteredQuery().countDocuments();
-			results.objects = documents;
+			results.data = documents;
 
 			res.json(results);
 			next();
