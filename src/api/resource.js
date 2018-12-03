@@ -14,6 +14,7 @@ class ChimeraResource {
 		403: 'UNAUTHORIZED',
 		404: 'NON_EXISTENT_RESOURCE',
 		409: 'RESOURCE_CONFLICT',
+		422: 'UNPROCESSABLE_ENTITY',
 		500: 'INTERNAL_SERVER_ERROR',
 		502: 'INTERNAL_TIMEOUT'
 	}
@@ -98,7 +99,7 @@ class ChimeraResource {
 			}
 
 			results.data = document;
-			res.json(results);
+			res.status(200).json(results);
 			next();
 		} catch (error) {
 			res.status(400).json(error);
@@ -144,7 +145,7 @@ class ChimeraResource {
 			results.meta.count = await FilteredQuery().countDocuments();
 			results.data = documents;
 
-			res.json(results);
+			res.status(200).json(results);
 			next();
 		} catch (err) {
 			res.status(400).json(err);
@@ -162,8 +163,37 @@ class ChimeraResource {
 	/**
 	 * Create an object of the resource type using the request body as input
 	 */
-	create (req, res, next) {
-		res.send('creating resource');
+	async create (req, res, next) {
+		const body = req.body;
+		const Model = this.model;
+		const instance = new Model(body);
+		const results = {};
+
+		try {
+			await instance.validate();
+		} catch (validationError) {
+			results.error = {
+				code: ChimeraResource.statusCodes[422],
+				message: `Request body fails schema validation.`,
+				validationErrors: validationError.errors
+			};
+
+			res.status(422).json(results);
+		}
+
+		let document;
+		try {
+			document = await instance.save();
+			results.data = document.toJSON();
+
+			res.status(201).json(results);
+		} catch (error) {
+			results.error = {
+				code: ChimeraResource.statusCodes[400],
+				message: error.message
+			};
+		}
+
 	}
 
 	/**

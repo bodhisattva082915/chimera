@@ -208,4 +208,20 @@ describe('ChimeraResource', function () {
 			results.data.forEach(obj => Object.keys(obj).should.deep.equal(this.req.query.select));
 		});
 	});
+
+	describe('create', function () {
+		it(`should respond with the newly created object of the resource type`, async function () {
+			this.req.body = this.cFields.reduce((body, field) => ({
+				...body,
+				[field.name]: factory.chance('integer')()
+			}), {});
+
+			await this.testResource.create(this.req, this.res, this.next);
+
+			const results = this.wasSuccessful();
+
+			results.data.should.have.property('id');
+			results.data.should.containSubset(this.req.body);
+		});
+	});
 });
