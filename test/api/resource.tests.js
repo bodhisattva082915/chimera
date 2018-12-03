@@ -67,7 +67,7 @@ describe('ChimeraResource', function () {
 			const results = this.wasSuccessful();
 
 			results.objects.should.have.lengthOf(7);
-			results.objects.should.containSubset(this.testModelInstances.map(obj => ({ _id: obj._id })));
+			results.objects.should.containSubset(this.testModelInstances.map(obj => ({ id: obj.id })));
 		});
 
 		it(`should respond with a filtered list of objects by using the 'where' query param`, async function () {
