@@ -1,4 +1,5 @@
 import factory from 'factory-girl';
+import mongoose from 'mongoose';
 import sinon from 'sinon';
 import { mockReq, mockRes } from 'sinon-express-mock';
 import ChimeraResource from 'app/api/resource';
@@ -41,6 +42,15 @@ describe('ChimeraResource', function () {
 
 			return this.res.json.getCall(0).args[0];
 		};
+
+		this.wasFailure = function (statusCode) {
+			this.res.status.should.have.been.calledWith(statusCode);
+			this.res.json.should.have.been.calledOnce;
+			this.res.json.getCall(0).args.should.not.be.empty;
+			this.res.json.getCall(0).args[0].should.be.an('object');
+
+			return this.res.json.getCall(0).args[0];
+		};
 	});
 
 	afterEach(function () {
@@ -58,7 +68,21 @@ describe('ChimeraResource', function () {
 
 			const results = this.wasSuccessful();
 
-			// results.data
+			results.data.should.be.an('object');
+			results.data.id.should.equal(instance.id);
+		});
+
+		it('should respond with a 404 status code and error object when the object does not exist', async function () {
+			this.req.params = {
+				id: mongoose.Types.ObjectId()
+			};
+
+			await this.testResource.getById(this.req, this.res, this.next);
+
+			const results = this.wasFailure(404);
+
+			results.should.have.property('error');
+			results.error.code.should.equal('NON_EXISTENT_RESOURCE');
 		});
 	});
 
@@ -68,6 +92,7 @@ describe('ChimeraResource', function () {
 
 			const results = this.wasSuccessful();
 
+			results.should.have.property('meta');
 			results.meta.should.containSubset({
 				page: 1,
 				limit: 10,
@@ -81,6 +106,7 @@ describe('ChimeraResource', function () {
 
 			const results = this.wasSuccessful();
 
+			results.data.should.be.an('array');
 			results.data.should.have.lengthOf(7);
 			results.data.should.containSubset(this.testModelInstances.map(obj => ({ id: obj.id })));
 		});
