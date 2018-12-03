@@ -29,25 +29,40 @@ describe('ChimeraResource', function () {
 		await factory.cleanUp();
 	});
 
-	describe('getList', function () {
-		beforeEach(function () {
-			this.req = mockReq();
-			this.res = mockRes();
-			this.next = () => null;
+	beforeEach(function () {
+		this.req = mockReq();
+		this.res = mockRes();
+		this.next = () => null;
 
-			this.wasSuccessful = function () {
-				this.res.json.should.have.been.calledOnce;
-				this.res.json.getCall(0).args.should.not.be.empty;
-				this.res.json.getCall(0).args[0].should.be.an('object');
+		this.wasSuccessful = function () {
+			this.res.json.should.have.been.calledOnce;
+			this.res.json.getCall(0).args.should.not.be.empty;
+			this.res.json.getCall(0).args[0].should.be.an('object');
 
-				return this.res.json.getCall(0).args[0];
+			return this.res.json.getCall(0).args[0];
+		};
+	});
+
+	afterEach(function () {
+		sinon.restore();
+	});
+
+	describe('getById', function () {
+		it(`should respond with an object by the resource type and specified id`, async function () {
+			const instance = await this.testModelInstances[0];
+			this.req.params = {
+				id: instance.id
 			};
-		});
 
-		afterEach(function () {
-			sinon.restore();
-		});
+			await this.testResource.getById(this.req, this.res, this.next);
 
+			const results = this.wasSuccessful();
+
+			// results.data
+		});
+	});
+
+	describe('getList', function () {
 		it('should respond with meta information about the response data', async function () {
 			await this.testResource.getList(this.req, this.res, this.next);
 
@@ -66,8 +81,8 @@ describe('ChimeraResource', function () {
 
 			const results = this.wasSuccessful();
 
-			results.objects.should.have.lengthOf(7);
-			results.objects.should.containSubset(this.testModelInstances.map(obj => ({ id: obj.id })));
+			results.data.should.have.lengthOf(7);
+			results.data.should.containSubset(this.testModelInstances.map(obj => ({ id: obj.id })));
 		});
 
 		it(`should respond with a filtered list of objects by using the 'where' query param`, async function () {
@@ -84,8 +99,8 @@ describe('ChimeraResource', function () {
 
 			const results = this.wasSuccessful();
 
-			results.objects.length.should.be.lt(7);
-			results.objects.forEach(obj => obj.should.satisfy(obj => {
+			results.data.length.should.be.lt(7);
+			results.data.forEach(obj => obj.should.satisfy(obj => {
 				return obj[this.cFields[0].name] >= 2 && obj[this.cFields[0].name] <= 5;
 			}));
 		});
@@ -101,12 +116,12 @@ describe('ChimeraResource', function () {
 
 			const results = this.wasSuccessful();
 
-			results.objects.forEach((obj, index) => obj.should.satisfy(curr => {
+			results.data.forEach((obj, index) => obj.should.satisfy(curr => {
 				if (index === 0) {
 					return true;
 				}
 
-				const prev = results.objects[index - 1];
+				const prev = results.data[index - 1];
 
 				return curr[this.testField.name] <= prev[this.testField.name];
 			}));
@@ -122,7 +137,7 @@ describe('ChimeraResource', function () {
 			const results = this.wasSuccessful();
 
 			// The document set should be no more than the limit
-			results.objects.length.should.be.lte(3);
+			results.data.length.should.be.lte(3);
 
 			// The meta object should match the req limit
 			results.meta.limit.should.equal(3);
@@ -150,9 +165,9 @@ describe('ChimeraResource', function () {
 			// Page 2 should contain specific fields values since the query was sorted with
 			// an entire document set of 7 objects with a sequence field in descending order
 			results.meta.count.should.equal(7);
-			results.objects.should.have.lengthOf(2);
-			results.objects[0][this.testField.name].should.equal(5);
-			results.objects[1][this.testField.name].should.equal(4);
+			results.data.should.have.lengthOf(2);
+			results.data[0][this.testField.name].should.equal(5);
+			results.data[1][this.testField.name].should.equal(4);
 		});
 
 		it(`should respond with list of objects with only properties as specified by the 'select' query param`, async function () {
@@ -164,7 +179,7 @@ describe('ChimeraResource', function () {
 
 			const results = this.wasSuccessful();
 
-			results.objects.forEach(obj => Object.keys(obj).should.deep.equal(this.req.query.select));
+			results.data.forEach(obj => Object.keys(obj).should.deep.equal(this.req.query.select));
 		});
 	});
 });
