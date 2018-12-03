@@ -4,6 +4,20 @@ import { Router } from 'express';
  * Basic resource class to generate RESTful style APIs from model definitions
  */
 class ChimeraResource {
+
+	static statusCodes = {
+		200: 'OK',
+		201: 'CREATED',
+		204: 'NO_CONTENT',
+		400: 'MALFORMED_REQUEST',
+		401: 'UNAUTHENTICATED',
+		403: 'UNAUTHORIZED',
+		404: 'NON_EXISTENT_RESOURCE',
+		409: 'RESOURCE_CONFLICT',
+		500: 'INTERNAL_SERVER_ERROR',
+		502: 'INTERNAL_TIMEOUT'
+	}
+
 	/**
 	 * Constructor
 	 * @param {object} model - The mongoose model used to generate the resource routes and controller methods
@@ -54,20 +68,34 @@ class ChimeraResource {
 	}
 
 	/**
-	 * Retrieves a single object by id of the resource type
+	 * Retrieves a single object of the resource type by id
 	 */
 	async getById (req, res, next) {
 		const id = req.params.id;
 		const select = req.query.select || [];
-		const query = await this.model.findById(id).select(select);
+		const query = await this.model.findById(id);
+
+		if (select.length) {
+			query.select(select);
+		}
 
 		let results = {};
 		let document;
 		try {
 			document = await query;
+			if (!document) {
+				results.error = {
+					code: ChimeraResource.statusCodes[404],
+					message: `${this.model.modelName} by id ${id} does not exist.`
+				};
+
+				return res.status(404).json(results);
+			}
 			document = document.toJSON();
 
-			this._applySelectToVirutals(document, select);
+			if (select.length) {
+				this._applySelectToVirutals(document, select);
+			}
 
 			results.data = document;
 			res.json(results);
