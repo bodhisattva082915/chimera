@@ -1,23 +1,10 @@
 import { Router } from 'express';
+import http from 'http';
 
 /**
  * Basic resource class to generate RESTful style APIs from model definitions
  */
 class ChimeraResource {
-
-	static statusCodes = {
-		200: 'OK',
-		201: 'CREATED',
-		204: 'NO_CONTENT',
-		400: 'MALFORMED_REQUEST',
-		401: 'UNAUTHENTICATED',
-		403: 'UNAUTHORIZED',
-		404: 'NON_EXISTENT_RESOURCE',
-		409: 'RESOURCE_CONFLICT',
-		422: 'UNPROCESSABLE_ENTITY',
-		500: 'INTERNAL_SERVER_ERROR',
-		502: 'INTERNAL_TIMEOUT'
-	}
 
 	/**
 	 * Constructor
@@ -86,7 +73,7 @@ class ChimeraResource {
 			document = await query;
 			if (!document) {
 				results.error = {
-					code: ChimeraResource.statusCodes[404],
+					code: http.STATUS_CODES[404],
 					message: `${this.model.modelName} by id ${id} does not exist.`
 				};
 
@@ -173,7 +160,7 @@ class ChimeraResource {
 			await instance.validate();
 		} catch (validationError) {
 			results.error = {
-				code: ChimeraResource.statusCodes[422],
+				code: http.STATUS_CODES[422],
 				message: `Request body fails schema validation.`,
 				validationErrors: validationError.errors
 			};
@@ -189,7 +176,7 @@ class ChimeraResource {
 			res.status(201).json(results);
 		} catch (error) {
 			results.error = {
-				code: ChimeraResource.statusCodes[400],
+				code: http.STATUS_CODES[400],
 				message: error.message
 			};
 		}

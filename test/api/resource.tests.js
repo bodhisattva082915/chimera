@@ -1,5 +1,6 @@
 import factory from 'factory-girl';
 import mongoose from 'mongoose';
+import http from 'http';
 import sinon from 'sinon';
 import { mockReq, mockRes } from 'sinon-express-mock';
 import ChimeraResource from 'app/api/resource';
@@ -82,7 +83,7 @@ describe('ChimeraResource', function () {
 			const results = this.wasFailure(404);
 
 			results.should.have.property('error');
-			results.error.code.should.equal('NON_EXISTENT_RESOURCE');
+			results.error.code.should.equal(http.STATUS_CODES[404]);
 		});
 	});
 
