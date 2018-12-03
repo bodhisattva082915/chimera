@@ -56,15 +56,30 @@ class ChimeraResource {
 	/**
 	 * Retrieves a single object by id of the resource type
 	 */
-	getById (req, res, next) {
-		res.send('getting by id');
+	async getById (req, res, next) {
+		const id = req.params.id;
+		const select = req.query.select || [];
+		const query = await this.model.findById(id).select(select);
+
+		let document;
+		try {
+			document = await query;
+			document = document.toJSON();
+
+			this._applySelectToVirutals(document, select);
+
+			res.json(document);
+			next();
+		} catch (error) {
+			res.status(400).json(error);
+		}
 	}
 
 	/**
 	 * Retrieves a list of objects of the resource type
 	 */
 	async getList (req, res, next) {
-		const select = req.query.select || {};
+		const select = req.query.select || [];
 		const where = req.query.where || {};
 		const sort = req.query.sort || { createdAt: 'desc' };
 		const limit = req.query.limit || 10;
@@ -78,10 +93,13 @@ class ChimeraResource {
 
 		const FilteredQuery = this.model.find().where(where).toConstructor();
 		const query = FilteredQuery()
-			.select(select)
 			.sort(sort)
 			.limit(limit)
 			.skip(skip);
+
+		if (select.length) {
+			query.select(select);
+		}
 
 		let results = { meta };
 		let documents = [];
@@ -89,7 +107,9 @@ class ChimeraResource {
 			documents = await query;
 			documents = documents.map(doc => doc.toJSON());
 
-			this._applySelectToVirutals(documents, select);
+			if (select.length) {
+				this._applySelectToVirutals(documents, select);
+			}
 
 			results.meta.count = await FilteredQuery().countDocuments();
 			results.objects = documents;
