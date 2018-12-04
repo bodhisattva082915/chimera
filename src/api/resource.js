@@ -1,5 +1,6 @@
-import { Router } from 'express';
 import http from 'http';
+import { Router } from 'express';
+import mongoose from 'mongoose';
 
 /**
  * Basic resource class to generate RESTful style APIs from model definitions
@@ -181,10 +182,31 @@ class ChimeraResource {
 	}
 
 	/**
-	 * Updates a single object by id of the resource type
+	 * Updates a single object of the resource type by id. This differs from replace by id in that this method
+	 * will only modify fields passed in the request body.
 	 */
-	updateById (req, res, next) {
+	async updateById (req, res, next) {
+		const id = req.params.id;
+		const body = req.body;
+		const Model = this.model;
+		const results = {};
 
+		const document = await Model.findById(id);
+		if (!document) {
+			next(new mongoose.Error.DocumentNotFoundError());
+		}
+
+		document.set(body);
+
+		try {
+			await document.validate();
+			await document.save();
+
+			results.data = document.toJSON();
+			res.status(200).json(results);
+		} catch (err) {
+			next(err);
+		}
 	}
 
 	/**
