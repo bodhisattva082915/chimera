@@ -254,4 +254,22 @@ describe('ChimeraResource', function () {
 			});
 		});
 	});
+
+	describe('deleteById', function () {
+		before(function () {
+			this.instance = this.testModelInstances[0].toJSON();
+		});
+
+		it('should delete an object of the resource type by id', async function () {
+			this.req.params = { id: this.instance.id };
+
+			await this.testResource.deleteById(this.req, this.res, this.next);
+
+			const results = this.wasSuccessful();
+
+			results.should.have.property('data');
+			results.data.should.be.an('object');
+			results.data.id.should.equal(this.req.params.id);
+		});
+	});
 });
