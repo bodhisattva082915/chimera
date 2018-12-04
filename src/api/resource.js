@@ -212,8 +212,18 @@ class ChimeraResource {
 	/**
 	 * Archives / Deletes a single object by id of the resource type
 	 */
-	deleteById (req, res, next) {
-		res.send('deleting resource');
+	async deleteById (req, res, next) {
+		const id = req.params.id;
+		const Model = this.model;
+		const results = {};
+
+		const document = await Model.findByIdAndDelete(id);
+		if (!document) {
+			next(new mongoose.Error.DocumentNotFoundError());
+		}
+
+		results.data = document.toJSON();
+		res.status(200).json(results);
 	}
 
 	/**
