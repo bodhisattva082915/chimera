@@ -34,7 +34,11 @@ describe('ChimeraResource', function () {
 	beforeEach(function () {
 		this.req = mockReq();
 		this.res = mockRes();
-		this.next = () => null;
+		this.next = err => {
+			if (err) {
+				throw err;
+			}
+		};
 
 		this.wasSuccessful = function () {
 			this.res.json.should.have.been.calledOnce;
@@ -227,8 +231,27 @@ describe('ChimeraResource', function () {
 	});
 
 	describe('updateById', function () {
-		it('should update by id', async function () {
+		before(function () {
+			this.instance = this.testModelInstances[0].toJSON();
+		});
+
+		it('should update an object of the resource type by id, only modifying fields in the request body', async function () {
+			this.req.params = { id: this.instance.id };
+			this.req.body = this.cFields.reduce((body, field) => ({
+				...body,
+				[field.name]: factory.chance('integer')()
+			}), {});
+
 			await this.testResource.updateById(this.req, this.res, this.next);
+
+			const results = this.wasSuccessful();
+
+			results.should.have.property('data');
+			results.data.should.be.an('object');
+			results.data.id.should.equal(this.req.params.id);
+			results.data.should.containSubset({
+				...this.req.body
+			});
 		});
 	});
 });
