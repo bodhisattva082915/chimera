@@ -207,13 +207,20 @@ class ChimeraResource {
 		const Model = this.model;
 		const results = {};
 
-		const document = await Model.findByIdAndDelete(id);
-		if (!document) {
-			next(new mongoose.Error.DocumentNotFoundError());
-		}
+		let document;
+		try {
+			document = await Model.findByIdAndDelete(id);
+			if (!document) {
+				throw new mongoose.Error.DocumentNotFoundError(
+					`'${id}' does not exist in collection ${this.model.modelName}`
+				);
+			}
 
-		results.data = document.toJSON();
-		res.status(200).json(results);
+			results.data = document.toJSON();
+			res.status(200).json(results);
+		} catch (err) {
+			next(err);
+		}
 	}
 
 	/**
