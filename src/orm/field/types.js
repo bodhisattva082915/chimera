@@ -13,6 +13,17 @@ export class Email extends mongoose.SchemaType {
 	}
 }
 
+/**
+ * TODO: Other types to support natively
+ * * Currency
+ * * Postal Code
+ * * Phone
+ * * IP Address
+ * * URL
+ * * UUID
+ * * Function Fields
+ */
+
 mongoose.Schema.Types = {
 	...mongoose.Schema.Types,
 
