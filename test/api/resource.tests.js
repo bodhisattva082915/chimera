@@ -260,6 +260,13 @@ describe('ChimeraResource', function () {
 			});
 		});
 
+		it('should throw a DocumentDoesNotExist error when the object does not exist by the specified id', function () {
+			this.req.params = { id: mongoose.Types.ObjectId() };
+
+			return this.testResource.updateById(this.req, this.res, this.next)
+				.should.be.rejectedWith(mongoose.Error.DocumentNotFoundError);
+		});
+
 		it('should throw a ValidationError when the request body does not pass the resource model validation', function () {
 			this.req.params = { id: this.instance.id };
 			this.req.body = this.cFields.reduce((body, field) => ({
@@ -287,6 +294,13 @@ describe('ChimeraResource', function () {
 			results.should.have.property('data');
 			results.data.should.be.an('object');
 			results.data.id.should.equal(this.req.params.id);
+		});
+
+		it('should throw a DocumentDoesNotExist error when the object does not exist by the specified id', function () {
+			this.req.params = { id: mongoose.Types.ObjectId() };
+
+			return this.testResource.deleteById(this.req, this.res, this.next)
+				.should.be.rejectedWith(mongoose.Error.DocumentNotFoundError);
 		});
 	});
 });
