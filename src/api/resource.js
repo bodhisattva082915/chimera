@@ -1,4 +1,3 @@
-import http from 'http';
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import * as errorResponses from './responses';
@@ -77,7 +76,7 @@ class ChimeraResource {
 			document = await query;
 			if (!document) {
 				throw new mongoose.Error.DocumentNotFoundError(
-					`${id} does not exist in collection ${this.model.modelName}`
+					`'${id}' does not exist in collection ${this.model.modelName}`
 				);
 			}
 
@@ -155,26 +154,14 @@ class ChimeraResource {
 	async create (req, res, next) {
 		const body = req.body;
 		const Model = this.model;
-		const instance = new Model(body);
+		const document = new Model(body);
 		const results = {};
 
 		try {
-			await instance.validate();
-		} catch (validationError) {
-			results.error = {
-				code: http.STATUS_CODES[422],
-				message: `Request body fails schema validation.`,
-				validationErrors: validationError.errors
-			};
+			await document.validate();
+			await document.save();
 
-			res.status(422).json(results);
-		}
-
-		let document;
-		try {
-			document = await instance.save();
 			results.data = document.toJSON();
-
 			res.status(201).json(results);
 		} catch (err) {
 			next(err);
@@ -194,7 +181,9 @@ class ChimeraResource {
 
 		const document = await Model.findById(id);
 		if (!document) {
-			next(new mongoose.Error.DocumentNotFoundError());
+			throw new mongoose.Error.DocumentNotFoundError(
+				`'${id}' does not exist in collection ${this.model.modelName}`
+			);
 		}
 
 		document.set(body);

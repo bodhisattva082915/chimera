@@ -7,27 +7,11 @@ import * as errorResponses from 'app/api/responses';
 
 describe('ChimeraResourceErrors', function () {
 	before(async function () {
-		this.testModel = mongoose.model(factory.chance('word')(), new mongoose.Schema({
-			field1: String,
-			field2: {
-				type: String,
-				required: true
-			},
-			field3: {
-				type: Number,
-				enum: [1, 2, 3]
-			}
-		}));
-
-		// factory.define(this.testModel.modelName, this.testModel, {
-		// 	field1: factory.chance('word')(),
-		// 	field2: factory.chance('word')(),
-		// 	field3: factory.chance('integer', { min: 1, max: 3 })
-		// });
-
-		// this.testModelInstances = await factory.createMany(this.testModel.modelName, 5);
+		this.testModel = mongoose.model(factory.chance('word')(), new mongoose.Schema());
 		this.testResource = new ChimeraResource(this.testModel);
+
 		this.documentDoesNotExist = errorResponses.documentDoesNotExist;
+		this.validationFailed = errorResponses.validationFailed;
 	});
 
 	after(async function () {
@@ -70,4 +54,17 @@ describe('ChimeraResourceErrors', function () {
 		});
 	});
 
+	describe('validationFailed', function () {
+		it('should handle responses when controllers throw ValidationError', function () {
+			const err = new mongoose.Error.ValidationError();
+
+			this.testResource.router.stack.should.containSubset([{
+				name: this.validationFailed.name
+			}]);
+
+			this.validationFailed(err, this.req, this.res, this.next);
+			const response = this.wasHandled(422);
+			response.error.should.have.property('validationErrors');
+		});
+	});
 });

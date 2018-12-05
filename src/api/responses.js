@@ -23,7 +23,7 @@ export function documentDoesNotExist (err, req, res, next) {
 /**
  * Express error handler for failed validation. Responds with statusCode 422.
  */
-export function malformedRequest (err, req, res, next) {
+export function validationFailed (err, req, res, next) {
 	if (err instanceof mongoose.Error.ValidationError) {
 		res.status(422).json({
 			error: {
@@ -34,7 +34,7 @@ export function malformedRequest (err, req, res, next) {
 			}
 		});
 
-		next();
+		return next();
 	}
 
 	next(err);
