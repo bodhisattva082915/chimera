@@ -224,6 +224,16 @@ describe('ChimeraResource', function () {
 			results.data.should.have.property('id');
 			results.data.should.containSubset(this.req.body);
 		});
+
+		it('should throw a ValidationError when the request body does not pass the resource model validation', function () {
+			this.req.body = this.cFields.reduce((body, field) => ({
+				...body,
+				[field.name]: factory.chance('word')()
+			}), {});
+
+			return this.testResource.create(this.req, this.res, this.next)
+				.should.be.rejectedWith(mongoose.Error.ValidationError);
+		});
 	});
 
 	describe('updateById', function () {
@@ -248,6 +258,17 @@ describe('ChimeraResource', function () {
 			results.data.should.containSubset({
 				...this.req.body
 			});
+		});
+
+		it('should throw a ValidationError when the request body does not pass the resource model validation', function () {
+			this.req.params = { id: this.instance.id };
+			this.req.body = this.cFields.reduce((body, field) => ({
+				...body,
+				[field.name]: factory.chance('word')()
+			}), {});
+
+			return this.testResource.updateById(this.req, this.res, this.next)
+				.should.be.rejectedWith(mongoose.Error.ValidationError);
 		});
 	});
 
