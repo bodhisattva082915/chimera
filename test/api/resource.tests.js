@@ -1,6 +1,5 @@
 import factory from 'factory-girl';
 import mongoose from 'mongoose';
-import http from 'http';
 import sinon from 'sinon';
 import { mockReq, mockRes } from 'sinon-express-mock';
 import ChimeraResource from 'app/api/resource';
