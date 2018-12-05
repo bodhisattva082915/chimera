@@ -77,17 +77,13 @@ describe('ChimeraResource', function () {
 			results.data.id.should.equal(instance.id);
 		});
 
-		it('should respond with a 404 status code and error object when the object does not exist', async function () {
+		it('should throw a DocumentDoesNotExist error when the object does not exist by the specified id', function () {
 			this.req.params = {
 				id: mongoose.Types.ObjectId()
 			};
 
-			await this.testResource.getById(this.req, this.res, this.next);
-
-			const results = this.wasFailure(404);
-
-			results.should.have.property('error');
-			results.error.code.should.equal(http.STATUS_CODES[404]);
+			return this.testResource.getById(this.req, this.res, this.next)
+				.should.be.rejectedWith(mongoose.Error.DocumentNotFoundError);
 		});
 	});
 
