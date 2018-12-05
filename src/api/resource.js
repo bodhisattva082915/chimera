@@ -1,6 +1,7 @@
 import http from 'http';
 import { Router } from 'express';
 import mongoose from 'mongoose';
+import * as errorResponses from './responses';
 
 /**
  * Basic resource class to generate RESTful style APIs from model definitions
@@ -43,6 +44,8 @@ class ChimeraResource {
 				.patch(this.updateById)
 				.delete(this.deleteById);
 		/* eslint-enable indent */
+
+		this.router.use(...Object.values(errorResponses));
 	}
 
 	/**
@@ -73,13 +76,11 @@ class ChimeraResource {
 		try {
 			document = await query;
 			if (!document) {
-				results.error = {
-					code: http.STATUS_CODES[404],
-					message: `${this.model.modelName} by id ${id} does not exist.`
-				};
-
-				return res.status(404).json(results);
+				throw new mongoose.Error.DocumentNotFoundError(
+					`${id} does not exist in collection ${this.model.modelName}`
+				);
 			}
+
 			document = document.toJSON();
 
 			if (select.length) {
