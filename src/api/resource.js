@@ -75,9 +75,7 @@ class ChimeraResource {
 		try {
 			document = await query;
 			if (!document) {
-				throw new mongoose.Error.DocumentNotFoundError(
-					`'${id}' does not exist in collection ${this.model.modelName}`
-				);
+				throw new mongoose.Error.DocumentNotFoundError(id);
 			}
 
 			document = document.toJSON();
@@ -181,9 +179,7 @@ class ChimeraResource {
 
 		const document = await Model.findById(id);
 		if (!document) {
-			throw new mongoose.Error.DocumentNotFoundError(
-				`'${id}' does not exist in collection ${this.model.modelName}`
-			);
+			throw new mongoose.Error.DocumentNotFoundError(id);
 		}
 
 		document.set(body);
@@ -211,9 +207,7 @@ class ChimeraResource {
 		try {
 			document = await Model.findByIdAndDelete(id);
 			if (!document) {
-				throw new mongoose.Error.DocumentNotFoundError(
-					`'${id}' does not exist in collection ${this.model.modelName}`
-				);
+				throw new mongoose.Error.DocumentNotFoundError(id);
 			}
 
 			results.data = document.toJSON();
