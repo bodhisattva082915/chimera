@@ -31,3 +31,34 @@ describe('ChimeraField', function () {
 
 	});
 });
+
+describe('ChimeraFieldTypes', function () {
+	beforeEach(function () {
+		this.schema = new mongoose.Schema();
+		this.modelName = 'CustomTypeTest';
+	});
+
+	afterEach(function () {
+		mongoose.deleteModel(this.modelName);
+	});
+
+	describe('Email', function () {
+		it('should validate input values as strings following an email pattern', function () {
+			this.schema.add({ emailField: 'email' });
+
+			const ModelWithEmail = mongoose.model(this.modelName, this.schema);
+			const isInvalid = new ModelWithEmail({ emailField: 'notAnEmail' }).validateSync();
+			const isValid = new ModelWithEmail({ emailField: 'test.email@domain.com' }).validateSync();
+
+			should.exist(isInvalid);
+			should.not.exist(isValid);
+
+			isInvalid.should.be.an.instanceof(mongoose.Error.ValidationError);
+			isInvalid.errors.should.containSubset({
+				emailField: {
+					name: 'CastError'
+				}
+			});
+		});
+	});
+});
