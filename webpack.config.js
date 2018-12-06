@@ -1,5 +1,6 @@
 const nodeExternals = require('webpack-node-externals');
 const NodemonPlugin = require('nodemon-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
 	mode: process.env.NODE_ENV || 'production',
@@ -12,6 +13,15 @@ module.exports = {
 	plugins: [
 		new NodemonPlugin()
 	],
+	optimization: {
+		minimizer: [
+			new UglifyJsPlugin({
+				uglifyOptions: {
+					keep_fnames: true
+				}
+			})
+		]
+	},
 	module: {
 		rules: [
 			{
