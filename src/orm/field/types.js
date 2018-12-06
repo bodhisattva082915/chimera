@@ -6,6 +6,10 @@ import isUUID from 'validator/lib/isUUID';
 import { isMobilePhoneLocales } from 'validator';
 
 export class Email extends mongoose.SchemaType {
+	constructor (...args) {
+		super(...args, 'Email');
+	}
+
 	cast (val) {
 		const _val = String(val);
 
@@ -35,8 +39,9 @@ export class Phone extends mongoose.SchemaType {
 			}
 		}
 
-		super(...args);
+		super(...args, 'Phone');
 	}
+
 	cast (val) {
 		const _val = String(val);
 		const _validatorOpts = pick(this.options, ['strictMode']);
@@ -58,7 +63,7 @@ export class UUID extends mongoose.SchemaType {
 			throw new Error(`${_opts.version} is not a valid version value for SchemaType UUID. [${versions.join(',')}]`);
 		}
 
-		super(...args);
+		super(...args, 'UUID');
 	}
 
 	cast (val) {
