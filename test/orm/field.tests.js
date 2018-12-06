@@ -133,7 +133,7 @@ describe('ChimeraFieldTypes', function () {
 					type: 'uuid',
 					version: 8
 				}
-			})).should.throw;
+			})).should.throw();
 		});
 	});
 });
