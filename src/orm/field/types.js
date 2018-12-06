@@ -1,7 +1,10 @@
 import mongoose from 'mongoose';
 import pick from 'lodash/pick';
+import mapKeys from 'lodash/mapKeys';
+import snakeCase from 'lodash/snakeCase';
 import isEmail from 'validator/lib/isEmail';
 import isMobilePhone from 'validator/lib/isMobilePhone';
+import isURL from 'validator/lib/isURL';
 import isUUID from 'validator/lib/isUUID';
 import { isMobilePhoneLocales } from 'validator';
 
@@ -54,6 +57,21 @@ export class Phone extends mongoose.SchemaType {
 	}
 }
 
+export class URL extends mongoose.SchemaType {
+	constructor (...args) {
+		super(...args, 'URL');
+	}
+
+	cast (val) {
+		const _val = String(val);
+		const _validatorOpts = mapKeys(this.options, (val, key) => snakeCase(key));
+
+		if (!isURL(_val, _validatorOpts)) {
+			throw new Error(`${_val} is not a correctly formatted URL.`);
+		}
+	}
+}
+
 export class UUID extends mongoose.SchemaType {
 	constructor (...args) {
 		const _opts = args[1];
@@ -85,18 +103,18 @@ export class UUID extends mongoose.SchemaType {
  * TODO: Other types to support natively
  * * Currency
  * * Postal Code
- * * Phone
  * * IP Address
- * * URL
  * * Function Fields
  */
 
 mongoose.Schema.Types = {
 	...mongoose.Schema.Types,
 
-	/* Custom Chimera Types */
+	/* Custom Types */
 	Email,
 	Phone,
+	URL,
+	Url: URL, // Alias needed to support lowercase values ({ urlField: 'url' })
 	UUID,
 	Uuid: UUID // Alias needed to support lowercase values ({ uuidField: 'uuid' })
 };
