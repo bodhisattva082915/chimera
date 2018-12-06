@@ -40,7 +40,7 @@ export class Phone extends mongoose.SchemaType {
 		const _val = String(val);
 
 		if (!isMobilePhone(_val, this.options.locale || null)) {
-			throw new Error(`${_val} is not a valid phone number.`);
+			throw new Error(`${_val} is not a valid ${this.options.locale || ''} phone number.`);
 		}
 
 		return _val;

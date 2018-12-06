@@ -83,6 +83,14 @@ describe('ChimeraFieldTypes', function () {
 			this.testCustomType('phone', '+18005551234');
 		});
 
+		it('should validate phone numbers by specified locales', function () {
+			this.testCustomType(
+				{ type: 'phone', locale: 'en-US' },
+				'+18005551234',
+				'+6402012345678'
+			);
+		});
+
 		it('should throw when an invalid locale is specified', function () {
 			(() => this.schema.add({
 				phoneField: {
