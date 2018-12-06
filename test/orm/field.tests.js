@@ -91,6 +91,14 @@ describe('ChimeraFieldTypes', function () {
 			);
 		});
 
+		it('should validate phone numbers with strict formatting (requires country code)', function () {
+			this.testCustomType(
+				{ type: 'phone', strictMode: true },
+				'+18005551234',
+				'8005551234'
+			);
+		});
+
 		it('should throw when an invalid locale is specified', function () {
 			(() => this.schema.add({
 				phoneField: {
