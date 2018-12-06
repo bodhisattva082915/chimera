@@ -6,7 +6,7 @@
 import mongoose from 'mongoose';
 import ChimeraSchema from '../schema';
 
-const { Mixed } = mongoose.Schema.Types;
+const { Mixed, Array } = mongoose.Schema.Types;
 const schema = new ChimeraSchema('ChimeraField', {
 	/**
 	 * The name that will be used to uniquely identify the property on the model.
@@ -52,6 +52,14 @@ const schema = new ChimeraSchema('ChimeraField', {
 	default: {
 		type: Mixed,
 		default: undefined
+	},
+
+	/**
+	 * @mongoose-option
+	 * Used to specify a discrete set of values that can be set in this field.
+	 */
+	enum: {
+		type: Array
 	},
 
 	/**
