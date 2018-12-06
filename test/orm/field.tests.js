@@ -36,29 +36,73 @@ describe('ChimeraFieldTypes', function () {
 	beforeEach(function () {
 		this.schema = new mongoose.Schema();
 		this.modelName = 'CustomTypeTest';
-	});
 
-	afterEach(function () {
-		mongoose.deleteModel(this.modelName);
-	});
+		this.testCustomType = function (fieldDef, validValue, invalidValue) {
+			this.schema.add({ customFieldType: fieldDef });
 
-	describe('Email', function () {
-		it('should validate input values as strings following an email pattern', function () {
-			this.schema.add({ emailField: 'email' });
-
-			const ModelWithEmail = mongoose.model(this.modelName, this.schema);
-			const isInvalid = new ModelWithEmail({ emailField: 'notAnEmail' }).validateSync();
-			const isValid = new ModelWithEmail({ emailField: 'test.email@domain.com' }).validateSync();
+			const Model = mongoose.model(this.modelName, this.schema);
+			const isInvalid = new Model({ customFieldType: invalidValue || `invalidValue${factory.chance('word')()}` }).validateSync();
+			const isValid = new Model({ customFieldType: validValue }).validateSync();
 
 			should.exist(isInvalid);
 			should.not.exist(isValid);
 
 			isInvalid.should.be.an.instanceof(mongoose.Error.ValidationError);
 			isInvalid.errors.should.containSubset({
-				emailField: {
+				customFieldType: {
 					name: 'CastError'
 				}
 			});
+
+			return isInvalid;
+		};
+
+		this.resetModeling = function () {
+			try {
+				mongoose.deleteModel(this.modelName);
+			} catch (err) {
+				if (!(err instanceof mongoose.Error.MissingSchemaError)) {
+					throw err;
+				}
+			}
+		};
+	});
+
+	afterEach(function () {
+		this.resetModeling();
+	});
+
+	describe('Email', function () {
+		it('should validate input values as strings following an email pattern', function () {
+			this.testCustomType('email', 'test.user@domain.com');
+		});
+	});
+
+	describe('UUID', function () {
+		before(function () {
+			this.uuidV3 = require('uuid/v3');
+			this.uuidV4 = require('uuid/v4');
+			this.uuidV5 = require('uuid/v5');
+		});
+
+		it('should validate input values as strings following a uuid pattern', function () {
+			this.testCustomType('uuid', this.uuidV4());
+		});
+
+		it('should validate uuid values by specific versions', function () {
+			this.testCustomType(
+				{ type: 'uuid', version: 4 },
+				this.uuidV4(),
+				this.uuidV3('Hello World', this.uuidV4())
+			);
+
+			this.resetModeling();
+
+			this.testCustomType(
+				{ type: 'uuid', version: 5 },
+				this.uuidV5('Hello World', this.uuidV4()),
+				this.uuidV4()
+			);
 		});
 	});
 });
