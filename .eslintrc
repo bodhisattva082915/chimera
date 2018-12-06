@@ -1,5 +1,11 @@
 {
     "extends": "standard",
+    "parser": "babel-eslint",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "classes": true
+        }
+    },
     "plugins": [
         "json",
         "mocha",
@@ -19,6 +25,7 @@
         "no-mixed-spaces-and-tabs": ["error"],
         "no-unused-expressions": 0,
         "require-jsdoc": ["error"],
+        "padded-blocks": ["off"],
         "mocha/no-exclusive-tests": "error",
         "chai-friendly/no-unused-expressions": 2
     }
