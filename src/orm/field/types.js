@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
+import pick from 'lodash/pick';
 import isEmail from 'validator/lib/isEmail';
 import isMobilePhone from 'validator/lib/isMobilePhone';
-import { isMobilePhoneLocales } from 'validator';
 import isUUID from 'validator/lib/isUUID';
+import { isMobilePhoneLocales } from 'validator';
 
 export class Email extends mongoose.SchemaType {
 	cast (val) {
@@ -38,9 +39,10 @@ export class Phone extends mongoose.SchemaType {
 	}
 	cast (val) {
 		const _val = String(val);
+		const _validatorOpts = pick(this.options, ['strictMode']);
 
-		if (!isMobilePhone(_val, this.options.locale || null)) {
-			throw new Error(`${_val} is not a valid ${this.options.locale || ''} phone number.`);
+		if (!isMobilePhone(_val, this.options.locale || null, _validatorOpts)) {
+			throw new Error(`${_val} is not a valid ${this.options.locale + ' ' || ''}phone number.`);
 		}
 
 		return _val;
