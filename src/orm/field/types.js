@@ -20,7 +20,7 @@ export class UUID extends mongoose.SchemaType {
 		const versions = [3, 4, 5];
 
 		if (_opts.version && !versions.includes(_opts.version)) {
-			throw new Error(`${_opts.version} is not a valid version value for SchemaType UUID.`);
+			throw new Error(`${_opts.version} is not a valid version value for SchemaType UUID. [${versions.join(',')}]`);
 		}
 
 		super(...args);
