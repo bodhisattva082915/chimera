@@ -1,13 +1,9 @@
 {
 	"name": "chimera",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "A data-driven application scaffolding framework for declaritively building web applications.",
-	"contributors": [
-		{
-			"name": "Andrew Bettke",
-			"email": "abettke@gmail.com"
-		}
-	],
+	"author": "Andrew Bettke",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/bodhisattva082915/chimera"
@@ -20,8 +16,6 @@
 		"start": "docker-compose up -d && webpack --watch",
 		"stop": "docker-compose down"
 	},
-	"author": "",
-	"license": "MIT",
 	"dependencies": {
 		"express": "^4.16.4",
 		"lodash": "^4.17.11",
