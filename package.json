@@ -1,12 +1,12 @@
 {
-	"name": "chimera",
+	"name": "@chimerajs/core",
 	"version": "0.2.0",
-	"description": "A data-driven application scaffolding framework for declaritively building web applications.",
+	"description": "A data-driven scaffolding framework for declaritively building web applications.",
 	"author": "Andrew Bettke",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/bodhisattva082915/chimera"
+		"url": "https://github.com/abettke/chimera"
 	},
 	"main": "index.js",
 	"scripts": {
