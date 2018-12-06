@@ -104,5 +104,14 @@ describe('ChimeraFieldTypes', function () {
 				this.uuidV4()
 			);
 		});
+
+		it('should throw when an invalid version option is specified', function () {
+			(() => this.schema.add({
+				uuidField: {
+					type: 'uuid',
+					version: 8
+				}
+			})).should.throw;
+		});
 	});
 });
