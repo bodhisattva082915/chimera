@@ -116,6 +116,28 @@ describe('ChimeraFieldTypes', function () {
 		});
 	});
 
+	describe('URL', function () {
+		it('should validate input values as strings following a URL pattern', function () {
+			this.testCustomType('url', 'www.testwebsite.com');
+		});
+
+		it('should validate urls with specifc formatting restrictions', function () {
+			this.testCustomType(
+				{ type: 'url', protocols: ['https'], requireProtocol: true },
+				'https://www.testwebsite.com',
+				'http://www.testwebsite.com'
+			);
+
+			this.resetModeling();
+
+			this.testCustomType(
+				{ type: 'url', allowProtocolRelativeUrls: true, hostBlacklist: ['www.badwebsite.com'] },
+				'//www.testwebsite.com',
+				'//www.badwebsite.com'
+			);
+		});
+	});
+
 	describe('UUID', function () {
 		before(function () {
 			this.uuidV3 = require('uuid/v3');
