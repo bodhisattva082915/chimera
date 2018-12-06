@@ -31,3 +31,147 @@ describe('ChimeraField', function () {
 
 	});
 });
+
+describe('ChimeraFieldTypes', function () {
+	beforeEach(function () {
+		this.schema = new mongoose.Schema();
+		this.modelName = 'CustomTypeTest';
+
+		this.testCustomType = function (fieldDef, validValue, invalidValue) {
+			this.schema.add({ customFieldType: fieldDef });
+
+			const Model = mongoose.model(this.modelName, this.schema);
+			const isInvalid = new Model({ customFieldType: invalidValue || `invalidValue${factory.chance('word')()}` }).validateSync();
+			const isValid = new Model({ customFieldType: validValue }).validateSync();
+
+			should.exist(isInvalid);
+			should.not.exist(isValid);
+
+			isInvalid.should.be.an.instanceof(mongoose.Error.ValidationError);
+			isInvalid.errors.should.containSubset({
+				customFieldType: {
+					name: 'CastError'
+				}
+			});
+
+			return isInvalid;
+		};
+
+		this.resetModeling = function () {
+			try {
+				mongoose.deleteModel(this.modelName);
+			} catch (err) {
+				if (!(err instanceof mongoose.Error.MissingSchemaError)) {
+					throw err;
+				}
+			}
+		};
+	});
+
+	afterEach(function () {
+		this.resetModeling();
+	});
+
+	describe('Email', function () {
+		it('should validate input values as strings following an email pattern', function () {
+			this.testCustomType('email', 'test.user@domain.com');
+		});
+	});
+
+	describe('Phone', function () {
+		it('should validate input values as strings following a phone number pattern', function () {
+			this.testCustomType('phone', '+18005551234');
+		});
+
+		it('should validate phone numbers by specified locales', function () {
+			this.testCustomType(
+				{ type: 'phone', locale: 'en-US' },
+				'+18005551234',
+				'+6402012345678'
+			);
+		});
+
+		it('should validate phone numbers with strict formatting (requires country code)', function () {
+			this.testCustomType(
+				{ type: 'phone', strictMode: true },
+				'+18005551234',
+				'8005551234'
+			);
+		});
+
+		it('should throw when an invalid locale is specified', function () {
+			(() => this.schema.add({
+				phoneField: {
+					type: 'phone',
+					locale: 'notALocale'
+				}
+			})).should.throw();
+
+			(() => this.schema.add({
+				phoneField: {
+					type: 'phone',
+					locale: ['en-US', 'badLocale']
+				}
+			})).should.throw();
+		});
+	});
+
+	describe('URL', function () {
+		it('should validate input values as strings following a URL pattern', function () {
+			this.testCustomType('url', 'www.testwebsite.com');
+		});
+
+		it('should validate urls with specifc formatting restrictions', function () {
+			this.testCustomType(
+				{ type: 'url', protocols: ['https'], requireProtocol: true },
+				'https://www.testwebsite.com',
+				'http://www.testwebsite.com'
+			);
+
+			this.resetModeling();
+
+			this.testCustomType(
+				{ type: 'url', allowProtocolRelativeUrls: true, hostBlacklist: ['www.badwebsite.com'] },
+				'//www.testwebsite.com',
+				'//www.badwebsite.com'
+			);
+		});
+	});
+
+	describe('UUID', function () {
+		before(function () {
+			this.uuidV3 = require('uuid/v3');
+			this.uuidV4 = require('uuid/v4');
+			this.uuidV5 = require('uuid/v5');
+		});
+
+		it('should validate input values as strings following a uuid pattern', function () {
+			this.testCustomType('uuid', this.uuidV4());
+		});
+
+		it('should validate uuid values by specific versions', function () {
+			this.testCustomType(
+				{ type: 'uuid', version: 4 },
+				this.uuidV4(),
+				this.uuidV3('Hello World', this.uuidV4())
+			);
+
+			this.resetModeling();
+
+			this.testCustomType(
+				{ type: 'uuid', version: 5 },
+				this.uuidV5('Hello World', this.uuidV4()),
+				this.uuidV4()
+			);
+		});
+
+		it('should throw when an invalid version option is specified', function () {
+			(() => this.schema.add({
+				uuidField: {
+					type: 'uuid',
+					version: 8
+				}
+			})).should.throw();
+		});
+	});
+});
