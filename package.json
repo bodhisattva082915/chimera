@@ -1,6 +1,6 @@
 {
 	"name": "chimera",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "A data-driven application scaffolding framework for declaritively building web applications.",
 	"contributors": [
 		{
