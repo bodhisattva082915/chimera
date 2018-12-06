@@ -78,6 +78,28 @@ describe('ChimeraFieldTypes', function () {
 		});
 	});
 
+	describe('Phone', function () {
+		it('should validate input values as strings following a phone number pattern', function () {
+			this.testCustomType('phone', '+18005551234');
+		});
+
+		it('should throw when an invalid locale is specified', function () {
+			(() => this.schema.add({
+				phoneField: {
+					type: 'phone',
+					locale: 'notALocale'
+				}
+			})).should.throw();
+
+			(() => this.schema.add({
+				phoneField: {
+					type: 'phone',
+					locale: ['en-US', 'badLocale']
+				}
+			})).should.throw();
+		});
+	});
+
 	describe('UUID', function () {
 		before(function () {
 			this.uuidV3 = require('uuid/v3');

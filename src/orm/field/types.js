@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import isEmail from 'validator/lib/isEmail';
+import isMobilePhone from 'validator/lib/isMobilePhone';
+import { isMobilePhoneLocales } from 'validator';
 import isUUID from 'validator/lib/isUUID';
 
 export class Email extends mongoose.SchemaType {
@@ -7,7 +9,38 @@ export class Email extends mongoose.SchemaType {
 		const _val = String(val);
 
 		if (!isEmail(_val)) {
-			throw new Error(`${_val} is not a valid email address`);
+			throw new Error(`${_val} is not a valid email address.`);
+		}
+
+		return _val;
+	}
+}
+
+export class Phone extends mongoose.SchemaType {
+	constructor (...args) {
+		const _opts = args[1];
+		const locales = isMobilePhoneLocales;
+
+		if (_opts.locale) {
+			let isValidLocale;
+			if (Array.isArray(_opts.locale)) {
+				isValidLocale = _opts.locale.every(locale => locales.includes(locale));
+			} else {
+				isValidLocale = locales.includes(_opts.locale);
+			}
+
+			if (!isValidLocale) {
+				throw new Error(`${_opts.locale} is not a valid locale value for SchemaType Phone. [${isMobilePhoneLocales.join(',')}]`);
+			}
+		}
+
+		super(...args);
+	}
+	cast (val) {
+		const _val = String(val);
+
+		if (!isMobilePhone(_val, this.options.locale || null)) {
+			throw new Error(`${_val} is not a valid phone number.`);
 		}
 
 		return _val;
@@ -31,11 +64,11 @@ export class UUID extends mongoose.SchemaType {
 
 		if (this.options.version) {
 			if (!isUUID(_val, this.options.version)) {
-				throw new Error(`${_val} is not a valid v${this.options.version} UUID`);
+				throw new Error(`${_val} is not a valid v${this.options.version} UUID.`);
 			}
 		} else {
 			if (!isUUID(_val)) {
-				throw new Error(`${_val} is not a valid UUID`);
+				throw new Error(`${_val} is not a valid UUID.`);
 			}
 		}
 	}
@@ -56,6 +89,7 @@ mongoose.Schema.Types = {
 
 	/* Custom Chimera Types */
 	Email,
+	Phone,
 	UUID,
 	Uuid: UUID // Alias needed to support lowercase values ({ uuidField: 'uuid' })
 };
