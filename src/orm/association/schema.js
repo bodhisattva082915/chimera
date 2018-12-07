@@ -21,8 +21,8 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 	})
 
 	/** Middleware */
+	/** Require valid discrimination */
 	.pre('validate', function (next) {
-		// Require discrimination and require discriminator is valid
 		const validDiscriminators = Object.keys(this.schema.discriminators);
 
 		let err;
