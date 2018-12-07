@@ -4,6 +4,7 @@ import factory from 'factory-girl';
 describe('ChimeraAssociation', function () {
 	before(async function () {
 		this.ChimeraAssociation = mongoose.model('ChimeraAssociation');
+		this.OneToMany = mongoose.model('ChimeraOneToMany');
 		this.testModelADoc = await factory.create('ChimeraModel');
 		this.testModelBDoc = await factory.create('ChimeraModel');
 		// this.testModelA = await this.testModelA.compile();
@@ -37,23 +38,20 @@ describe('ChimeraAssociation', function () {
 
 	describe('OneToMany', function () {
 		before(async function () {
-			// this.onToMany = await factory.create('ChimeraAssociation', {
-			// 	type: 'ChimeraOneToMany',
-			// 	fromModelId: this.testModelADoc.id,
-			// 	toModelId: this.testModelBDoc.id
-			// });
-			// const OneToMany = mongoose.model('ChimeraOneToMany');
-			// console.log(OneToMany);
-			// const oneToMany = await OneToMany.find();
-			// console.log(oneToMany);
+			this.oneToMany = await this.OneToMany.create({
+				fromModelId: this.testModelADoc.id,
+				toModelId: this.testModelBDoc.id,
+				relatedName: 'bModels'
+			});
 		});
 
 		after(async function () {
-			// await factory.cleanUp();
+			await factory.cleanUp();
 		});
 
 		it(`should define hasMany cardinality on the 'from' model when compiled`, async function () {
-
+			const testModelA = await this.testModelADoc.compile();
+			testModelA.schema.virtuals.should.have.property('bModels');
 		});
 
 		it(`should define belongsTo cardinality on the 'to' model when compiled`, function () {

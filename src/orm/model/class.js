@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import camelCase from 'lodash';
 import ChimeraSchema from '../schema';
 
 class ChimeraModel extends mongoose.Model {
@@ -14,6 +15,13 @@ class ChimeraModel extends mongoose.Model {
 		const chimeraModel = await this
 			.findById(id)
 			.populate('chimeraFields')
+			.populate({
+				path: 'dominantAssociations',
+				populate: {
+					path: 'to'
+				}
+			})
+			.populate('subordinateAssociations')
 			.exec();
 
 		return this._register(chimeraModel);
@@ -23,9 +31,12 @@ class ChimeraModel extends mongoose.Model {
      * Registers the supplied model as a mongoose model. The supplied model should be pre-populated with all related data.
      * @param {ChimeraModel} model - The pre-populated ChimeraModel instance
      * @param {[ChimeraField]} [model.chimeraFields] - The fields to define into the model schema.
+	* @param {[ChimeraAssociation]} [model.dominantAssociations] - All associations where this model is designated as the 'from' model
+	* @param {[ChimeraAssociation]} [model.subordinateAssociations] - All associations where this model is designated as the 'to' model
      * @returns {Promise<mongoose.Model>} - The newly registered mongoose Model
      */
-	static _register ({ name, chimeraFields }) {
+	static _register (chimeraModel) {
+		const { name, chimeraFields, dominantAssociations, subordinateAssociations } = chimeraModel;
 		const chimeraSchema = new ChimeraSchema(
 			name,
 			chimeraFields.reduce((schemaDef, field) => ({
@@ -33,6 +44,8 @@ class ChimeraModel extends mongoose.Model {
 				[field.name]: field.toObject()
 			}), {})
 		);
+
+		chimeraSchema._applyChimeraAssociations([...dominantAssociations, ...subordinateAssociations]);
 
 		const registered = mongoose.modelNames().find(modelName => modelName === name);
 		if (registered) {

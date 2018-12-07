@@ -23,6 +23,10 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 	/** Middleware */
 	/** Require valid discrimination */
 	.pre('validate', function (next) {
+		if (!this.schema.discriminatorMapping.isRoot) {
+			next();
+		}
+
 		const validDiscriminators = Object.keys(this.schema.discriminators);
 
 		let err;

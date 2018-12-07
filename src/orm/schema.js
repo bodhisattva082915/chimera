@@ -175,6 +175,27 @@ class ChimeraSchema extends mongoose.Schema {
 
 		return this;
 	}
+
+	/**
+	 * Applies the given associations according to their type. This method mutates the schema by internally calling
+	 * belongsTo, hasMany, hasOne, or belongsToMany to accurately reflect the supplied ChimeraAssociation objects.
+	 * @param {[ChimeraAssociations]} associations - The ChimeraAssociations to apply to this schema.
+	 */
+	_applyChimeraAssociations (associations) {
+		associations.forEach(assoc => {
+			switch (assoc.type) {
+			case 'ChimeraOneToMany':
+				// TODO: Need to distinguish if this is the dominant or subordinate
+				this.hasMany(assoc.to.name, {
+					foreignField: assoc.foreignKey || `${camelCase(this.name)}Id`,
+					localField: assoc.primaryKey,
+					as: assoc.relatedName
+				});
+				break;
+			}
+
+		});
+	}
 }
 
 export default ChimeraSchema;

@@ -16,6 +16,16 @@ const schema = new ChimeraSchema('ChimeraModel', {
 		as: 'chimeraFields'
 	})
 
+	.hasMany('ChimeraAssociation', {
+		foreignField: 'fromModelId',
+		as: 'dominantAssociations'
+	})
+
+	.hasMany('ChimeraAssociation', {
+		foreignField: 'toModelId',
+		as: 'subordinateAssociations'
+	})
+
 	/** Indexing */
 	.index({ name: 1, module: 1 }, { unique: true });
 
