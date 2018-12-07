@@ -7,4 +7,7 @@ const ChimeraOneToMany = new ChimeraSchema('ChimeraOneToMany', {
 	relatedSetName: String
 });
 
+// TODO: Enforce unique indexes on FK | PK | relatedName
+// TODO: Enforce unique indexes on FK | PK | relatedNameSet
+
 export default ChimeraOneToMany;
