@@ -12,6 +12,7 @@ describe('ChimeraAssociation', function () {
 
 	describe('schema', function () {
 		it('should enforce required fields and discrimination', async function () {
+			// const myEnum = await factory.create('ChimeraField', { type: 'notatype' }).should.be.rejected;
 			const isInvalid = await new this.ChimeraAssociation().validate().should.be.rejected;
 			should.exist(isInvalid);
 
@@ -20,6 +21,16 @@ describe('ChimeraAssociation', function () {
 				type: { kind: 'required' },
 				fromModelId: { kind: 'required' },
 				toModelId: { kind: 'required' }
+			});
+		});
+
+		it('should enforce valid discriminator values', async function () {
+			const isInvalid = await new this.ChimeraAssociation({ type: 'manyyTooManyy' }).validate().should.be.rejected;
+			should.exist(isInvalid);
+
+			isInvalid.should.be.an.instanceOf(mongoose.Error.ValidationError);
+			isInvalid.errors.should.containSubset({
+				type: { kind: 'enum' }
 			});
 		});
 	});

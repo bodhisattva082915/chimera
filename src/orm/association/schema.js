@@ -23,6 +23,8 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 	/** Middleware */
 	.pre('validate', function (next) {
 		// Require discrimination and require discriminator is valid
+		const validDiscriminators = Object.keys(this.schema.discriminators);
+
 		let err;
 		if (!this.type) {
 			err = new mongoose.Error.ValidatorError({
@@ -31,8 +33,14 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 				value: this.type,
 				message: `Path 'type' is required.`
 			});
-		} else if (!['ChimeraOneToMany', 'ChimeraOneToOne', 'ChimeraManyToMany'].includes(this.type)) {
-
+		} else if (!validDiscriminators.includes(this.type)) {
+			err = new mongoose.Error.ValidatorError({
+				type: 'enum',
+				path: 'type',
+				value: this.type,
+				message: `'${this.type}' is not a valid enum value for path 'type'.`,
+				enumValues: validDiscriminators
+			});
 		}
 
 		if (err) {
