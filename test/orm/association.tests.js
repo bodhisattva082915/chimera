@@ -7,13 +7,10 @@ describe('ChimeraAssociation', function () {
 		this.OneToMany = mongoose.model('ChimeraOneToMany');
 		this.testModelADoc = await factory.create('ChimeraModel');
 		this.testModelBDoc = await factory.create('ChimeraModel');
-		// this.testModelA = await this.testModelA.compile();
-		// this.testModelB = await this.testModelB.compile();
 	});
 
 	describe('schema', function () {
 		it('should enforce required fields and discrimination', async function () {
-			// const myEnum = await factory.create('ChimeraField', { type: 'notatype' }).should.be.rejected;
 			const isInvalid = await new this.ChimeraAssociation().validate().should.be.rejected;
 			should.exist(isInvalid);
 
@@ -47,7 +44,7 @@ describe('ChimeraAssociation', function () {
 		});
 
 		after(async function () {
-			await factory.cleanUp();
+			await this.OneToMany.findByIdAndDelete(this.oneToMany.id);
 		});
 
 		it(`should define hasMany cardinality on the 'from' model when compiled`, async function () {
@@ -59,6 +56,10 @@ describe('ChimeraAssociation', function () {
 			const testModelB = await this.testModelBDoc.compile();
 			testModelB.schema.virtuals.should.have.property(`aModel`);
 		});
+	});
+
+	describe('OneToOne', function () {
+
 	});
 
 });
