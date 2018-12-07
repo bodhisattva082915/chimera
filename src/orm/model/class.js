@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import camelCase from 'lodash';
 import ChimeraSchema from '../schema';
 
 class ChimeraModel extends mongoose.Model {
@@ -17,11 +16,18 @@ class ChimeraModel extends mongoose.Model {
 			.populate('chimeraFields')
 			.populate({
 				path: 'dominantAssociations',
-				populate: {
-					path: 'to'
-				}
+				populate: [
+					{ path: 'from' },
+					{ path: 'to' }
+				]
 			})
-			.populate('subordinateAssociations')
+			.populate({
+				path: 'subordinateAssociations',
+				populate: [
+					{ path: 'from' },
+					{ path: 'to' }
+				]
+			})
 			.exec();
 
 		return this._register(chimeraModel);
@@ -41,7 +47,7 @@ class ChimeraModel extends mongoose.Model {
 			name,
 			chimeraFields.reduce((schemaDef, field) => ({
 				...schemaDef,
-				[field.name]: field.toObject()
+				[field.name]: field.toJSON()
 			}), {})
 		);
 

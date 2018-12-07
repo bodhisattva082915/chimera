@@ -41,7 +41,8 @@ describe('ChimeraAssociation', function () {
 			this.oneToMany = await this.OneToMany.create({
 				fromModelId: this.testModelADoc.id,
 				toModelId: this.testModelBDoc.id,
-				relatedName: 'bModels'
+				relatedName: 'aModel',
+				relatedSetName: 'bModels'
 			});
 		});
 
@@ -54,8 +55,9 @@ describe('ChimeraAssociation', function () {
 			testModelA.schema.virtuals.should.have.property('bModels');
 		});
 
-		it(`should define belongsTo cardinality on the 'to' model when compiled`, function () {
-
+		it(`should define belongsTo cardinality on the 'to' model when compiled`, async function () {
+			const testModelB = await this.testModelBDoc.compile();
+			testModelB.schema.virtuals.should.have.property(`aModel`);
 		});
 	});
 

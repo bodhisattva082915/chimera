@@ -78,8 +78,8 @@ class ChimeraSchema extends mongoose.Schema {
      * Creates a one-to-many association, treating this as the independent schema of the relationship.
      * @param {string} modelName - The name of the mongoose model to associate.
      * @param {object} options - Configuration options for the virtual field declaration.
-     * @param {string} options.localField - The name of the field in this schema that holds the foreign key reference.
-     * @param {string} [options.foreignField] - The name of the field on the associated schema that matches the foreign key reference.
+     * @param {string} [options.localField] - The name of the field in this schema that holds the foreign key reference.
+     * @param {string} options.foreignField - The name of the field on the associated schema that matches the foreign key reference.
      * @param {string} [options.as] - The name to use for the virtual field that describes the association.
      * @returns {ChimeraSchema} - Mutates the schema by adding a virtual field to describe this association.
      */
@@ -179,22 +179,32 @@ class ChimeraSchema extends mongoose.Schema {
 	/**
 	 * Applies the given associations according to their type. This method mutates the schema by internally calling
 	 * belongsTo, hasMany, hasOne, or belongsToMany to accurately reflect the supplied ChimeraAssociation objects.
-	 * @param {[ChimeraAssociations]} associations - The ChimeraAssociations to apply to this schema.
+	 * @param {[ChimeraAssociations]} associations - The ChimeraAssociations to apply to this schema. (from/to must be pre-populated!).
+	 * @param {ChimeraModel} associations[].from - The ChimeraModel designated in the 'fromModelId' of the association.
+	 * @param {ChimeraModel} associations[].to - The ChimeraModel designated in the 'toModelId' of the association.
 	 */
 	_applyChimeraAssociations (associations) {
+		const isDominant = assoc => assoc.from.name === this.name;
+
 		associations.forEach(assoc => {
 			switch (assoc.type) {
-			case 'ChimeraOneToMany':
-				// TODO: Need to distinguish if this is the dominant or subordinate
-				this.hasMany(assoc.to.name, {
-					foreignField: assoc.foreignKey || `${camelCase(this.name)}Id`,
-					localField: assoc.primaryKey,
-					as: assoc.relatedName
-				});
-				break;
-			}
+				case 'ChimeraOneToMany':
+					isDominant(assoc)
+						? this.hasMany(assoc.to.name, {
+							foreignField: assoc.foreignKey || `${camelCase(this.name)}Id`,
+							localField: assoc.primaryKey,
+							as: assoc.relatedSetName
+						})
+						: this.belongsTo(assoc.from.name, {
+							localField: assoc.foreignKey,
+							foreignField: assoc.primaryKey,
+							as: assoc.relatedName
+						});
 
+					break;
+			}
 		});
+
 	}
 }
 
