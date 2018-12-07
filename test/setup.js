@@ -22,7 +22,7 @@ before(async function () {
 	await require('app/db');
 	await require('app/orm');
 
-	await require('./factories');
+	await require('./_factories');
 });
 
 after(async function () {
