@@ -193,7 +193,7 @@ class ChimeraSchema extends mongoose.Schema {
 						? this.hasMany(assoc.to.name, {
 							foreignField: assoc.foreignKey || `${camelCase(this.name)}Id`,
 							localField: assoc.primaryKey,
-							as: assoc.relatedSetName
+							as: assoc.reverseName
 						})
 						: this.belongsTo(assoc.from.name, {
 							localField: assoc.foreignKey,

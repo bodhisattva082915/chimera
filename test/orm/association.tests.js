@@ -38,13 +38,19 @@ describe('ChimeraAssociation', function () {
 			this.oneToMany = await this.OneToMany.create({
 				fromModelId: this.testModelADoc.id,
 				toModelId: this.testModelBDoc.id,
+				foreignKey: 'aModelId',
 				relatedName: 'aModel',
-				relatedSetName: 'bModels'
+				reverseName: 'bModels'
 			});
 		});
 
 		after(async function () {
 			await this.OneToMany.findByIdAndDelete(this.oneToMany.id);
+		});
+
+		it('should enforce uniquness constraint {fromModelId, toModelId, foreignKey}', async function () {
+			// const isInvalid = await new this.OneToMany(this.oneToMany.toJSON()).validate().should.be.rejected;
+
 		});
 
 		it(`should define hasMany cardinality on the 'from' model when compiled`, async function () {
