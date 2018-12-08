@@ -114,8 +114,8 @@ class ChimeraSchema extends mongoose.Schema {
      * dependent schema of the relationship to protect a one-to-many relationship from forming.
      * @param {string} modelName - The name of the mongoose model to associate.
      * @param {object} options - Configuration options for the virtual field declaration.
-     * @param {string} options.localField - The name of the field in this schema that holds the foreign key reference.
-     * @param {string} [options.foreignField] - The name of the field on the associated schema that matches the foreign key reference.
+     * @param {string} [options.localField] - The name of the field in this schema that holds the foreign key reference.
+     * @param {string} options.foreignField - The name of the field on the associated schema that matches the foreign key reference.
      * @param {string} [options.as] - The name to use for the virtual field that describes the association.
      * @returns {ChimeraSchema} - Mutates the schema by adding a virtual field to describe this association.
      */
@@ -202,6 +202,18 @@ class ChimeraSchema extends mongoose.Schema {
 						});
 
 					break;
+				case 'ChimeraOneToOne':
+					isDominant(assoc)
+						? this.hasOne(assoc.to.name, {
+							foreignField: assoc.foreignKey || `${camelCase(this.name)}Id`,
+							localField: assoc.primaryKey,
+							as: assoc.reverseName
+						})
+						: this.belongsTo(assoc.from.name, {
+							localField: assoc.foreignKey,
+							foreignField: assoc.primaryKey,
+							as: assoc.relatedName
+						});
 			}
 		});
 

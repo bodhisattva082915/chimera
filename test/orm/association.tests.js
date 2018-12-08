@@ -5,6 +5,7 @@ describe('ChimeraAssociation', function () {
 	before(async function () {
 		this.ChimeraAssociation = mongoose.model('ChimeraAssociation');
 		this.OneToMany = mongoose.model('ChimeraOneToMany');
+		this.OneToOne = mongoose.model('ChimeraOneToOne');
 		this.testModelADoc = await factory.create('ChimeraModel');
 		this.testModelBDoc = await factory.create('ChimeraModel');
 	});
@@ -49,8 +50,9 @@ describe('ChimeraAssociation', function () {
 		});
 
 		it('should enforce uniquness constraint {fromModelId, toModelId, foreignKey}', async function () {
+			// Let's come back to this, we might be able to get away with not using discrimination here and just
+			// using a required type field
 			// const isInvalid = await new this.OneToMany(this.oneToMany.toJSON()).validate().should.be.rejected;
-
 		});
 
 		it(`should define hasMany cardinality on the 'from' model when compiled`, async function () {
@@ -65,7 +67,29 @@ describe('ChimeraAssociation', function () {
 	});
 
 	describe('OneToOne', function () {
+		before(async function () {
+			this.oneToOne = await this.OneToOne.create({
+				fromModelId: this.testModelADoc.id,
+				toModelId: this.testModelBDoc.id,
+				foreignKey: 'aModelId',
+				relatedName: 'aModel',
+				reverseName: 'bModel'
+			});
+		});
 
+		after(async function () {
+			await this.OneToOne.findByIdAndDelete(this.oneToOne.id);
+		});
+
+		it(`should define hasOne cardinality on the 'from' model when compiled`, async function () {
+			const testModelA = await this.testModelADoc.compile();
+			testModelA.schema.virtuals.should.have.property('bModel');
+		});
+
+		it(`should define belongsTo cardinality on the 'to' model when compiled`, async function () {
+			const testModelB = await this.testModelBDoc.compile();
+			testModelB.schema.virtuals.should.have.property(`aModel`);
+		});
 	});
 
 });
