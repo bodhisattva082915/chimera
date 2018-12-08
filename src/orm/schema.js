@@ -200,8 +200,8 @@ class ChimeraSchema extends mongoose.Schema {
 							foreignField: assoc.primaryKey,
 							as: assoc.relatedName
 						});
-
 					break;
+
 				case 'ChimeraOneToOne':
 					isDominant(assoc)
 						? this.hasOne(assoc.to.name, {
@@ -214,6 +214,21 @@ class ChimeraSchema extends mongoose.Schema {
 							foreignField: assoc.primaryKey,
 							as: assoc.relatedName
 						});
+					break;
+
+				case 'ChimeraManyToMany':
+					const through = 'through';
+					isDominant(assoc)
+						? this.belongsToMany(assoc.to.name, {
+							through
+						})
+						: this.belongsToMany(assoc.from.name, {
+							through
+						});
+					break;
+
+				default:
+					throw new ChimeraSchemaError(`Cannot apply ChimeraAssociation of type '${assoc.type}'`);
 			}
 		});
 

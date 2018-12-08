@@ -92,4 +92,27 @@ describe('ChimeraAssociation', function () {
 		});
 	});
 
+	describe('ManyToMany', function () {
+		before(async function () {
+			this.manyToMany = await this.ManyToMany.create({
+				fromModelId: this.testModelADoc.id,
+				toModelId: this.testModelBDoc.id,
+				from: {
+					key: 'aModelId',
+					relatedName: 'aModel',
+					reverseName: 'bModels'
+				},
+				to: {
+					key: 'bModelId',
+					relatedName: 'bModel',
+					reverseName: 'aModels'
+				},
+				through: 'a2b'
+			});
+		});
+
+		after(async function () {
+
+		});
+	});
 });
