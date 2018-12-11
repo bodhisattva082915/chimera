@@ -6,6 +6,8 @@ describe('ChimeraAssociation', function () {
 		this.ChimeraAssociation = mongoose.model('ChimeraAssociation');
 		this.OneToMany = mongoose.model('ChimeraOneToMany');
 		this.OneToOne = mongoose.model('ChimeraOneToOne');
+		this.ManyToMany = mongoose.model('ChimeraManyToMany');
+
 		this.testModelADoc = await factory.create('ChimeraModel');
 		this.testModelBDoc = await factory.create('ChimeraModel');
 	});
@@ -97,12 +99,12 @@ describe('ChimeraAssociation', function () {
 			this.manyToMany = await this.ManyToMany.create({
 				fromModelId: this.testModelADoc.id,
 				toModelId: this.testModelBDoc.id,
-				from: {
+				fromConfig: {
 					key: 'aModelId',
 					relatedName: 'aModel',
 					reverseName: 'bModels'
 				},
-				to: {
+				toConfig: {
 					key: 'bModelId',
 					relatedName: 'bModel',
 					reverseName: 'aModels'
@@ -112,7 +114,17 @@ describe('ChimeraAssociation', function () {
 		});
 
 		after(async function () {
+			await this.ManyToMany.findByIdAndDelete(this.manyToMany.id);
+		});
 
+		it(`should define hasOne cardinality on the 'from' model when compiled`, async function () {
+			const testModelA = await this.testModelADoc.compile();
+			testModelA.schema.virtuals.should.have.property('bModels');
+		});
+
+		it(`should define belongsTo cardinality on the 'to' model when compiled`, async function () {
+			const testModelB = await this.testModelBDoc.compile();
+			testModelB.schema.virtuals.should.have.property(`aModels`);
 		});
 	});
 });

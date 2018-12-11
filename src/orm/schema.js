@@ -218,11 +218,19 @@ class ChimeraSchema extends mongoose.Schema {
 
 				case 'ChimeraManyToMany':
 					const through = 'through';
+					// Determine if the through model needs to be registered
+
 					isDominant(assoc)
 						? this.belongsToMany(assoc.to.name, {
+							localField: assoc.fromConfig.primaryKey,
+							foreignField: assoc.fromConfig.foreignKey,
+							as: assoc.fromConfig.reverseName,
 							through
 						})
 						: this.belongsToMany(assoc.from.name, {
+							localField: assoc.toConfig.primaryKey,
+							foreignField: assoc.toConfig.foreignKey,
+							as: assoc.toConfig.reverseName,
 							through
 						});
 					break;
