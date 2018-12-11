@@ -217,8 +217,13 @@ class ChimeraSchema extends mongoose.Schema {
 					break;
 
 				case 'ChimeraManyToMany':
-					const through = 'through';
-					// Determine if the through model needs to be registered
+					const through = assoc.through;
+					// Determine if the through model needs to be registered. Since the association is paired with two different models
+					// There is no guarentee which end of the relationship will hitt this first
+					// Perhaps we need a schema registry similar to model registry for mongoose?
+					if (!assoc.throughModelId) {
+						// We need to find or create a minimal schema/model to act as the junction point
+					}
 
 					isDominant(assoc)
 						? this.belongsToMany(assoc.to.name, {

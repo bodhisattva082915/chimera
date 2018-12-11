@@ -99,14 +99,6 @@ export class UUID extends mongoose.SchemaType {
 	}
 }
 
-/**
- * TODO: Other types to support natively
- * * Currency
- * * Postal Code
- * * IP Address
- * * Function Fields
- */
-
 mongoose.Schema.Types = {
 	...mongoose.Schema.Types,
 

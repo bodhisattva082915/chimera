@@ -108,8 +108,7 @@ describe('ChimeraAssociation', function () {
 					key: 'bModelId',
 					relatedName: 'bModel',
 					reverseName: 'aModels'
-				},
-				through: 'a2b'
+				}
 			});
 		});
 
@@ -125,6 +124,14 @@ describe('ChimeraAssociation', function () {
 		it(`should define belongsTo cardinality on the 'to' model when compiled`, async function () {
 			const testModelB = await this.testModelBDoc.compile();
 			testModelB.schema.virtuals.should.have.property(`aModels`);
+		});
+
+		it(`should define a new model for the junction collection when 'through' is not explicitly defined`, function () {
+
+		});
+
+		it(`should use an existing model for the junction collection when 'through' is explicitly defined`, function () {
+
 		});
 	});
 });
