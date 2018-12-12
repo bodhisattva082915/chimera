@@ -27,12 +27,12 @@ class ChimeraModel extends mongoose.Model {
 		return chimeraModels;
 	}
 
-	compileSchema () {
-		const { name, chimeraFields } = this;
+	buildSchema (fields) {
+		const { name } = this;
 
 		const chimeraSchema = new ChimeraSchema(
 			name,
-			chimeraFields.reduce((schemaDef, field) => ({
+			fields.reduce((schemaDef, field) => ({
 				...schemaDef,
 				[field.name]: field.toJSON()
 			}), {})
@@ -90,7 +90,7 @@ class ChimeraModel extends mongoose.Model {
 			}), {})
 		);
 
-		chimeraSchema._applyChimeraAssociations([...dominantAssociations, ...subordinateAssociations]);
+		chimeraSchema.associate([...dominantAssociations, ...subordinateAssociations]);
 
 		const registered = mongoose.modelNames().find(modelName => modelName === name);
 		if (registered) {

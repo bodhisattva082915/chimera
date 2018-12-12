@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 
 /**
  * An interface layer between the application and mongoose for registering and compiling models. This class handles
- * actually compiling models with mongoose and should be used as a lookup point to see which models will be / have
+ * the compilation of models with mongoose and should be used as a lookup point to see which models will be / have
  * been already compiled.
  */
 class ModelRegistry extends EventEmitter {
@@ -40,10 +40,15 @@ class ModelRegistry extends EventEmitter {
 		const ChimeraModel = this.model('ChimeraModel');
 		const chimeraModels = await ChimeraModel.loadHydrated();
 
-		this._modelCache = chimeraModels;
+		this._modelCache = chimeraModels.reduce((cache, model) => ({
+			...cache,
+			[model.name]: model
+		}), {});
 
 		chimeraModels.forEach(chimeraModel => {
-			const schema = chimeraModel.compileSchema();
+			const fields = chimeraModel.chimeraFields;
+			const schema = chimeraModel.buildSchema(fields);
+
 			this.register(schema.name, schema);
 		});
 	}
@@ -60,7 +65,7 @@ class ModelRegistry extends EventEmitter {
 	}
 
 	/**
-	 * Applies associations
+	 * Applies associations to registered schemas
      * @param {string} namespace - Specifies a specific model to compile
 	 */
 	associate (namespace) {
@@ -74,6 +79,14 @@ class ModelRegistry extends EventEmitter {
 		} else {
 			scope = Object.keys(this).filter(namespace => !namespace.includes('_'));
 		}
+
+		scope.forEach(namespace => {
+			const registered = this[namespace];
+			const model = this._modelCache[namespace];
+			const associations = [...model.dominantAssociations, ...model.subordinateAssociations];
+
+			registered.schema.associate(associations);
+		});
 	}
 
 	/**

@@ -183,7 +183,7 @@ class ChimeraSchema extends mongoose.Schema {
 	 * @param {ChimeraModel} associations[].from - The ChimeraModel designated in the 'fromModelId' of the association.
 	 * @param {ChimeraModel} associations[].to - The ChimeraModel designated in the 'toModelId' of the association.
 	 */
-	_applyChimeraAssociations (associations) {
+	associate (associations) {
 		const isDominant = assoc => assoc.from.name === this.name;
 
 		associations.forEach(assoc => {
