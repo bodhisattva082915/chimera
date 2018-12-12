@@ -1,32 +1,36 @@
-import fs from 'fs';
 import mongoose from 'mongoose';
 import jsonschemaSupport from 'mongoose-schema-jsonschema';
 import toJSONTransformation from './plugins/toJSONTransformations';
-import registry from './registry';
+import ModelRegistry from './registry';
 
 jsonschemaSupport(mongoose);
 
 mongoose.plugin(toJSONTransformation);
 
+const registry = new ModelRegistry();
+
 /**
  * Asynchronously loads all models (static and dynamic) into the model registry
  */
 export async function init () {
-	/** Load static models into the registry */
-	const modules = fs
-		.readdirSync(__dirname)
-		.filter(file => !file.includes('.js'))
-		.filter(file => !file.includes('plugins'));
+	await bootstrap();
+	await extend();
+}
 
-	for (const moduleName of modules) {
-		const { modelClass, schema } = await import(`${__dirname}/${moduleName}`);
-		registry.register(modelClass, schema);
-	}
+/**
+ * Initalizes a minimal ORM
+ */
+async function bootstrap () {
+	await registry.loadStaticSchemas();
+	registry.compile();
+};
 
-	await registry.compile();
-
-	/** Load dynamic models into the registry */
-	// Raw mongoose query into mongodb for models
+/**
+ * Enhances upon the inital ORM by loading implementation specific modeling
+ */
+async function extend () {
+	await registry.loadDynamicSchemas();
+	registry.compile();
 }
 
 export default registry;

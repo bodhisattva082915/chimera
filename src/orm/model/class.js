@@ -2,6 +2,45 @@ import mongoose from 'mongoose';
 import ChimeraSchema from '../schema';
 
 class ChimeraModel extends mongoose.Model {
+
+	/**
+	 * Queries and populates ChimeraModel(s) with associated support content.
+	 */
+	static async loadHydrated () {
+		const chimeraModels = await this.find()
+			.populate('chimeraFields')
+			.populate({
+				path: 'dominantAssociations',
+				populate: [
+					{ path: 'from' },
+					{ path: 'to' }
+				]
+			})
+			.populate({
+				path: 'subordinateAssociations',
+				populate: [
+					{ path: 'from' },
+					{ path: 'to' }
+				]
+			});
+
+		return chimeraModels;
+	}
+
+	compileSchema () {
+		const { name, chimeraFields } = this;
+
+		const chimeraSchema = new ChimeraSchema(
+			name,
+			chimeraFields.reduce((schemaDef, field) => ({
+				...schemaDef,
+				[field.name]: field.toJSON()
+			}), {})
+		);
+
+		return chimeraSchema;
+	}
+
 	/**
      * Compiles and registers the defined ChimeraModel into a mongoose Model by:
      * 1.) Populating the ChimeraModel with all related fields, validators, associations, etc.

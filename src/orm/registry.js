@@ -1,3 +1,4 @@
+import fs from 'fs';
 import EventEmitter from 'events';
 import mongoose from 'mongoose';
 
@@ -9,21 +10,70 @@ import mongoose from 'mongoose';
 class ModelRegistry extends EventEmitter {
 
 	/**
+	 * Loads statically defined schemas into the registry. This should be called first in order to boostrap the ORM.
+	 */
+	async loadStaticSchemas () {
+		const modules = fs
+			.readdirSync(__dirname)
+			.filter(file => !file.includes('.js'))
+			.filter(file => !file.includes('plugins'));
+
+		for (const moduleName of modules) {
+			const { modelClass, schema } = await import(`${__dirname}/${moduleName}`);
+			this.register(modelClass, schema);
+		}
+	}
+
+	/**
+	 * Loads dynamically defined schemas into the registry. This should only be called after static models have already been loaded.
+	 * @returns {void}
+	 */
+	async loadDynamicSchemas () {
+
+		const ChimeraModel = this.model('ChimeraModel');
+		const chimeraModels = await ChimeraModel.loadHydrated();
+
+		this._modelCache = chimeraModels;
+
+		chimeraModels.forEach(chimeraModel => {
+			const schema = chimeraModel.compileSchema();
+			this.register(schema.name, schema);
+		});
+	}
+
+	/**
      * Registers a model to be compiled with mongoose
-     * @param {(string | class)} model - A string or a class to be used for the model
+     * @param {(string | class)} modelClass - A string or a class to be used for the model
      * @param {object} schema - The schema to pair with this model
      */
-	register (model, schema) {
+	register (modelClass, schema) {
 		const namespace = schema.name;
 
-		this[namespace] = { model, schema };
+		this[namespace] = { modelClass, schema };
+	}
+
+	/**
+	 * Applies associations
+     * @param {string} namespace - Specifies a specific model to compile
+	 */
+	associate (namespace) {
+		let scope = [];
+		if (namespace) {
+			if (!(namespace in this._models)) {
+				throw new ReferenceError(`'${namespace}' is not a registered namespace.`);
+			}
+
+			scope = [namespace];
+		} else {
+			scope = Object.keys(this).filter(namespace => !namespace.includes('_'));
+		}
 	}
 
 	/**
      * Compiles current registrations into mongoose models
-     * @param {string} namespace - Specifies a specific model to compile
+     * @param {string} namespace - Specifies a specific schema to compile
      */
-	async compile (namespace) {
+	compile (namespace) {
 		let scope = [];
 		if (namespace) {
 			if (!(namespace in this._models)) {
@@ -37,7 +87,12 @@ class ModelRegistry extends EventEmitter {
 
 		scope.forEach(namespace => {
 			const registered = this[namespace];
-			mongoose.model(registered.model || registered.schema.name, registered.schema);
+
+			if (this.isCompiled(namespace)) {
+				mongoose.deleteModel(namespace);
+			}
+
+			registered.model = mongoose.model(registered.modelClass || registered.schema.name, registered.schema);
 		});
 	}
 
@@ -58,4 +113,4 @@ class ModelRegistry extends EventEmitter {
 	}
 }
 
-export default new ModelRegistry();
+export default ModelRegistry;
