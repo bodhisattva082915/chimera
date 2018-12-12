@@ -9,6 +9,12 @@ import mongoose from 'mongoose';
  */
 class ModelRegistry extends EventEmitter {
 
+	constructor () {
+		super();
+
+		this._modelCache = [];
+	}
+
 	/**
 	 * Loads statically defined schemas into the registry. This should be called first in order to boostrap the ORM.
 	 */
