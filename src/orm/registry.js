@@ -1,5 +1,6 @@
 import fs from 'fs';
 import EventEmitter from 'events';
+import map from 'lodash/map';
 import mongoose from 'mongoose';
 
 /**
@@ -25,8 +26,8 @@ class ModelRegistry extends EventEmitter {
 			.filter(file => !file.includes('plugins'));
 
 		for (const moduleName of modules) {
-			const { modelClass, schema } = await import(`${__dirname}/${moduleName}`);
-			this.register(modelClass, schema);
+			const { modelClass, schema, discriminators } = await import(`${__dirname}/${moduleName}`);
+			this.register(modelClass, schema, discriminators);
 		}
 	}
 
@@ -52,10 +53,10 @@ class ModelRegistry extends EventEmitter {
      * @param {(string | class)} modelClass - A string or a class to be used for the model
      * @param {object} schema - The schema to pair with this model
      */
-	register (modelClass, schema) {
+	register (modelClass, schema, discriminators) {
 		const namespace = schema.name;
 
-		this[namespace] = { modelClass, schema };
+		this[namespace] = { modelClass, schema, discriminators };
 	}
 
 	/**
@@ -99,6 +100,17 @@ class ModelRegistry extends EventEmitter {
 			}
 
 			registered.model = mongoose.model(registered.modelClass || registered.schema.name, registered.schema);
+
+			if (registered.discriminators) {
+				map(registered.discriminators, (discrimator, discrimatorName) => {
+
+					if (this.isCompiled(discrimatorName)) {
+						mongoose.deleteModel(discrimatorName);
+					}
+
+					registered.model.discriminator(discrimatorName, discrimator);
+				});
+			}
 		});
 	}
 
