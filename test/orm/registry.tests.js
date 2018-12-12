@@ -1,9 +1,12 @@
 import mongoose from 'mongoose';
 import factory from 'factory-girl';
+import sinon from 'sinon';
 import ModelRegistry from 'app/orm/registry';
 
 describe('ModelRegistry', function () {
 	before(async function () {
+		this.registry = new ModelRegistry();
+
 		this.staticModels = [
 			'ChimeraModel',
 			'ChimeraField',
@@ -23,7 +26,7 @@ describe('ModelRegistry', function () {
 		await factory.cleanUp();
 	});
 
-	beforeEach(async function () {
+	afterEach(async function () {
 		this.registry = new ModelRegistry();
 	});
 
@@ -45,18 +48,52 @@ describe('ModelRegistry', function () {
 
 	describe('associate', function () {
 		before(async function () {
+			this.associations = {};
+			this.associations['alpha'] = await factory.create('ChimeraAssociation', {
+				type: 'OneToMany',
+				fromModelId: this.dynamicModels[0].id,
+				toModelId: this.dynamicModels[1].id
+			});
+			this.associations['beta'] = await factory.create('ChimeraAssociation', {
+				type: 'OneToMany',
+				fromModelId: this.dynamicModels[1].id,
+				toModelId: this.dynamicModels[2].id
+			});
+
 			await this.registry.loadStaticSchemas();
 			await this.registry.loadDynamicSchemas();
 
-			this.associations = {};
-			this.associations[0] = await factory.create('ChimeraAssociation', {
-				type: 'OneToMany'
-			});
+			this.schemaSpy1 = sinon.spy(this.registry[this.dynamicModels[0].name].schema, 'associate');
+			this.schemaSpy2 = sinon.spy(this.registry[this.dynamicModels[1].name].schema, 'associate');
+			this.schemaSpy3 = sinon.spy(this.registry[this.dynamicModels[2].name].schema, 'associate');
+		});
+
+		after(function () {
+			this.schemaSpy1.restore();
+			this.schemaSpy2.restore();
+			this.schemaSpy3.restore();
 		});
 
 		it('should apply associations to registered schemas', function () {
 			this.registry.applyAssociations();
 
+			this.schemaSpy1.should.have.been.calledOnce;
+			this.schemaSpy1.firstCall.args.should.containSubset([
+				[ { id: this.associations['alpha'].id } ]
+			]);
+
+			this.schemaSpy2.should.have.been.calledOnce;
+			this.schemaSpy2.firstCall.args.should.containSubset([
+				[
+					{ id: this.associations['alpha'].id },
+					{ id: this.associations['beta'].id }
+				]
+			]);
+
+			this.schemaSpy3.should.have.been.calledOnce;
+			this.schemaSpy3.firstCall.args.should.containSubset([
+				[ { id: this.associations['beta'].id } ]
+			]);
 		});
 	});
 

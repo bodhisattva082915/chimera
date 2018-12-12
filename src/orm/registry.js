@@ -13,7 +13,7 @@ class ModelRegistry extends EventEmitter {
 	constructor () {
 		super();
 
-		this._modelCache = [];
+		this._modelCache = {};
 	}
 
 	/**
@@ -28,6 +28,9 @@ class ModelRegistry extends EventEmitter {
 		for (const moduleName of modules) {
 			const { modelClass, schema, discriminators } = await import(`${__dirname}/${moduleName}`);
 			this.register(modelClass, schema, discriminators);
+
+			// Allocate a space in the cache for dynamic content
+			this._modelCache[schema.name] = {};
 		}
 	}
 
@@ -43,7 +46,7 @@ class ModelRegistry extends EventEmitter {
 		this._modelCache = chimeraModels.reduce((cache, model) => ({
 			...cache,
 			[model.name]: model
-		}), {});
+		}), this._modelCache);
 
 		chimeraModels.forEach(chimeraModel => {
 			const fields = chimeraModel.chimeraFields;
@@ -83,7 +86,7 @@ class ModelRegistry extends EventEmitter {
 		scope.forEach(namespace => {
 			const registered = this[namespace];
 			const model = this._modelCache[namespace];
-			const associations = [...model.dominantAssociations, ...model.subordinateAssociations];
+			const associations = [...(model.dominantAssociations || []), ...(model.subordinateAssociations || [])];
 
 			registered.schema.associate(associations);
 		});
