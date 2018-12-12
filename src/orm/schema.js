@@ -188,7 +188,7 @@ class ChimeraSchema extends mongoose.Schema {
 
 		associations.forEach(assoc => {
 			switch (assoc.type) {
-				case 'ChimeraOneToMany':
+				case 'OneToMany':
 					isDominant(assoc)
 						? this.hasMany(assoc.to.name, {
 							foreignField: assoc.foreignKey || `${camelCase(this.name)}Id`,
@@ -202,7 +202,7 @@ class ChimeraSchema extends mongoose.Schema {
 						});
 					break;
 
-				case 'ChimeraOneToOne':
+				case 'OneToOne':
 					isDominant(assoc)
 						? this.hasOne(assoc.to.name, {
 							foreignField: assoc.foreignKey || `${camelCase(this.name)}Id`,
@@ -216,7 +216,7 @@ class ChimeraSchema extends mongoose.Schema {
 						});
 					break;
 
-				case 'ChimeraManyToMany':
+				case 'ManyToMany':
 					const through = assoc.through;
 					// Determine if the through model needs to be registered. Since the association is paired with two different models
 					// There is no guarentee which end of the relationship will hitt this first

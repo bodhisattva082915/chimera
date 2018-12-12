@@ -6,7 +6,7 @@ import manyToMany from './manyToMany';
 export { default as schema } from './schema';
 
 export const discriminators = {
-	ChimeraOneToMany: oneToMany,
-	ChimeraOneToOne: oneToOne,
-	ChimeraManyToMany: manyToMany
+	OneToMany: oneToMany,
+	OneToOne: oneToOne,
+	ManyToMany: manyToMany
 };

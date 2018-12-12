@@ -4,9 +4,9 @@ import factory from 'factory-girl';
 describe('ChimeraAssociation', function () {
 	before(async function () {
 		this.ChimeraAssociation = mongoose.model('ChimeraAssociation');
-		this.OneToMany = mongoose.model('ChimeraOneToMany');
-		this.OneToOne = mongoose.model('ChimeraOneToOne');
-		this.ManyToMany = mongoose.model('ChimeraManyToMany');
+		this.OneToMany = mongoose.model('OneToMany');
+		this.OneToOne = mongoose.model('OneToOne');
+		this.ManyToMany = mongoose.model('ManyToMany');
 
 		this.testModelADoc = await factory.create('ChimeraModel');
 		this.testModelBDoc = await factory.create('ChimeraModel');

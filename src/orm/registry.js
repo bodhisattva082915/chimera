@@ -68,7 +68,7 @@ class ModelRegistry extends EventEmitter {
 	 * Applies associations to registered schemas
      * @param {string} namespace - Specifies a specific model to compile
 	 */
-	associate (namespace) {
+	applyAssociations (namespace) {
 		let scope = [];
 		if (namespace) {
 			if (!(namespace in this._models)) {

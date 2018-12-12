@@ -47,9 +47,15 @@ describe('ModelRegistry', function () {
 		before(async function () {
 			await this.registry.loadStaticSchemas();
 			await this.registry.loadDynamicSchemas();
+
+			this.associations = {};
+			this.associations[0] = await factory.create('ChimeraAssociation', {
+				type: 'OneToMany'
+			});
 		});
 
 		it('should apply associations to registered schemas', function () {
+			this.registry.applyAssociations();
 
 		});
 	});
