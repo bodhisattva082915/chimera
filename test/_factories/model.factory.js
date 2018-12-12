@@ -1,6 +1,8 @@
 import factory from 'factory-girl';
-import ChimeraModel from 'app/orm/model';
+import orm from 'app/orm';
 
-factory.define(ChimeraModel.modelName, ChimeraModel, {
+const model = orm.getModel('ChimeraModel');
+
+factory.define(model.modelName, model, {
 	name: factory.chance('word')
 });
