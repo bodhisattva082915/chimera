@@ -23,7 +23,7 @@ export async function init () {
 		registry.register(modelClass, schema);
 	}
 
-	registry.compile();
+	await registry.compile();
 
 	/** Load dynamic models into the registry */
 	// Raw mongoose query into mongodb for models

@@ -1,7 +1,7 @@
 import factory from 'factory-girl';
 import orm from 'app/orm';
 
-const model = orm.getModel('ChimeraAssociation');
+const model = orm.model('ChimeraAssociation');
 
 factory.define(model.modelName, model, {
 	fromModelId: factory.assoc('ChimeraModel', '_id'),

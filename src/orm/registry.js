@@ -23,7 +23,7 @@ class ModelRegistry extends EventEmitter {
      * Compiles current registrations into mongoose models
      * @param {string} namespace - Specifies a specific model to compile
      */
-	compile (namespace) {
+	async compile (namespace) {
 		let scope = [];
 		if (namespace) {
 			if (!(namespace in this._models)) {
@@ -41,7 +41,7 @@ class ModelRegistry extends EventEmitter {
 		});
 	}
 
-	getModel (namespace) {
+	model (namespace) {
 		if (!this.isCompiled(namespace)) {
 			return undefined;
 		}
