@@ -46,7 +46,7 @@ describe('ModelRegistry', function () {
 		});
 	});
 
-	describe('associate', function () {
+	describe('applyAssociations', function () {
 		before(async function () {
 			this.associations = {};
 			this.associations['alpha'] = await factory.create('ChimeraAssociation', {
