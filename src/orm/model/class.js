@@ -6,8 +6,9 @@ class ChimeraModel extends mongoose.Model {
 	/**
 	 * Queries and populates ChimeraModel(s) with associated support content.
 	 */
-	static async loadHydrated () {
+	static async loadHydrated (where = {}) {
 		const chimeraModels = await this.find()
+			.where(where)
 			.populate('chimeraFields')
 			.populate({
 				path: 'dominantAssociations',

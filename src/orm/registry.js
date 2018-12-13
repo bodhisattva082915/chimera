@@ -36,12 +36,13 @@ class ModelRegistry extends EventEmitter {
 
 	/**
 	 * Loads dynamically defined schemas into the registry. This should only be called after static models have already been loaded.
+	 * @param {[string]} ids - An array of ids specifying a subset of dynamic schemas to load. This is preferrable to reloading all dynamic schemas everytime.
 	 * @returns {void}
 	 */
-	async loadDynamicSchemas () {
+	async loadDynamicSchemas (ids) {
 
 		const ChimeraModel = this.model('ChimeraModel');
-		const chimeraModels = await ChimeraModel.loadHydrated();
+		const chimeraModels = await ChimeraModel.loadHydrated(ids);
 
 		this._modelCache = chimeraModels.reduce((cache, model) => ({
 			...cache,
@@ -65,6 +66,8 @@ class ModelRegistry extends EventEmitter {
 		const namespace = schema.name;
 
 		this[namespace] = { modelClass, schema, discriminators };
+
+		return this[namespace];
 	}
 
 	/**
@@ -72,16 +75,7 @@ class ModelRegistry extends EventEmitter {
      * @param {string} namespace - Specifies a specific model to compile
 	 */
 	applyAssociations (namespace) {
-		let scope = [];
-		if (namespace) {
-			if (!(namespace in this._models)) {
-				throw new ReferenceError(`'${namespace}' is not a registered namespace.`);
-			}
-
-			scope = [namespace];
-		} else {
-			scope = Object.keys(this).filter(namespace => !namespace.includes('_'));
-		}
+		const scope = this._namespaceToScope(namespace);
 
 		scope.forEach(namespace => {
 			const registered = this[namespace];
@@ -95,18 +89,10 @@ class ModelRegistry extends EventEmitter {
 	/**
      * Compiles current registrations into mongoose models
      * @param {string} namespace - Specifies a specific schema to compile
+	 * @param {object} opts - Additional options for configuring the compilation process
      */
-	compile (namespace) {
-		let scope = [];
-		if (namespace) {
-			if (!(namespace in this._models)) {
-				throw new ReferenceError(`'${namespace}' is not a registered namespace.`);
-			}
-
-			scope = [namespace];
-		} else {
-			scope = Object.keys(this).filter(namespace => !namespace.includes('_'));
-		}
+	compile (namespace, opts = {}) {
+		const scope = this._namespaceToScope(namespace);
 
 		scope.forEach(namespace => {
 			const registered = this[namespace];
@@ -128,6 +114,18 @@ class ModelRegistry extends EventEmitter {
 				});
 			}
 		});
+
+		if (opts.uncompiledRegistrants !== false) {
+			const fullScope = this._namespaceToScope();
+
+			fullScope.forEach(namespace => {
+				if (!this.isCompiled(namespace)) {
+					const uncompiled = this[namespace];
+
+					uncompiled.model = mongoose.model(uncompiled.modelClass || uncompiled.schema.name, uncompiled.schema);
+				}
+			});
+		}
 	}
 
 	model (namespace) {
@@ -144,6 +142,22 @@ class ModelRegistry extends EventEmitter {
 
 	isCompiled (namespace) {
 		return mongoose.modelNames().includes(namespace);
+	}
+
+	_namespaceToScope (namespace) {
+		let scope = [];
+		if (namespace) {
+			scope = Array.isArray(namespace) ? namespace : [namespace];
+			scope.forEach(namespace => {
+				if (!this.isRegistered(namespace)) {
+					throw new ReferenceError(`'${namespace}' is not a registered namespace.`);
+				}
+			});
+		} else {
+			scope = Object.keys(this).filter(namespace => !namespace.startsWith('_'));
+		}
+
+		return scope;
 	}
 }
 

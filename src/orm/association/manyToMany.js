@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import ChimeraSchema from '../schema';
 
 const ChimeraManyToMany = new ChimeraSchema('ChimeraManyToMany', {
@@ -14,6 +13,11 @@ const ChimeraManyToMany = new ChimeraSchema('ChimeraManyToMany', {
 		relatedName: String,
 		reverseName: String
 	}
-});
+})
+	/** Associations */
+	.belongsTo('ChimeraModel', {
+		localField: 'throughModelId',
+		as: 'through'
+	});
 
 export default ChimeraManyToMany;

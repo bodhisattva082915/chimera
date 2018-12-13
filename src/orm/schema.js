@@ -1,5 +1,6 @@
 import camelCase from 'lodash/camelCase';
 import mongoose from 'mongoose';
+import registry from './index';
 
 class ChimeraSchemaError extends Error {
 	constructor (message) {
@@ -185,6 +186,29 @@ class ChimeraSchema extends mongoose.Schema {
 	 */
 	associate (associations) {
 		const isDominant = assoc => assoc.from.name === this.name;
+		const buildJunction = assoc => {
+			let junction;
+
+			// Use an implicit through model
+			if (!assoc.through) {
+				const implicitName = `${assoc.from.name}_${assoc.to.name}`;
+
+				if (registry.isRegistered(implicitName)) {
+					junction = registry[implicitName].schema;
+				} else {
+					junction = registry.register(implicitName, new ChimeraSchema(implicitName)).schema;
+				}
+
+			// Use an explicit through model
+			} else {
+				junction = registry[assoc.through.name].schema;
+			}
+
+			junction.belongsTo(assoc.from.name);
+			junction.belongsTo(assoc.to.name);
+
+			return junction;
+		};
 
 		associations.forEach(assoc => {
 			switch (assoc.type) {
@@ -217,27 +241,22 @@ class ChimeraSchema extends mongoose.Schema {
 					break;
 
 				case 'ManyToMany':
-					const through = assoc.through;
-					// Determine if the through model needs to be registered. Since the association is paired with two different models
-					// There is no guarentee which end of the relationship will hitt this first
-					// Perhaps we need a schema registry similar to model registry for mongoose?
-					if (!assoc.throughModelId) {
-						// We need to find or create a minimal schema/model to act as the junction point
-					}
+					const through = buildJunction(assoc);
 
 					isDominant(assoc)
 						? this.belongsToMany(assoc.to.name, {
 							localField: assoc.fromConfig.primaryKey,
 							foreignField: assoc.fromConfig.foreignKey,
 							as: assoc.fromConfig.reverseName,
-							through
+							through: through.name
 						})
 						: this.belongsToMany(assoc.from.name, {
 							localField: assoc.toConfig.primaryKey,
 							foreignField: assoc.toConfig.foreignKey,
 							as: assoc.toConfig.reverseName,
-							through
+							through: through.name
 						});
+
 					break;
 
 				default:
