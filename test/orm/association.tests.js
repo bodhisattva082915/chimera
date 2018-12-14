@@ -110,12 +110,6 @@ describe('ChimeraAssociation', function () {
 					fields: 1
 				}
 			});
-
-			await orm.loadDynamicSchemas({
-				_id: {
-					$in: [this.testModelADoc.id, this.testModelBDoc.id]
-				}
-			});
 		});
 
 		after(async function () {
@@ -124,30 +118,25 @@ describe('ChimeraAssociation', function () {
 		});
 
 		it(`should define hasMany cardinality on the 'from' model when compiled`, async function () {
-			const _model = this.testModelADoc;
-			orm.applyAssociations(_model.name);
-			orm.compile(_model.name);
+			await orm.compile(this.testModelADoc.id);
 
-			const model = orm.model(_model.name);
+			const model = orm.model(this.testModelADoc.namespace);
 			model.schema.virtuals.should.have.property('bModels');
 		});
 
 		it(`should define hasMany cardinality on the 'to' model when compiled`, async function () {
-			const _model = this.testModelBDoc;
-			orm.applyAssociations(_model.name);
-			orm.compile(_model.name);
+			await orm.compile(this.testModelBDoc.id);
 
-			const model = orm.model(_model.name);
+			const model = orm.model(this.testModelBDoc.namespace);
 			model.schema.virtuals.should.have.property('aModels');
 		});
 
-		it(`should define a new model for the junction collection when 'through' is not explicitly defined`, function () {
-			const scope = [this.testModelADoc.name, this.testModelBDoc.name];
-			orm.applyAssociations(scope);
-			orm.compile(scope);
-			orm.isRegistered(`${scope[0]}_${scope[1]}`).should.be.true;
+		it(`should define a new model for the junction collection when 'through' is not explicitly defined`, async function () {
+			const models = [this.testModelADoc, this.testModelBDoc];
+			await orm.compile(models.map(s => s.id));
+			orm.isRegistered(`${models[0].namespace}_${models[1].namespace}`).should.be.true;
 
-			const throughModel = orm.model(`${scope[0]}_${scope[1]}`);
+			const throughModel = orm.model(`${models[0].namespace}_${models[1].namespace}`);
 			throughModel.schema.paths.should.have.property(`aModelId`);
 			throughModel.schema.paths.should.have.property(`bModelId`);
 			throughModel.schema.virtuals.should.have.property(`aModel`);
@@ -155,22 +144,15 @@ describe('ChimeraAssociation', function () {
 		});
 
 		it(`should use an existing model for the junction collection when 'through' is explicitly defined`, async function () {
-			const models = [this.testModelADoc, this.testModelBDoc, this.through];
-
 			await this.nonHierarchical.updateOne({ throughModelId: this.through.id });
-			await orm.loadDynamicSchemas({
-				_id: {
-					$in: models.map(model => model.id)
-				}
-			});
 
-			const scope = models.map(model => model.name);
+			const models = [this.testModelADoc, this.testModelBDoc, this.through];
+			const scope = models.map(model => model.id);
 
-			orm.applyAssociations(scope);
-			orm.compile(scope);
-			orm.isRegistered(this.through.name);
+			await orm.compile(scope);
+			orm.isRegistered(this.through.namespace);
 
-			const throughModel = orm.model(this.through.name);
+			const throughModel = orm.model(this.through.namespace);
 			throughModel.schema.paths.should.have.property(`aModelId`);
 			throughModel.schema.paths.should.have.property(`bModelId`);
 			throughModel.schema.virtuals.should.have.property(`aModel`);

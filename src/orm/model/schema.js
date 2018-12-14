@@ -1,3 +1,4 @@
+
 import ChimeraSchema from '../schema';
 
 const schema = new ChimeraSchema('ChimeraModel', {
@@ -8,6 +9,12 @@ const schema = new ChimeraSchema('ChimeraModel', {
 	module: {
 		type: String,
 		default: ''
+	},
+	namespace: {
+		type: String,
+		get () {
+			return [this.module, this.name].filter(x => x).join('.');
+		}
 	}
 })
 	/** Associations */

@@ -185,18 +185,18 @@ class ChimeraSchema extends mongoose.Schema {
 	 * @param {ChimeraModel} associations[].to - The ChimeraModel designated in the 'toModelId' of the association.
 	 */
 	associate (associations) {
-		const isDominant = assoc => assoc.from.name === this.name;
+		const isDominant = assoc => assoc.from.namespace === this.name;
 
 		associations.forEach(assoc => {
 			switch (assoc.type) {
 				case 'HierarchicalAssociation':
 					isDominant(assoc)
-						? this[assoc.many ? 'hasMany' : 'hasOne'](assoc.to.name, {
+						? this[assoc.many ? 'hasMany' : 'hasOne'](assoc.to.namespace, {
 							foreignField: assoc.toModel.foreignKey || `${camelCase(this.name)}Id`,
 							localField: assoc.fromModel.primaryKey,
 							as: assoc.fromModel.reverseName
 						})
-						: this.belongsTo(assoc.from.name, {
+						: this.belongsTo(assoc.from.namespace, {
 							localField: assoc.toModel.foreignKey,
 							foreignField: assoc.fromModel.primaryKey,
 							as: assoc.toModel.relatedName
@@ -207,13 +207,13 @@ class ChimeraSchema extends mongoose.Schema {
 					const through = this._buildJunction(assoc);
 
 					isDominant(assoc)
-						? this.belongsToMany(assoc.to.name, {
+						? this.belongsToMany(assoc.to.namespace, {
 							localField: assoc.fromModel.primaryKey,
 							foreignField: assoc.fromModel.foreignKey,
 							as: assoc.fromModel.reverseName,
 							through: through.name
 						})
-						: this.belongsToMany(assoc.from.name, {
+						: this.belongsToMany(assoc.from.namespace, {
 							localField: assoc.toModel.primaryKey,
 							foreignField: assoc.toModel.foreignKey,
 							as: assoc.toModel.reverseName,
@@ -239,26 +239,26 @@ class ChimeraSchema extends mongoose.Schema {
 
 		// Use an implicit through model
 		if (!assoc.through) {
-			const implicitName = `${assoc.from.name}_${assoc.to.name}`;
+			const implicitName = `${assoc.from.namespace}_${assoc.to.namespace}`;
 
 			if (registry.isRegistered(implicitName)) {
 				junction = registry[implicitName].schema;
 			} else {
-				junction = registry.register(implicitName, new ChimeraSchema(implicitName)).schema;
+				junction = registry._register(implicitName, new ChimeraSchema(implicitName)).schema;
 			}
 
 		// Use an explicit through model
 		} else {
-			junction = registry[assoc.through.name].schema;
+			junction = registry[assoc.through.namespace].schema;
 		}
 
-		junction.belongsTo(assoc.from.name, {
+		junction.belongsTo(assoc.from.namespace, {
 			localField: assoc.fromModel.foreignKey,
 			foreignField: assoc.fromModel.primaryKey,
 			as: assoc.fromModel.relatedName
 		});
 
-		junction.belongsTo(assoc.to.name, {
+		junction.belongsTo(assoc.to.namespace, {
 			localField: assoc.toModel.foreignKey,
 			foreignField: assoc.toModel.primaryKey,
 			as: assoc.toModel.relatedName

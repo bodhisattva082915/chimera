@@ -1,6 +1,7 @@
 import fs from 'fs';
 import EventEmitter from 'events';
 import map from 'lodash/map';
+import pickBy from 'lodash/pickBy';
 import mongoose from 'mongoose';
 
 /**
@@ -16,10 +17,44 @@ class ModelRegistry extends EventEmitter {
 		this._modelCache = {};
 	}
 
+	async bootstrap () {
+		await this._loadStaticSchemas();
+		return this._compile();
+	}
+
+	async compile (ids) {
+		if (!Array.isArray(ids)) {
+			ids = [ids];
+		}
+
+		await this._loadDynamicSchemas(ids);
+
+		const namespace = this._idsToNamespace(ids);
+
+		this._applyAssociations(namespace);
+		return this._compile(namespace);
+	}
+
+	model (namespace) {
+		if (!this.isCompiled(namespace)) {
+			return undefined;
+		}
+
+		return mongoose.model(namespace);
+	}
+
+	isRegistered (namespace) {
+		return !!(namespace in this);
+	}
+
+	isCompiled (namespace) {
+		return mongoose.modelNames().includes(namespace);
+	}
+
 	/**
 	 * Loads statically defined schemas into the registry. This should be called first in order to boostrap the ORM.
 	 */
-	async loadStaticSchemas () {
+	async _loadStaticSchemas () {
 		const modules = fs
 			.readdirSync(__dirname)
 			.filter(file => !file.includes('.js'))
@@ -27,7 +62,7 @@ class ModelRegistry extends EventEmitter {
 
 		for (const moduleName of modules) {
 			const { modelClass, schema, discriminators } = await import(`${__dirname}/${moduleName}`);
-			this.register(modelClass, schema, discriminators);
+			this._register(modelClass, schema, discriminators);
 
 			// Allocate a space in the cache for dynamic content
 			this._modelCache[schema.name] = {};
@@ -39,21 +74,28 @@ class ModelRegistry extends EventEmitter {
 	 * @param {[string]} ids - An array of ids specifying a subset of dynamic schemas to load. This is preferrable to reloading all dynamic schemas everytime.
 	 * @returns {void}
 	 */
-	async loadDynamicSchemas (ids) {
+	async _loadDynamicSchemas (ids) {
+		const where = ids
+			? {
+				_id: {
+					$in: ids
+				}
+			}
+			: {};
 
 		const ChimeraModel = this.model('ChimeraModel');
-		const chimeraModels = await ChimeraModel.loadHydrated(ids);
+		const chimeraModels = await ChimeraModel.loadHydrated(where);
 
 		this._modelCache = chimeraModels.reduce((cache, model) => ({
 			...cache,
-			[model.name]: model
+			[model.namespace]: model
 		}), this._modelCache);
 
 		chimeraModels.forEach(chimeraModel => {
 			const fields = chimeraModel.chimeraFields;
 			const schema = chimeraModel.buildSchema(fields);
 
-			this.register(schema.name, schema);
+			this._register(chimeraModel.namespace, schema);
 		});
 	}
 
@@ -62,7 +104,7 @@ class ModelRegistry extends EventEmitter {
      * @param {(string | class)} modelClass - A string or a class to be used for the model
      * @param {object} schema - The schema to pair with this model
      */
-	register (modelClass, schema, discriminators) {
+	_register (modelClass, schema, discriminators) {
 		const namespace = schema.name;
 
 		this[namespace] = { modelClass, schema, discriminators };
@@ -74,7 +116,7 @@ class ModelRegistry extends EventEmitter {
 	 * Applies associations to registered schemas
      * @param {string} namespace - Specifies a specific model to compile
 	 */
-	applyAssociations (namespace) {
+	_applyAssociations (namespace) {
 		const scope = this._namespaceToScope(namespace);
 
 		scope.forEach(namespace => {
@@ -96,8 +138,9 @@ class ModelRegistry extends EventEmitter {
      * @param {string} namespace - Specifies a specific schema to compile
 	 * @param {object} opts - Additional options for configuring the compilation process
      */
-	compile (namespace, opts = {}) {
+	_compile (namespace, opts = {}) {
 		const scope = this._namespaceToScope(namespace);
+		const compiled = [];
 
 		scope.forEach(namespace => {
 			const registered = this[namespace];
@@ -107,6 +150,7 @@ class ModelRegistry extends EventEmitter {
 			}
 
 			registered.model = mongoose.model(registered.modelClass || registered.schema.name, registered.schema);
+			compiled.push(registered.model);
 
 			if (registered.discriminators) {
 				map(registered.discriminators, (discrimator, discrimatorName) => {
@@ -128,25 +172,24 @@ class ModelRegistry extends EventEmitter {
 					const uncompiled = this[namespace];
 
 					uncompiled.model = mongoose.model(uncompiled.modelClass || uncompiled.schema.name, uncompiled.schema);
+					compiled.push(uncompiled.model);
 				}
 			});
 		}
+
+		return compiled;
 	}
 
-	model (namespace) {
-		if (!this.isCompiled(namespace)) {
-			return undefined;
+	_idsToNamespace (ids) {
+		let namespace = [];
+		if (ids) {
+			ids = Array.isArray(ids) ? ids : [ids];
+			namespace = Object.keys(pickBy(this._modelCache, model => ids.includes(model.id)));
+		} else {
+			namespace = Object.keys(this._modelCache);
 		}
 
-		return mongoose.model(namespace);
-	}
-
-	isRegistered (namespace) {
-		return !!(namespace in this);
-	}
-
-	isCompiled (namespace) {
-		return mongoose.modelNames().includes(namespace);
+		return namespace;
 	}
 
 	_namespaceToScope (namespace) {

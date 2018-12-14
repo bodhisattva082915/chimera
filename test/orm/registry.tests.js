@@ -30,23 +30,23 @@ describe('ModelRegistry', function () {
 		this.registry = new ModelRegistry();
 	});
 
-	describe('loadStaticSchemas', function () {
+	describe('_loadStaticSchemas', function () {
 		it('should register statically defined schemas', async function () {
-			await this.registry.loadStaticSchemas();
+			await this.registry._loadStaticSchemas();
 
 			this.registry.should.include.keys(this.staticModels);
 		});
 	});
 
-	describe('loadDynamicSchemas', function () {
+	describe('_loadDynamicSchemas', function () {
 		it('should register dynamically defined schemas', async function () {
-			await this.registry.loadDynamicSchemas();
+			await this.registry._loadDynamicSchemas();
 
 			this.registry.should.include.keys(this.dynamicModels.map(m => m.name));
 		});
 	});
 
-	describe('applyAssociations', function () {
+	describe('_applyAssociations', function () {
 		before(async function () {
 			this.associations = {};
 			this.associations['alpha'] = await factory.create('ChimeraAssociation', {
@@ -60,8 +60,8 @@ describe('ModelRegistry', function () {
 				toModelId: this.dynamicModels[2].id
 			});
 
-			await this.registry.loadStaticSchemas();
-			await this.registry.loadDynamicSchemas();
+			await this.registry._loadStaticSchemas();
+			await this.registry._loadDynamicSchemas();
 
 			this.schemaSpy1 = sinon.spy(this.registry[this.dynamicModels[0].name].schema, 'associate');
 			this.schemaSpy2 = sinon.spy(this.registry[this.dynamicModels[1].name].schema, 'associate');
@@ -75,7 +75,7 @@ describe('ModelRegistry', function () {
 		});
 
 		it('should apply associations to registered schemas', function () {
-			this.registry.applyAssociations();
+			this.registry._applyAssociations();
 
 			this.schemaSpy1.should.have.been.calledOnce;
 			this.schemaSpy1.firstCall.args.should.containSubset([
@@ -97,14 +97,14 @@ describe('ModelRegistry', function () {
 		});
 	});
 
-	describe('compile', function () {
+	describe('_compile', function () {
 		before(async function () {
-			await this.registry.loadStaticSchemas();
-			await this.registry.loadDynamicSchemas();
+			await this.registry._loadStaticSchemas();
+			await this.registry._loadDynamicSchemas();
 		});
 
 		it('should compile registered schemas into mongoose models', function () {
-			this.registry.compile();
+			this.registry._compile();
 
 			mongoose.modelNames().should.containSubset([
 				...this.staticModels,

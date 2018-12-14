@@ -4,10 +4,14 @@ import factory from 'factory-girl';
 describe('ChimeraModel', function () {
 	before(async function () {
 		this.ChimeraModel = mongoose.model('ChimeraModel');
+		this.ChimeraField = mongoose.model('ChimeraField');
+
 		this.testModel = await factory.create('ChimeraModel', {
 			name: 'TestModelA',
 			module: 'TestModuleA'
 		});
+
+		this.associatedFields = await this.ChimeraField.find({ chimeraModelId: this.testModel.id });
 	});
 
 	after(async function () {
@@ -51,10 +55,6 @@ describe('ChimeraModel', function () {
 			await factory.create('ChimeraModel', { name: 'My Modelo' });
 		});
 
-		after(async function () {
-			await factory.cleanUp();
-		});
-
 		it('should find and return ChimeraModels hydrated with associated schema configuration content', async function () {
 			const models = await this.ChimeraModel.loadHydrated();
 
@@ -80,11 +80,9 @@ describe('ChimeraModel', function () {
 	});
 
 	describe('compile', function () {
-		xit('should successfully register a mongoose model with a schema compiled from ChimeraFields', async function () {
-			const CompiledModel = await this.testModel.compile();
-			const instance = new CompiledModel();
-
-			instance.schema.paths.should.include.keys(...this.associatedFields.map(field => field.name));
+		it('should successfully register a mongoose model with a schema compiled from ChimeraFields', async function () {
+			const compiled = await this.testModel.compile();
+			compiled.schema.paths.should.include.keys(...this.associatedFields.map(field => field.name));
 		});
 	});
 });

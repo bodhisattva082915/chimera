@@ -21,16 +21,14 @@ export async function init () {
  * Initalizes a minimal ORM
  */
 async function bootstrap () {
-	await registry.loadStaticSchemas();
-	registry.compile();
+	await registry.bootstrap();
 };
 
 /**
  * Enhances upon the inital ORM by loading implementation specific modeling
  */
 async function extend () {
-	await registry.loadDynamicSchemas();
-	registry.compile();
+	await registry.compile();
 }
 
 export default registry;
