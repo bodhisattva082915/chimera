@@ -5,7 +5,7 @@ import orm from 'app/orm';
 const model = orm.model('ChimeraModel');
 
 factory.define(model.modelName, model, {
-	name: factory.chance('word')
+	name: factory.chance('word', { length: 5 })
 }, {
 	afterCreate: async (model, attrs, buildOptions) => {
 		const fields = get(buildOptions, 'autoCreate.fields', 3);
