@@ -186,38 +186,6 @@ class ChimeraSchema extends mongoose.Schema {
 	 */
 	associate (associations) {
 		const isDominant = assoc => assoc.from.name === this.name;
-		const buildJunction = assoc => {
-			let junction;
-
-			// Use an implicit through model
-			if (!assoc.through) {
-				const implicitName = `${assoc.from.name}_${assoc.to.name}`;
-
-				if (registry.isRegistered(implicitName)) {
-					junction = registry[implicitName].schema;
-				} else {
-					junction = registry.register(implicitName, new ChimeraSchema(implicitName)).schema;
-				}
-
-			// Use an explicit through model
-			} else {
-				junction = registry[assoc.through.name].schema;
-			}
-
-			junction.belongsTo(assoc.from.name, {
-				localField: assoc.fromModel.foreignKey,
-				foreignField: assoc.fromModel.primaryKey,
-				as: assoc.fromModel.relatedName
-			});
-
-			junction.belongsTo(assoc.to.name, {
-				localField: assoc.toModel.foreignKey,
-				foreignField: assoc.toModel.primaryKey,
-				as: assoc.toModel.relatedName
-			});
-
-			return junction;
-		};
 
 		associations.forEach(assoc => {
 			switch (assoc.type) {
@@ -236,7 +204,7 @@ class ChimeraSchema extends mongoose.Schema {
 					break;
 
 				case 'NonHierarchicalAssociation':
-					const through = buildJunction(assoc);
+					const through = this._buildJunction(assoc);
 
 					isDominant(assoc)
 						? this.belongsToMany(assoc.to.name, {
@@ -260,6 +228,44 @@ class ChimeraSchema extends mongoose.Schema {
 		});
 
 	}
+
+	/**
+	 * Handles configuring a through model for use with non-hierarchical associations
+	 * @param {object} assoc - The non-hierarchical association
+	 * @returns {object} - The configured through model schema
+	 */
+	_buildJunction (assoc) {
+		let junction;
+
+		// Use an implicit through model
+		if (!assoc.through) {
+			const implicitName = `${assoc.from.name}_${assoc.to.name}`;
+
+			if (registry.isRegistered(implicitName)) {
+				junction = registry[implicitName].schema;
+			} else {
+				junction = registry.register(implicitName, new ChimeraSchema(implicitName)).schema;
+			}
+
+		// Use an explicit through model
+		} else {
+			junction = registry[assoc.through.name].schema;
+		}
+
+		junction.belongsTo(assoc.from.name, {
+			localField: assoc.fromModel.foreignKey,
+			foreignField: assoc.fromModel.primaryKey,
+			as: assoc.fromModel.relatedName
+		});
+
+		junction.belongsTo(assoc.to.name, {
+			localField: assoc.toModel.foreignKey,
+			foreignField: assoc.toModel.primaryKey,
+			as: assoc.toModel.relatedName
+		});
+
+		return junction;
+	};
 }
 
 export default ChimeraSchema;
