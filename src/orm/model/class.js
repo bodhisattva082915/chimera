@@ -12,17 +12,19 @@ class ChimeraModel extends mongoose.Model {
 			.populate('chimeraFields')
 			.populate({
 				path: 'dominantAssociations',
-				populate: [
-					{ path: 'from' },
-					{ path: 'to' }
-				]
+				populate: [{ path: 'from' }, { path: 'to' }]
 			})
 			.populate({
 				path: 'subordinateAssociations',
-				populate: [
-					{ path: 'from' },
-					{ path: 'to' }
-				]
+				populate: [{ path: 'from' }, { path: 'to' }]
+			})
+			.populate({
+				path: 'fromManyAssociations',
+				populate: [{ path: 'from' }, { path: 'to' }, { path: 'through' }]
+			})
+			.populate({
+				path: 'toManyAssociations',
+				populate: [{ path: 'from' }, { path: 'to' }, { path: 'through' }]
 			});
 
 		return chimeraModels;

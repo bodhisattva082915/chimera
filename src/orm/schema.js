@@ -204,56 +204,51 @@ class ChimeraSchema extends mongoose.Schema {
 				junction = registry[assoc.through.name].schema;
 			}
 
-			junction.belongsTo(assoc.from.name);
-			junction.belongsTo(assoc.to.name);
+			junction.belongsTo(assoc.from.name, {
+				localField: assoc.fromModel.foreignKey,
+				foreignField: assoc.fromModel.primaryKey,
+				as: assoc.fromModel.relatedName
+			});
+
+			junction.belongsTo(assoc.to.name, {
+				localField: assoc.toModel.foreignKey,
+				foreignField: assoc.toModel.primaryKey,
+				as: assoc.toModel.relatedName
+			});
 
 			return junction;
 		};
 
 		associations.forEach(assoc => {
 			switch (assoc.type) {
-				case 'OneToMany':
+				case 'HierarchicalAssociation':
 					isDominant(assoc)
-						? this.hasMany(assoc.to.name, {
-							foreignField: assoc.foreignKey || `${camelCase(this.name)}Id`,
-							localField: assoc.primaryKey,
-							as: assoc.reverseName
+						? this[assoc.many ? 'hasMany' : 'hasOne'](assoc.to.name, {
+							foreignField: assoc.toModel.foreignKey || `${camelCase(this.name)}Id`,
+							localField: assoc.fromModel.primaryKey,
+							as: assoc.fromModel.reverseName
 						})
 						: this.belongsTo(assoc.from.name, {
-							localField: assoc.foreignKey,
-							foreignField: assoc.primaryKey,
-							as: assoc.relatedName
+							localField: assoc.toModel.foreignKey,
+							foreignField: assoc.fromModel.primaryKey,
+							as: assoc.toModel.relatedName
 						});
 					break;
 
-				case 'OneToOne':
-					isDominant(assoc)
-						? this.hasOne(assoc.to.name, {
-							foreignField: assoc.foreignKey || `${camelCase(this.name)}Id`,
-							localField: assoc.primaryKey,
-							as: assoc.reverseName
-						})
-						: this.belongsTo(assoc.from.name, {
-							localField: assoc.foreignKey,
-							foreignField: assoc.primaryKey,
-							as: assoc.relatedName
-						});
-					break;
-
-				case 'ManyToMany':
+				case 'NonHierarchicalAssociation':
 					const through = buildJunction(assoc);
 
 					isDominant(assoc)
 						? this.belongsToMany(assoc.to.name, {
-							localField: assoc.fromConfig.primaryKey,
-							foreignField: assoc.fromConfig.foreignKey,
-							as: assoc.fromConfig.reverseName,
+							localField: assoc.fromModel.primaryKey,
+							foreignField: assoc.fromModel.foreignKey,
+							as: assoc.fromModel.reverseName,
 							through: through.name
 						})
 						: this.belongsToMany(assoc.from.name, {
-							localField: assoc.toConfig.primaryKey,
-							foreignField: assoc.toConfig.foreignKey,
-							as: assoc.toConfig.reverseName,
+							localField: assoc.toModel.primaryKey,
+							foreignField: assoc.toModel.foreignKey,
+							as: assoc.toModel.reverseName,
 							through: through.name
 						});
 

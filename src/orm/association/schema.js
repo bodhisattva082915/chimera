@@ -2,7 +2,48 @@ import mongoose from 'mongoose';
 import ChimeraSchema from '../schema';
 
 const schema = new ChimeraSchema('ChimeraAssociation', {
-
+	fromModel: {
+		primaryKey: {
+			type: String,
+			description: `Specifies which field on the 'from' model should be used as the primary key.`
+		},
+		foreignKey: {
+			type: String,
+			description: `Specifies the name of the field on the 'through' model that will hold foreign key.
+						  (This is only relevant in non-hierarchical associations)`
+		},
+		relatedName: {
+			type: String,
+			description: `Specifies the name to use for the virtual field on the 'through' model.
+						  (This is only relevant in non-hierarchical associations)`
+		},
+		reverseName: {
+			type: String,
+			description: `Specifies the name to use for the virtual field on the 'from' model.`
+		}
+	},
+	toModel: {
+		primaryKey: {
+			type: String,
+			description: `Specifies which field on the 'from' / 'to' model should be used as the primary key.
+						  (This context changes based on hierarchical / non-hierarchical associations)`
+		},
+		foreignKey: {
+			type: String,
+			description: `Specifies the name of the field on the 'to' / 'through' model that will hold foreign key.
+						  (This context changes based on hierarchical / non-hierarchical associations)`
+		},
+		relatedName: {
+			type: String,
+			description: `Specifies the name to use for the virtual field on the 'to' / 'through' model.
+						  (This context changes based on hierarchical / non-hierarchical associations)`
+		},
+		reverseName: {
+			type: String,
+			description: `Specifies the name to use for the virtual field on the 'to' model.
+						  (This is only relevant in non-hierarchical associations)`
+		}
+	}
 }, {
 	discriminatorKey: 'type'
 })

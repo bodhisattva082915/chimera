@@ -16,14 +16,37 @@ const schema = new ChimeraSchema('ChimeraModel', {
 		as: 'chimeraFields'
 	})
 
+	/** Defines virtuals for populating non-discriminated associations */
 	.hasMany('ChimeraAssociation', {
 		foreignField: 'fromModelId',
-		as: 'dominantAssociations'
+		as: 'fromAssociations'
 	})
 
 	.hasMany('ChimeraAssociation', {
 		foreignField: 'toModelId',
+		as: 'toAssociations'
+	})
+
+	/** Defines virtuals for populating discriminated (hierarchical) associations */
+	.hasMany('HierarchicalAssociation', {
+		foreignField: 'fromModelId',
+		as: 'dominantAssociations'
+	})
+
+	.hasMany('HierarchicalAssociation', {
+		foreignField: 'toModelId',
 		as: 'subordinateAssociations'
+	})
+
+	/** Defines virtuals for populating discriminated (non-hierarchical) associations */
+	.hasMany('NonHierarchicalAssociation', {
+		foreignField: 'fromModelId',
+		as: 'fromManyAssociations'
+	})
+
+	.hasMany('NonHierarchicalAssociation', {
+		foreignField: 'toModelId',
+		as: 'toManyAssociations'
 	})
 
 	/** Indexing */

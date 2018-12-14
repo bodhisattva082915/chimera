@@ -1,12 +1,10 @@
 
-import oneToMany from './oneToMany';
-import oneToOne from './oneToOne';
-import manyToMany from './manyToMany';
+import hierarchical from './hierarchical';
+import nonHierarchical from './nonHierarchical';
 
 export { default as schema } from './schema';
 
 export const discriminators = {
-	OneToMany: oneToMany,
-	OneToOne: oneToOne,
-	ManyToMany: manyToMany
+	[hierarchical.name]: hierarchical,
+	[nonHierarchical.name]: nonHierarchical
 };

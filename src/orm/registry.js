@@ -80,7 +80,12 @@ class ModelRegistry extends EventEmitter {
 		scope.forEach(namespace => {
 			const registered = this[namespace];
 			const model = this._modelCache[namespace];
-			const associations = [...(model.dominantAssociations || []), ...(model.subordinateAssociations || [])];
+			const associations = [
+				...(model.dominantAssociations || []),
+				...(model.subordinateAssociations || []),
+				...(model.fromManyAssociations || []),
+				...(model.toManyAssociations || [])
+			];
 
 			registered.schema.associate(associations);
 		});

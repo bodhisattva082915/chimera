@@ -31,3 +31,10 @@ A list of other common field types that should be supported based on popularity:
 
 # Default UUID as Primary Key
 By default mongodb uses ObjectIDs as primary keys for new documents. Mongoose follows suit with this adds an _id property to each schema that is a mongodb ObjectID. In an effort to avoid generating vendor specific data, primary keys should default to and industry standard such as UUIDv4. 
+
+# REST API
+
+## Open API Specx
+Should consider modeling the API using the open API specification
+
+# GraphQL API
