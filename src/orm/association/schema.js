@@ -5,43 +5,51 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 	fromModel: {
 		primaryKey: {
 			type: String,
-			description: `Specifies which field on the 'from' model should be used as the primary key.`
+			description: `Specifies which field on the 'from' model should be used as the primary key.`,
+			default: ''
 		},
 		foreignKey: {
 			type: String,
 			description: `Specifies the name of the field on the 'through' model that will hold foreign key.
-						  (This is only relevant in non-hierarchical associations)`
+						  (This is only relevant in non-hierarchical associations)`,
+			default: ''
 		},
 		relatedName: {
 			type: String,
 			description: `Specifies the name to use for the virtual field on the 'through' model.
-						  (This is only relevant in non-hierarchical associations)`
+						  (This is only relevant in non-hierarchical associations)`,
+			default: ''
 		},
 		reverseName: {
 			type: String,
-			description: `Specifies the name to use for the virtual field on the 'from' model.`
+			description: `Specifies the name to use for the virtual field on the 'from' model.`,
+			default: ''
 		}
 	},
 	toModel: {
 		primaryKey: {
 			type: String,
 			description: `Specifies which field on the 'from' / 'to' model should be used as the primary key.
-						  (This context changes based on hierarchical / non-hierarchical associations)`
+						  (This context changes based on hierarchical / non-hierarchical associations)`,
+			default: ''
 		},
 		foreignKey: {
 			type: String,
 			description: `Specifies the name of the field on the 'to' / 'through' model that will hold foreign key.
-						  (This context changes based on hierarchical / non-hierarchical associations)`
+						  (This context changes based on hierarchical / non-hierarchical associations)`,
+			default: ''
 		},
 		relatedName: {
 			type: String,
 			description: `Specifies the name to use for the virtual field on the 'to' / 'through' model.
-						  (This context changes based on hierarchical / non-hierarchical associations)`
+						  (This context changes based on hierarchical / non-hierarchical associations)`,
+			default: ''
 		},
 		reverseName: {
 			type: String,
 			description: `Specifies the name to use for the virtual field on the 'to' model.
-						  (This is only relevant in non-hierarchical associations)`
+						  (This is only relevant in non-hierarchical associations)`,
+			default: ''
 		}
 	}
 }, {
@@ -59,6 +67,27 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 		as: 'to'
 	}, {
 		required: true
+	})
+
+	.index({
+		'fromModelId': 1,
+		'toModelId': 1,
+		'fromModel.foreignKey': 1
+	}, {
+		unique: true,
+		partialFilterExpression: {
+			type: 'NonHierarchicalAssociation'
+		}
+	})
+	.index({
+		'fromModelId': 1,
+		'toModelId': 1,
+		'fromModel.relatedName': 1
+	}, {
+		unique: true,
+		partialFilterExpression: {
+			type: 'NonHierarchicalAssociation'
+		}
 	})
 
 	/** Middleware */

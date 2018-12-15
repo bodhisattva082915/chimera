@@ -39,10 +39,77 @@ describe('ChimeraAssociation', function () {
 			});
 		});
 
-		it('should enforce uniquness constraint {fromModelId, toModelId, foreignKey}', async function () {
-			// Let's come back to this, we might be able to get away with not using discrimination here and just
-			// using a required type field
-			// const isInvalid = await new this.OneToMany(this.oneToMany.toJSON()).validate().should.be.rejected;
+		describe('indexes', function () {
+			afterEach(async function () {
+				await this.ChimeraAssociation.deleteMany({});
+			});
+
+			it('should enforce uniquness constraint on NonHierarchical associations {fromModelId, toModelId, fromModel.foreignKey}', async function () {
+				// You were screwing this up by creating Hierarchical assocations when you changed your index to use partial indexes
+				// which is why it wasn't working. As you can see here, the uniqeness constraints are being applied correclty here
+				// when specifying the correct discriminator
+				const assoc = await this.NonHierarchical.create({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id
+				});
+
+				// Should fail because not specifying the foreignKey will cause a namespace collision
+				const isInvalid = await new this.NonHierarchical(assoc.toJSON()).validate().should.be.rejected;
+				isInvalid.errors.should.containSubset({
+					fromModelId: { kind: 'unique' },
+					toModelId: { kind: 'unique' },
+					'fromModel.foreignKey': { kind: 'unique' }
+				});
+
+				// Should succeed because the association specifies the foreignKey
+				await new this.NonHierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						foreignKey: 'fromModelDifferent',
+						relatedName: 'fromModelDifferent'
+					}
+				}).validate().should.be.fulfilled;
+
+				// Should succeed because the uniqueness constraint is partial, only applies to NonHierarchical associations
+				await new this.Hierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id
+				}).validate().should.be.fulfilled;
+			});
+
+			// it('should enforce uniquness constraint {fromModelId, toModelId, fromModel.relatedName}', async function () {
+			// 	const assoc = await this.NonHierarchical.create({
+			// 		fromModelId: this.testModelADoc.id,
+			// 		toModelId: this.testModelBDoc.id,
+			// 		fromModel: {
+			// 			relatedName: 'fromModel'
+			// 		}
+			// 	});
+
+			// 	const isInvalid = await new this.NonHierarchical(assoc.toJSON()).validate().should.be.rejected;
+
+			// 	isInvalid.errors.should.containSubset({
+			// 		fromModelId: { kind: 'unique' },
+			// 		toModelId: { kind: 'unique' },
+			// 		'fromModel.relatedName': { kind: 'unique' }
+			// 	});
+			// });
+
+			// it('should enforce uniquness constraint {fromModelId, toModelId, fromModel.reverseName}', async function () {
+			// 	const assoc = await this.Hierarchical.create({
+			// 		fromModelId: this.testModelADoc.id,
+			// 		toModelId: this.testModelBDoc.id
+			// 	});
+
+			// 	const isInvalid = await new this.Hierarchical(assoc.toJSON()).validate().should.be.rejected;
+
+			// 	isInvalid.errors.should.containSubset({
+			// 		fromModelId: { kind: 'unique' },
+			// 		toModelId: { kind: 'unique' },
+			// 		'fromModel.reverseName': { kind: 'unique' }
+			// 	});
+			// });
 		});
 	});
 
