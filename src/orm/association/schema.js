@@ -69,6 +69,30 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 		required: true
 	})
 
+	/** Indexing */
+	/** Enforce unique fromModel.reverseName value when creating any secondary association */
+	.index({
+		'fromModelId': 1,
+		'toModelId': 1,
+		'fromModel.reverseName': 1
+	}, {
+		unique: true
+	})
+
+	/** Enforce unique fromModel.reverseName value on any associations sharing fromModelId */
+	.index({
+		'fromModelId': 1,
+		'fromModel.reverseName': 1
+	}, {
+		unique: true,
+		partialFilterExpression: {
+			'fromModel.reverseName': {
+				$ne: ''
+			}
+		}
+	})
+
+	/** Enforce unique fromModel.foreignKey value when creating secondary NonHierarchicalAssociation */
 	.index({
 		'fromModelId': 1,
 		'toModelId': 1,
@@ -79,6 +103,8 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 			type: 'NonHierarchicalAssociation'
 		}
 	})
+
+	/** Enforce Unique fromModel.relatedName value when creating secondary NonHierarchicalAssociation */
 	.index({
 		'fromModelId': 1,
 		'toModelId': 1,
@@ -88,13 +114,6 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 		partialFilterExpression: {
 			type: 'NonHierarchicalAssociation'
 		}
-	})
-	.index({
-		'fromModelId': 1,
-		'toModelId': 1,
-		'fromModel.reverseName': 1
-	}, {
-		unique: true
 	})
 
 	/** Middleware */

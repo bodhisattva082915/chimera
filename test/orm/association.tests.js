@@ -44,6 +44,47 @@ describe('ChimeraAssociation', function () {
 				await this.ChimeraAssociation.deleteMany({});
 			});
 
+			it('should enforce uniquness constraint regardless of toModelId {fromModelId, fromModel.reverseName}', async function () {
+				const assoc = await factory.create('HierarchicalAssociation', {
+					fromModelId: this.testModelADoc.id
+				});
+
+				// Should fail because reverseName should be unique value between all associations with fromModelId
+				const isInvalid = await new this.Hierarchical({
+					...assoc.toJSON(),
+					toModelId: this.testModelBDoc.id
+				}).validate().should.be.rejected;
+
+				isInvalid.errors.should.containSubset({
+					fromModelId: { kind: 'unique' },
+					'fromModel.reverseName': { kind: 'unique' }
+				});
+
+				// Should succeed because association specifies a unique reverseName
+				await new this.Hierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						reverseName: 'reverseNameUnique'
+					}
+				}).validate().should.be.fulfilled;
+			});
+
+			it('should enforce uniquness constraint {fromModelId, toModelId, fromModel.reverseName}', async function () {
+				const assoc = await this.Hierarchical.create({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id
+				});
+
+				const isInvalid = await new this.Hierarchical(assoc.toJSON()).validate().should.be.rejected;
+
+				isInvalid.errors.should.containSubset({
+					fromModelId: { kind: 'unique' },
+					toModelId: { kind: 'unique' },
+					'fromModel.reverseName': { kind: 'unique' }
+				});
+			});
+
 			it('should enforce uniquness constraint on NonHierarchical associations {fromModelId, toModelId, fromModel.foreignKey}', async function () {
 				const assoc = await factory.create('NonHierarchicalAssociation', {
 					fromModelId: this.testModelADoc.id,
@@ -103,21 +144,6 @@ describe('ChimeraAssociation', function () {
 					toModelId: this.testModelBDoc.id
 				}).validate().should.be.fulfilled;
 			});
-
-			// it('should enforce uniquness constraint {fromModelId, toModelId, fromModel.reverseName}', async function () {
-			// 	const assoc = await this.Hierarchical.create({
-			// 		fromModelId: this.testModelADoc.id,
-			// 		toModelId: this.testModelBDoc.id
-			// 	});
-
-			// 	const isInvalid = await new this.Hierarchical(assoc.toJSON()).validate().should.be.rejected;
-
-			// 	isInvalid.errors.should.containSubset({
-			// 		fromModelId: { kind: 'unique' },
-			// 		toModelId: { kind: 'unique' },
-			// 		'fromModel.reverseName': { kind: 'unique' }
-			// 	});
-			// });
 		});
 	});
 
