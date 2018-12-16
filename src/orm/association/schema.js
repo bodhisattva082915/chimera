@@ -89,6 +89,13 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 			type: 'NonHierarchicalAssociation'
 		}
 	})
+	.index({
+		'fromModelId': 1,
+		'toModelId': 1,
+		'fromModel.reverseName': 1
+	}, {
+		unique: true
+	})
 
 	/** Middleware */
 	/** Require valid discrimination */

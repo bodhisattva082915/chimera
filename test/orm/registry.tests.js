@@ -49,13 +49,11 @@ describe('ModelRegistry', function () {
 	describe('_applyAssociations', function () {
 		before(async function () {
 			this.associations = {};
-			this.associations['alpha'] = await factory.create('ChimeraAssociation', {
-				type: 'HierarchicalAssociation',
+			this.associations['alpha'] = await factory.create('HierarchicalAssociation', {
 				fromModelId: this.dynamicModels[0].id,
 				toModelId: this.dynamicModels[1].id
 			});
-			this.associations['beta'] = await factory.create('ChimeraAssociation', {
-				type: 'HierarchicalAssociation',
+			this.associations['beta'] = await factory.create('HierarchicalAssociation', {
 				fromModelId: this.dynamicModels[1].id,
 				toModelId: this.dynamicModels[2].id
 			});
