@@ -220,6 +220,88 @@ describe('ChimeraAssociation', function () {
 				}).validate().should.be.fulfilled;
 			});
 		});
+
+		describe('fromModelRelatedNameUniqueUniversally', function () {
+			it('should enforce uniqueness on NonHierarchical associations {fromModelId, fromModel.relatedName}', async function () {
+				const assoc = await factory.create('NonHierarchicalAssociation', {
+					fromModelId: this.testModelADoc.id
+				});
+
+				// Should fail because relatedName should be unique value between all NonHierarchical associations with fromModelId
+				const isInvalid = await new this.NonHierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						relatedName: assoc.fromModel.relatedName
+					}
+				}).validate().should.be.rejected;
+
+				isInvalid.errors.should.containSubset({
+					'fromModel.relatedName': { kind: 'unique' }
+				});
+
+				// Should succeed because association specifies a unique relatedName
+				await new this.NonHierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						foreignKey: 'relatedNameUnique'
+					}
+				}).validate().should.be.fulfilled;
+
+				// Should succeed because this validator only applies to NonHierarchical associations
+				await new this.Hierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						foreignKey: assoc.fromModel.foreignKey
+					}
+				}).validate().should.be.fulfilled;
+			});
+		});
+
+		describe('fromModelRelatedNameUniqueSecondary', function () {
+			it('should enforce uniqueness on NonHeirarchical associations {fromModelId, toModelId, fromModel.relatedName}', async function () {
+				const assoc = await factory.create('NonHierarchicalAssociation', {
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id
+				});
+
+				await assoc.updateOne({ 'fromModel.relatedName': '' });
+
+				// Should fail because relatedName must be specified when a secondary association is created
+				// between fromModelId / toModelId
+				const isInvalid = await new this.NonHierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						relatedName: ''
+					}
+				}).validate().should.be.rejected;
+
+				isInvalid.errors.should.containSubset({
+					'fromModel.relatedName': { kind: 'unique' }
+				});
+
+				// Should succeed because association specifies a unique relatedName
+				await new this.NonHierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						relatedName: factory.chance('word', { length: 5 })
+					}
+				}).validate().should.be.fulfilled;
+
+				// Should succeed because this validator only applies to NonHierarchical associations
+				await new this.Hierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						relatedName: ''
+					}
+				}).validate().should.be.fulfilled;
+			});
+		});
 	});
 
 	describe('Hierarchical', function () {

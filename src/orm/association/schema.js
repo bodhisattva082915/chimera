@@ -23,7 +23,11 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 			type: String,
 			description: `Specifies the name to use for the virtual field on the 'through' model.
 						  (This is only relevant in non-hierarchical associations)`,
-			default: ''
+			default: '',
+			validate: [
+				validators.fromModelRelatedNameUniqueUniversally,
+				validators.fromModelRelatedNameUniqueSecondary
+			]
 		},
 		reverseName: {
 			type: String,
