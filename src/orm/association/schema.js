@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import ChimeraSchema from '../schema';
+import * as validators from './validators';
 
 const schema = new ChimeraSchema('ChimeraAssociation', {
 	fromModel: {
@@ -23,7 +24,11 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 		reverseName: {
 			type: String,
 			description: `Specifies the name to use for the virtual field on the 'from' model.`,
-			default: ''
+			default: '',
+			validate: [
+				validators.reverseNameUniqueUniversally,
+				validators.reverseNameUniqueSecondary
+			]
 		}
 	},
 	toModel: {
@@ -69,52 +74,28 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 		required: true
 	})
 
-	/** Indexing */
-	/** Enforce unique fromModel.reverseName value when creating any secondary association */
-	.index({
-		'fromModelId': 1,
-		'toModelId': 1,
-		'fromModel.reverseName': 1
-	}, {
-		unique: true
-	})
+/** Indexing */
+/** Enforce unique fromModel.reverseName value when creating any secondary association */
+// .index({
+// 	'fromModelId': 1,
+// 	'toModelId': 1,
+// 	'fromModel.reverseName': 1
+// }, {
+// 	unique: true
+// })
 
-	/** Enforce unique fromModel.reverseName value on any associations sharing fromModelId */
-	.index({
-		'fromModelId': 1,
-		'fromModel.reverseName': 1
-	}, {
-		unique: true,
-		partialFilterExpression: {
-			'fromModel.reverseName': {
-				$ne: ''
-			}
-		}
-	})
-
-	/** Enforce unique fromModel.foreignKey value when creating secondary NonHierarchicalAssociation */
-	.index({
-		'fromModelId': 1,
-		'toModelId': 1,
-		'fromModel.foreignKey': 1
-	}, {
-		unique: true,
-		partialFilterExpression: {
-			type: 'NonHierarchicalAssociation'
-		}
-	})
-
-	/** Enforce Unique fromModel.relatedName value when creating secondary NonHierarchicalAssociation */
-	.index({
-		'fromModelId': 1,
-		'toModelId': 1,
-		'fromModel.relatedName': 1
-	}, {
-		unique: true,
-		partialFilterExpression: {
-			type: 'NonHierarchicalAssociation'
-		}
-	})
+/** Enforce unique fromModel.reverseName value on any associations sharing fromModelId */
+// .index({
+// 	'fromModelId': 1,
+// 	'fromModel.reverseName': 1
+// }, {
+// 	unique: true,
+// 	partialFilterExpression: {
+// 		'fromModel.reverseName': {
+// 			$ne: ''
+// 		}
+// 	}
+// })
 
 	/** Middleware */
 	/** Require valid discrimination */

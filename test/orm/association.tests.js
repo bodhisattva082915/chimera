@@ -40,11 +40,114 @@ describe('ChimeraAssociation', function () {
 		});
 
 		describe('indexes', function () {
-			afterEach(async function () {
-				await this.ChimeraAssociation.deleteMany({});
-			});
+			// it('should enforce uniquness constraint {fromModelId, toModelId, fromModel.reverseName}', async function () {
+			// 	const assoc = await factory.create('HierarchicalAssociation', {
+			// 		fromModelId: this.testModelADoc.id,
+			// 		toModelId: this.testModelBDoc.id
+			// 	});
 
-			it('should enforce uniquness constraint regardless of toModelId {fromModelId, fromModel.reverseName}', async function () {
+			// 	const isInvalid = await new this.Hierarchical(assoc.toJSON()).validate().should.be.rejected;
+
+			// 	isInvalid.errors.should.containSubset({
+			// 		fromModelId: { kind: 'unique' },
+			// 		toModelId: { kind: 'unique' },
+			// 		'fromModel.reverseName': { kind: 'unique' }
+			// 	});
+
+			// 	// Should succeed because the association specifies the reverseName
+			// 	await new this.Hierarchical({
+			// 		fromModelId: this.testModelADoc.id,
+			// 		toModelId: this.testModelBDoc.id,
+			// 		fromModel: {
+			// 			reverseName: 'fromModelDifferent'
+			// 		}
+			// 	}).validate().should.be.fulfilled;
+			// });
+
+			// it('should enforce uniquness constraint on NonHierarchical associations {fromModelId, toModelId, fromModel.foreignKey}', async function () {
+			// 	const assoc = await factory.create('NonHierarchicalAssociation', {
+			// 		fromModelId: this.testModelADoc.id,
+			// 		toModelId: this.testModelBDoc.id,
+			// 		fromModel: {
+			// 			foreignKey: factory.chance('word', { length: 5 }),
+			// 			relatedName: factory.chance('word', { length: 5 }),
+			// 			reverseName: factory.chance('word', { length: 5 })
+			// 		}
+			// 	});
+
+			// 	// Should fail because not specifying the foreignKey on a second association will cause a namespace collision
+			// 	const isInvalid = await new this.NonHierarchical({
+			// 		fromModelId: this.testModelADoc.id,
+			// 		toModelId: this.testModelBDoc.id,
+			// 		fromModel: {
+			// 			foreignKey: assoc.fromModel.foreignKey
+			// 		}
+			// 	}).validate().should.be.rejected;
+
+			// 	isInvalid.errors.should.containSubset({
+			// 		fromModelId: { kind: 'unique' },
+			// 		toModelId: { kind: 'unique' },
+			// 		'fromModel.foreignKey': { kind: 'unique' }
+			// 	});
+
+			// 	// Should succeed because the association specifies the foreignKey
+			// 	await new this.NonHierarchical({
+			// 		fromModelId: this.testModelADoc.id,
+			// 		toModelId: this.testModelBDoc.id,
+			// 		fromModel: {
+			// 			foreignKey: 'fromModelDifferent'
+			// 		}
+			// 	}).validate().should.be.fulfilled;
+
+			// 	// Should succeed because the uniqueness constraint is partial, only applies to NonHierarchical associations
+			// 	await new this.Hierarchical({
+			// 		fromModelId: this.testModelADoc.id,
+			// 		toModelId: this.testModelBDoc.id,
+			// 		fromModel: {
+			// 			foreignKey: assoc.fromModel.foreignKey
+			// 		}
+			// 	}).validate().should.be.fulfilled;
+			// });
+
+			// it('should enforce uniquness constraint on NonHierarchical associations {fromModelId, toModelId, fromModel.relatedName}', async function () {
+			// 	const assoc = await factory.create('NonHierarchicalAssociation', {
+			// 		fromModelId: this.testModelADoc.id,
+			// 		toModelId: this.testModelBDoc.id
+			// 	});
+
+			// 	// Should fail because not specifying the relatedName on a second association will cause a namespace collision
+			// 	const isInvalid = await new this.NonHierarchical(assoc.toJSON()).validate().should.be.rejected;
+			// 	isInvalid.errors.should.containSubset({
+			// 		fromModelId: { kind: 'unique' },
+			// 		toModelId: { kind: 'unique' },
+			// 		'fromModel.relatedName': { kind: 'unique' }
+			// 	});
+
+			// 	// Should succeed because the association specifies the relatedName
+			// 	await new this.NonHierarchical({
+			// 		fromModelId: this.testModelADoc.id,
+			// 		toModelId: this.testModelBDoc.id,
+			// 		fromModel: {
+			// 			relatedName: 'fromModelDifferent'
+			// 		}
+			// 	}).validate().should.be.fulfilled;
+
+			// 	// Should succeed because the uniqueness constraint is partial, only applies to NonHierarchical associations
+			// 	await new this.Hierarchical({
+			// 		fromModelId: this.testModelADoc.id,
+			// 		toModelId: this.testModelBDoc.id
+			// 	}).validate().should.be.fulfilled;
+			// });
+		});
+	});
+
+	describe('validators', function () {
+		afterEach(async function () {
+			await this.ChimeraAssociation.deleteMany({});
+		});
+
+		describe('reverseNameUniqueUniversally', function () {
+			it('should enforce uniqueness {fromModelId, fromModel.reverseName}', async function () {
 				const assoc = await factory.create('HierarchicalAssociation', {
 					fromModelId: this.testModelADoc.id
 				});
@@ -56,7 +159,6 @@ describe('ChimeraAssociation', function () {
 				}).validate().should.be.rejected;
 
 				isInvalid.errors.should.containSubset({
-					fromModelId: { kind: 'unique' },
 					'fromModel.reverseName': { kind: 'unique' }
 				});
 
@@ -69,79 +171,34 @@ describe('ChimeraAssociation', function () {
 					}
 				}).validate().should.be.fulfilled;
 			});
+		});
 
-			it('should enforce uniquness constraint {fromModelId, toModelId, fromModel.reverseName}', async function () {
-				const assoc = await this.Hierarchical.create({
+		describe('reverseNameUniqueSecondary', function () {
+			it('should enforce uniqueness {fromModelId, toModelId, fromModel.reverseName}', async function () {
+				const assoc = await factory.create('HierarchicalAssociation', {
 					fromModelId: this.testModelADoc.id,
-					toModelId: this.testModelBDoc.id
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						reverseName: ''
+					}
 				});
 
-				const isInvalid = await new this.Hierarchical(assoc.toJSON()).validate().should.be.rejected;
+				// Should fail because reverseName must be specified when a secondary association is created
+				// between fromModelId / toModelId
+				const isInvalid = await new this.Hierarchical({
+					...assoc.toJSON()
+				}).validate().should.be.rejected;
 
 				isInvalid.errors.should.containSubset({
-					fromModelId: { kind: 'unique' },
-					toModelId: { kind: 'unique' },
 					'fromModel.reverseName': { kind: 'unique' }
 				});
-			});
 
-			it('should enforce uniquness constraint on NonHierarchical associations {fromModelId, toModelId, fromModel.foreignKey}', async function () {
-				const assoc = await factory.create('NonHierarchicalAssociation', {
-					fromModelId: this.testModelADoc.id,
-					toModelId: this.testModelBDoc.id
-				});
-
-				// Should fail because not specifying the foreignKey on a second association will cause a namespace collision
-				const isInvalid = await new this.NonHierarchical(assoc.toJSON()).validate().should.be.rejected;
-				isInvalid.errors.should.containSubset({
-					fromModelId: { kind: 'unique' },
-					toModelId: { kind: 'unique' },
-					'fromModel.foreignKey': { kind: 'unique' }
-				});
-
-				// Should succeed because the association specifies the foreignKey
-				await new this.NonHierarchical({
-					fromModelId: this.testModelADoc.id,
-					toModelId: this.testModelBDoc.id,
-					fromModel: {
-						foreignKey: 'fromModelDifferent'
-					}
-				}).validate().should.be.fulfilled;
-
-				// Should succeed because the uniqueness constraint is partial, only applies to NonHierarchical associations
+				// Should succeed because association specifies a unique reverseName
 				await new this.Hierarchical({
-					fromModelId: this.testModelADoc.id,
-					toModelId: this.testModelBDoc.id
-				}).validate().should.be.fulfilled;
-			});
-
-			it('should enforce uniquness constraint on NonHierarchical associations {fromModelId, toModelId, fromModel.relatedName}', async function () {
-				const assoc = await factory.create('NonHierarchicalAssociation', {
-					fromModelId: this.testModelADoc.id,
-					toModelId: this.testModelBDoc.id
-				});
-
-				// Should fail because not specifying the relatedName on a second association will cause a namespace collision
-				const isInvalid = await new this.NonHierarchical(assoc.toJSON()).validate().should.be.rejected;
-				isInvalid.errors.should.containSubset({
-					fromModelId: { kind: 'unique' },
-					toModelId: { kind: 'unique' },
-					'fromModel.relatedName': { kind: 'unique' }
-				});
-
-				// Should succeed because the association specifies the relatedName
-				await new this.NonHierarchical({
-					fromModelId: this.testModelADoc.id,
-					toModelId: this.testModelBDoc.id,
+					...assoc.toJSON(),
 					fromModel: {
-						relatedName: 'fromModelDifferent'
+						reverseName: 'reverseNameUnique'
 					}
-				}).validate().should.be.fulfilled;
-
-				// Should succeed because the uniqueness constraint is partial, only applies to NonHierarchical associations
-				await new this.Hierarchical({
-					fromModelId: this.testModelADoc.id,
-					toModelId: this.testModelBDoc.id
 				}).validate().should.be.fulfilled;
 			});
 		});
