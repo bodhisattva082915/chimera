@@ -35,7 +35,7 @@ class ChimeraSchema extends mongoose.Schema {
 	}
 
 	/**
-     * Creates a foriegn key association, treating this as the dependent schema of the relationship.
+     * Creates a foreign key association, treating this as the dependent schema of the relationship.
      * @param {string} modelName - The name of the mongoose model to associate.
      * @param {object} [options] - Configuration options for the virtual field declaration.
      * @param {string} [options.localField] - The name of the field in this schema that holds the foreign key reference.

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import ChimeraSchema from '../schema';
-import * as validators from './validators';
+import validators from './validators';
 
 const schema = new ChimeraSchema('ChimeraAssociation', {
 	fromModel: {
@@ -14,29 +14,20 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 			description: `Specifies the name of the field on the 'through' model that will hold foreign key.
 						  (This is only relevant in non-hierarchical associations)`,
 			default: '',
-			validate: [
-				validators.fromModelForiegnKeyUniqueUniversally,
-				validators.fromModelForiegnKeyUniqueSecondary
-			]
+			validate: [...Object.values(validators.fromModel.foreignKey)]
 		},
 		relatedName: {
 			type: String,
 			description: `Specifies the name to use for the virtual field on the 'through' model.
 						  (This is only relevant in non-hierarchical associations)`,
 			default: '',
-			validate: [
-				validators.fromModelRelatedNameUniqueUniversally,
-				validators.fromModelRelatedNameUniqueSecondary
-			]
+			validate: [...Object.values(validators.fromModel.relatedName)]
 		},
 		reverseName: {
 			type: String,
 			description: `Specifies the name to use for the virtual field on the 'from' model.`,
 			default: '',
-			validate: [
-				validators.fromModelReverseNameUniqueUniversally,
-				validators.fromModelReverseNameUniqueSecondary
-			]
+			validate: [...Object.values(validators.fromModel.reverseName)]
 		}
 	},
 	toModel: {
@@ -81,29 +72,6 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 	}, {
 		required: true
 	})
-
-/** Indexing */
-/** Enforce unique fromModel.reverseName value when creating any secondary association */
-// .index({
-// 	'fromModelId': 1,
-// 	'toModelId': 1,
-// 	'fromModel.reverseName': 1
-// }, {
-// 	unique: true
-// })
-
-/** Enforce unique fromModel.reverseName value on any associations sharing fromModelId */
-// .index({
-// 	'fromModelId': 1,
-// 	'fromModel.reverseName': 1
-// }, {
-// 	unique: true,
-// 	partialFilterExpression: {
-// 		'fromModel.reverseName': {
-// 			$ne: ''
-// 		}
-// 	}
-// })
 
 	/** Middleware */
 	/** Require valid discrimination */
