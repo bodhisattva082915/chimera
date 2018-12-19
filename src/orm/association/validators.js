@@ -1,5 +1,23 @@
 import mongoose from 'mongoose';
 
+export const fromModelForiegnKeyUniqueUniversally = {
+	validator: async function (value) {
+		const model = this.constructor;
+
+		if (value) {
+			let count = await model.find({
+				'fromModelId': this.fromModelId,
+				'fromModel.foreignKey': value
+			}).countDocuments();
+			return (count === 0);
+		}
+
+		return true;
+	},
+	message: 'Error, expected `{PATH}` to be unique. Value: `{VALUE}`',
+	type: 'unique'
+};
+
 export const fromModelReverseNameUniqueUniversally = {
 	validator: async function (value) {
 		const model = this.constructor;

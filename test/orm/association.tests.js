@@ -135,8 +135,41 @@ describe('ChimeraAssociation', function () {
 		});
 
 		describe('foreignKeyUniqueUniversally', function () {
-			it('should enforce uniqueness {fromModelId}', async function () {
+			it('should enforce uniqueness on NonHierarchical associations {fromModelId, fromModel.foreignKey}', async function () {
+				const assoc = await factory.create('NonHierarchicalAssociation', {
+					fromModelId: this.testModelADoc.id
+				});
 
+				// Should fail because foreignKey should be unique value between all NonHierarchical associations with fromModelId
+				const isInvalid = await new this.NonHierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						foreignKey: assoc.fromModel.foreignKey
+					}
+				}).validate().should.be.rejected;
+
+				isInvalid.errors.should.containSubset({
+					'fromModel.foreignKey': { kind: 'unique' }
+				});
+
+				// Should succeed because association specifies a unique foreignKey
+				await new this.NonHierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						foreignKey: 'foreignKeyUnique'
+					}
+				}).validate().should.be.fulfilled;
+
+				// Should succeed because this validator only applies to NonHierarchical associations
+				await new this.Hierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						foreignKey: assoc.fromModel.foreignKey
+					}
+				}).validate().should.be.fulfilled;
 			});
 		});
 	});
