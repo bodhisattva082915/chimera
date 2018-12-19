@@ -26,5 +26,9 @@ factory.define(NonHierarchical.modelName, NonHierarchical, {
 		...common.fromModel,
 		foreignKey: factory.chance('word', { length: 5 }),
 		relatedName: factory.chance('word', { length: 5 })
+	},
+	toModel: {
+		...common.toModel,
+		reverseName: factory.chance('word', { length: 5 })
 	}
 });

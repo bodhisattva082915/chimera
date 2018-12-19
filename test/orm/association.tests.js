@@ -40,6 +40,7 @@ describe('ChimeraAssociation', function () {
 		});
 	});
 
+	// TODO: Simplify this into test suite factories
 	describe('validators', function () {
 		afterEach(async function () {
 			await this.ChimeraAssociation.deleteMany({});
@@ -244,18 +245,19 @@ describe('ChimeraAssociation', function () {
 					it('should enforce uniqueness {fromModelId, toModelId, fromModel.reverseName}', async function () {
 						const assoc = await factory.create('HierarchicalAssociation', {
 							fromModelId: this.testModelADoc.id,
-							toModelId: this.testModelBDoc.id,
-							fromModel: {
-								foreignKey: factory.chance('word', { length: 5 }),
-								relatedName: factory.chance('word', { length: 5 }),
-								reverseName: ''
-							}
+							toModelId: this.testModelBDoc.id
 						});
+
+						await assoc.updateOne({ 'fromModel.reverseName': '' });
 
 						// Should fail because reverseName must be specified when a secondary association is created
 						// between fromModelId / toModelId
 						const isInvalid = await new this.Hierarchical({
-							...assoc.toJSON()
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							fromModel: {
+								reverseName: ''
+							}
 						}).validate().should.be.rejected;
 
 						isInvalid.errors.should.containSubset({
@@ -264,9 +266,225 @@ describe('ChimeraAssociation', function () {
 
 						// Should succeed because association specifies a unique reverseName
 						await new this.Hierarchical({
-							...assoc.toJSON(),
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
 							fromModel: {
 								reverseName: factory.chance('word', { length: 5 })
+							}
+						}).validate().should.be.fulfilled;
+					});
+				});
+			});
+		});
+
+		describe('toModel', function () {
+			describe('foreignKey', function () {
+				describe('uniqueUniversally', function () {
+					it('should enforce uniqueness {toModelId, toModel.foreignKey}', async function () {
+						const assoc = await factory.create('HierarchicalAssociation', {
+							toModelId: this.testModelBDoc.id
+						});
+
+						// Should fail because foreignKey should be a unique value between all associations with toModelId
+						const isInvalid = await new this.Hierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								foreignKey: assoc.toModel.foreignKey
+							}
+						}).validate().should.be.rejected;
+
+						isInvalid.errors.should.containSubset({
+							'toModel.foreignKey': { kind: 'unique' }
+						});
+
+						// Should succeed because association specifies a unique foreignKey
+						await new this.Hierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								foreignKey: 'foreignKeyUnique'
+							}
+						}).validate().should.be.fulfilled;
+					});
+				});
+				describe('uniqueSecondary', function () {
+					it('should enforce uniqueness {fromModelId, toModelId, toModel.foreignKey}', async function () {
+						const assoc = await factory.create('HierarchicalAssociation', {
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id
+						});
+
+						await assoc.updateOne({ 'toModel.foreignKey': '' });
+
+						// Should fail because reverseName must be specified when a secondary association is created
+						// between fromModelId / toModelId
+						const isInvalid = await new this.Hierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								foreignKey: ''
+							}
+						}).validate().should.be.rejected;
+
+						isInvalid.errors.should.containSubset({
+							'toModel.foreignKey': { kind: 'unique' }
+						});
+
+						// Should succeed because association specifies a unique reverseName
+						await new this.Hierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								foreignKey: factory.chance('word', { length: 5 })
+							}
+						}).validate().should.be.fulfilled;
+					});
+				});
+			});
+
+			describe('relatedName', function () {
+				describe('uniqueUniversally', function () {
+					it('should enforce uniqueness {toModelId, toModel.relatedName}', async function () {
+						const assoc = await factory.create('HierarchicalAssociation', {
+							toModelId: this.testModelBDoc.id
+						});
+
+						// Should fail because relatedName should be a unique value between all associations with toModelId
+						const isInvalid = await new this.Hierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								relatedName: assoc.toModel.relatedName
+							}
+						}).validate().should.be.rejected;
+
+						isInvalid.errors.should.containSubset({
+							'toModel.relatedName': { kind: 'unique' }
+						});
+
+						// Should succeed because association specifies a unique relatedName
+						await new this.Hierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								relatedName: 'relatedNameUnique'
+							}
+						}).validate().should.be.fulfilled;
+					});
+				});
+				describe('uniqueSecondary', function () {
+					it('should enforce uniqueness {fromModelId, toModelId, toModel.relatedName}', async function () {
+						const assoc = await factory.create('HierarchicalAssociation', {
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id
+						});
+
+						await assoc.updateOne({ 'toModel.relatedName': '' });
+
+						// Should fail because relatedName must be specified when a secondary association is created
+						// between fromModelId / toModelId
+						const isInvalid = await new this.Hierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								relatedName: ''
+							}
+						}).validate().should.be.rejected;
+
+						isInvalid.errors.should.containSubset({
+							'toModel.relatedName': { kind: 'unique' }
+						});
+
+						// Should succeed because association specifies a unique reverseName
+						await new this.Hierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								relatedName: factory.chance('word', { length: 5 })
+							}
+						}).validate().should.be.fulfilled;
+					});
+				});
+			});
+
+			describe('reverseName', function () {
+				describe('uniqueUniversally', function () {
+					it('should enforce uniqueness on NonHierarchical associations {toModelId, toModel.reverseName}', async function () {
+						const assoc = await factory.create('NonHierarchicalAssociation', {
+							toModelId: this.testModelBDoc.id
+						});
+
+						// Should fail because reverseName should be unique value between all NonHierarchical associations with toModelId
+						const isInvalid = await new this.NonHierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								reverseName: assoc.toModel.reverseName
+							}
+						}).validate().should.be.rejected;
+
+						isInvalid.errors.should.containSubset({
+							'toModel.reverseName': { kind: 'unique' }
+						});
+
+						// Should succeed because association specifies a unique reverseName
+						await new this.NonHierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								reverseName: 'reverseNameUnique'
+							}
+						}).validate().should.be.fulfilled;
+
+						// Should succeed because this validator only applies to NonHierarchical associations
+						await new this.Hierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								reverseName: assoc.toModel.reverseName
+							}
+						}).validate().should.be.fulfilled;
+					});
+				});
+				describe('uniqueSecondary', function () {
+					it('should enforce uniqueness on NonHierarchical associations {fromModelId, toModelId, toModel.reverseName}', async function () {
+						const assoc = await factory.create('NonHierarchicalAssociation', {
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id
+						});
+
+						await assoc.updateOne({ 'toModel.reverseName': '' });
+
+						// Should fail because reverseName must be specified when a secondary association is created
+						// between fromModelId / toModelId
+						const isInvalid = await new this.NonHierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								reverseName: ''
+							}
+						}).validate().should.be.rejected;
+
+						isInvalid.errors.should.containSubset({
+							'toModel.reverseName': { kind: 'unique' }
+						});
+
+						// Should succeed because association specifies a unique reverseName
+						await new this.NonHierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								reverseName: factory.chance('word', { length: 5 })
+							}
+						}).validate().should.be.fulfilled;
+
+						// Should succeed because this validator only applies to NonHierarchical associations
+						await new this.Hierarchical({
+							fromModelId: this.testModelADoc.id,
+							toModelId: this.testModelBDoc.id,
+							toModel: {
+								reverseName: assoc.toModel.reverseName
 							}
 						}).validate().should.be.fulfilled;
 					});

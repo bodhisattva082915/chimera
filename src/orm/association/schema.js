@@ -41,19 +41,22 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 			type: String,
 			description: `Specifies the name of the field on the 'to' / 'through' model that will hold foreign key.
 						  (This context changes based on hierarchical / non-hierarchical associations)`,
-			default: ''
+			default: '',
+			validate: [...Object.values(validators.toModel.foreignKey)]
 		},
 		relatedName: {
 			type: String,
 			description: `Specifies the name to use for the virtual field on the 'to' / 'through' model.
 						  (This context changes based on hierarchical / non-hierarchical associations)`,
-			default: ''
+			default: '',
+			validate: [...Object.values(validators.toModel.relatedName)]
 		},
 		reverseName: {
 			type: String,
 			description: `Specifies the name to use for the virtual field on the 'to' model.
 						  (This is only relevant in non-hierarchical associations)`,
-			default: ''
+			default: '',
+			validate: [...Object.values(validators.toModel.reverseName)]
 		}
 	}
 }, {

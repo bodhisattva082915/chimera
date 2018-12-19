@@ -118,5 +118,118 @@ export default {
 				type: 'unique'
 			}
 		}
+	},
+	toModel: {
+		foreignKey: {
+			uniqueUniversally: {
+				validator: async function (value) {
+					const model = this.constructor;
+
+					if (value) {
+						let count = await model.find({
+							'toModelId': this.toModelId,
+							'toModel.foreignKey': value
+						}).countDocuments();
+						return (count === 0);
+					}
+
+					return true;
+				},
+				message: defaultMessage,
+				type: 'unique'
+			},
+			uniqueSecondary: {
+				validator: async function (value) {
+					const model = this.constructor;
+
+					if (!value) {
+						let count = await model.find({
+							'fromModelId': this.fromModelId,
+							'toModelId': this.toModelId,
+							'toModel.foreignKey': ''
+						}).countDocuments();
+						return (count === 0);
+					}
+
+					return true;
+				},
+				message: defaultMessage,
+				type: 'unique'
+			}
+		},
+		relatedName: {
+			uniqueUniversally: {
+				validator: async function (value) {
+					const model = this.constructor;
+
+					if (value) {
+						let count = await model.find({
+							'toModelId': this.toModelId,
+							'toModel.relatedName': value
+						}).countDocuments();
+						return (count === 0);
+					}
+
+					return true;
+				},
+				message: defaultMessage,
+				type: 'unique'
+			},
+			uniqueSecondary: {
+				validator: async function (value) {
+					const model = this.constructor;
+
+					if (!value) {
+						let count = await model.find({
+							'fromModelId': this.fromModelId,
+							'toModelId': this.toModelId,
+							'toModel.relatedName': ''
+						}).countDocuments();
+						return (count === 0);
+					}
+
+					return true;
+				},
+				message: defaultMessage,
+				type: 'unique'
+			}
+		},
+		reverseName: {
+			uniqueUniversally: {
+				validator: async function (value) {
+					const model = this.constructor;
+
+					if (value && model.modelName === 'NonHierarchicalAssociation') {
+						let count = await model.find({
+							'toModelId': this.toModelId,
+							'toModel.reverseName': value
+						}).countDocuments();
+						return (count === 0);
+					}
+
+					return true;
+				},
+				message: defaultMessage,
+				type: 'unique'
+			},
+			uniqueSecondary: {
+				validator: async function (value) {
+					const model = this.constructor;
+
+					if (!value && model.modelName === 'NonHierarchicalAssociation') {
+						let count = await model.find({
+							'fromModelId': this.fromModelId,
+							'toModelId': this.toModelId,
+							'toModel.reverseName': ''
+						}).countDocuments();
+						return (count === 0);
+					}
+
+					return true;
+				},
+				message: defaultMessage,
+				type: 'unique'
+			}
+		}
 	}
 };
