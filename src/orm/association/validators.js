@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const defaultMessage = 'Error, expected `{PATH}` to be unique. Value: `{VALUE}`';
 
+// TODO: Refactor to use a validator factory function to reduce duplication
 export default {
 	fromModel: {
 		foreignKey: {
