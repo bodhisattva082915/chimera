@@ -4,10 +4,29 @@ export const fromModelForiegnKeyUniqueUniversally = {
 	validator: async function (value) {
 		const model = this.constructor;
 
-		if (value) {
+		if (value && model.modelName === 'NonHierarchicalAssociation') {
 			let count = await model.find({
 				'fromModelId': this.fromModelId,
 				'fromModel.foreignKey': value
+			}).countDocuments();
+			return (count === 0);
+		}
+
+		return true;
+	},
+	message: 'Error, expected `{PATH}` to be unique. Value: `{VALUE}`',
+	type: 'unique'
+};
+
+export const fromModelForiegnKeyUniqueSecondary = {
+	validator: async function (value) {
+		const model = this.constructor;
+
+		if (!value && model.modelName === 'NonHierarchicalAssociation') {
+			let count = await model.find({
+				'fromModelId': this.fromModelId,
+				'toModelId': this.toModelId,
+				'fromModel.foreignKey': ''
 			}).countDocuments();
 			return (count === 0);
 		}

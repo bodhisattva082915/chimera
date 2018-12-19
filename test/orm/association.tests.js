@@ -110,6 +110,8 @@ describe('ChimeraAssociation', function () {
 					fromModelId: this.testModelADoc.id,
 					toModelId: this.testModelBDoc.id,
 					fromModel: {
+						foreignKey: factory.chance('word', { length: 5 }),
+						relatedName: factory.chance('word', { length: 5 }),
 						reverseName: ''
 					}
 				});
@@ -128,7 +130,7 @@ describe('ChimeraAssociation', function () {
 				await new this.Hierarchical({
 					...assoc.toJSON(),
 					fromModel: {
-						reverseName: 'reverseNameUnique'
+						reverseName: factory.chance('word', { length: 5 })
 					}
 				}).validate().should.be.fulfilled;
 			});
@@ -168,6 +170,52 @@ describe('ChimeraAssociation', function () {
 					toModelId: this.testModelBDoc.id,
 					fromModel: {
 						foreignKey: assoc.fromModel.foreignKey
+					}
+				}).validate().should.be.fulfilled;
+			});
+		});
+
+		describe('fromModelForiegnKeyUniqueSecondary', function () {
+			it('should enforce uniqueness on NonHierarchical associations {fromModelId, toModelId, fromModel.foreignKey}', async function () {
+				const assoc = await factory.create('NonHierarchicalAssociation', {
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						foreignKey: '',
+						relatedName: factory.chance('word', { length: 5 }),
+						reverseName: factory.chance('word', { length: 5 })
+					}
+				});
+
+				// Should fail because foreignKey must be specified when a secondary association is created
+				// between fromModelId / toModelId
+				const isInvalid = await new this.NonHierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						foreignKey: assoc.fromModel.foreignKey
+					}
+				}).validate().should.be.rejected;
+
+				isInvalid.errors.should.containSubset({
+					'fromModel.foreignKey': { kind: 'unique' }
+				});
+
+				// Should succeed because association specifies a unique foreignKey
+				await new this.NonHierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						foreignKey: factory.chance('word', { length: 5 })
+					}
+				}).validate().should.be.fulfilled;
+
+				// Should succeed because this validator only applies to NonHierarchical associations
+				await new this.Hierarchical({
+					fromModelId: this.testModelADoc.id,
+					toModelId: this.testModelBDoc.id,
+					fromModel: {
+						foreignKey: ''
 					}
 				}).validate().should.be.fulfilled;
 			});

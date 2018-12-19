@@ -15,7 +15,8 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 						  (This is only relevant in non-hierarchical associations)`,
 			default: '',
 			validate: [
-				validators.fromModelForiegnKeyUniqueUniversally
+				validators.fromModelForiegnKeyUniqueUniversally,
+				validators.fromModelForiegnKeyUniqueSecondary
 			]
 		},
 		relatedName: {
