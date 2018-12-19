@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-export const reverseNameUniqueUniversally = {
+export const fromModelReverseNameUniqueUniversally = {
 	validator: async function (value) {
 		const model = this.constructor;
 		const baseModel = mongoose.model(model.baseModelName);
@@ -19,7 +19,7 @@ export const reverseNameUniqueUniversally = {
 	type: 'unique'
 };
 
-export const reverseNameUniqueSecondary = {
+export const fromModelReverseNameUniqueSecondary = {
 	validator: async function (value) {
 		const model = this.constructor;
 		const baseModel = mongoose.model(model.baseModelName);

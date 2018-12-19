@@ -13,7 +13,10 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 			type: String,
 			description: `Specifies the name of the field on the 'through' model that will hold foreign key.
 						  (This is only relevant in non-hierarchical associations)`,
-			default: ''
+			default: '',
+			validate: [
+
+			]
 		},
 		relatedName: {
 			type: String,
@@ -26,8 +29,8 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 			description: `Specifies the name to use for the virtual field on the 'from' model.`,
 			default: '',
 			validate: [
-				validators.reverseNameUniqueUniversally,
-				validators.reverseNameUniqueSecondary
+				validators.fromModelReverseNameUniqueUniversally,
+				validators.fromModelReverseNameUniqueSecondary
 			]
 		}
 	},
