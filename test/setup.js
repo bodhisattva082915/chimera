@@ -19,10 +19,10 @@ before(async function () {
 	process.env.CHIMERADB_PORT = await this.testDb.getPort();
 	process.env.CHIMERADB_NAME = await this.testDb.getDbName();
 
-	await require('app/db');
-	await require('app/orm');
+	await (await import('app/db')).default;
+	await (await import('app/orm')).init();
 
-	await require('./factories');
+	await import('./_factories');
 });
 
 after(async function () {

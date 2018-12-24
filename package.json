@@ -19,7 +19,6 @@
 	"dependencies": {
 		"express": "^4.16.4",
 		"lodash": "^4.17.11",
-		"mongodb": "^3.1.8",
 		"mongoose": "^5.3.11",
 		"mongoose-schema-jsonschema": "^1.1.15",
 		"mongoose-unique-validator": "^2.0.2",
@@ -29,11 +28,13 @@
 	"devDependencies": {
 		"@babel/core": "^7.1.5",
 		"@babel/plugin-proposal-class-properties": "^7.1.0",
+		"@babel/plugin-syntax-dynamic-import": "^7.2.0",
 		"@babel/preset-env": "^7.1.5",
 		"@babel/register": "^7.0.0",
 		"babel-eslint": "^10.0.1",
 		"babel-loader": "^8.0.4",
 		"babel-plugin-module-resolver": "^3.1.1",
+		"babel-plugin-transform-dynamic-import": "^2.1.0",
 		"chai": "^4.2.0",
 		"chai-as-promised": "^7.1.1",
 		"chai-sinon": "^2.8.1",
