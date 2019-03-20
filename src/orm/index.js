@@ -8,6 +8,7 @@ jsonschemaSupport(mongoose);
 mongoose.plugin(toJSONTransformation);
 
 const registry = new ModelRegistry();
+const staticModules = ['auth'];
 
 /**
  * Asynchronously loads all models (static and dynamic) into the model registry
@@ -21,7 +22,7 @@ export async function init () {
  * Initalizes a minimal ORM
  */
 async function bootstrap () {
-	await registry.bootstrap();
+	await registry.bootstrap(staticModules);
 };
 
 /**

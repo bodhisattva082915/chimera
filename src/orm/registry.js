@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import EventEmitter from 'events';
 import map from 'lodash/map';
 import pickBy from 'lodash/pickBy';
@@ -17,8 +18,8 @@ class ModelRegistry extends EventEmitter {
 		this._modelCache = {};
 	}
 
-	async bootstrap () {
-		await this._loadStaticSchemas();
+	async bootstrap (staticModules) {
+		await this._loadStaticSchemas(staticModules);
 		return this._compile();
 	}
 
@@ -53,20 +54,24 @@ class ModelRegistry extends EventEmitter {
 
 	/**
 	 * Loads statically defined schemas into the registry. This should be called first in order to boostrap the ORM.
+	 * @param {[string]} staticModules - Additional modules outside the ORM to be loaded
 	 */
-	async _loadStaticSchemas () {
-		const modules = fs
-			.readdirSync(__dirname)
-			.filter(file => !file.includes('.js'))
-			.filter(file => !file.includes('plugins'));
+	async _loadStaticSchemas (staticModules) {
+		await Promise.all([path.basename(__dirname), ...staticModules].map(async module => {
+			const moduleDir = path.resolve(path.dirname(__dirname), module);
+			const models = fs
+				.readdirSync(moduleDir)
+				.filter(file => !file.includes('.js'))
+				.filter(file => !file.includes('plugins'));
 
-		for (const moduleName of modules) {
-			const { modelClass, schema, discriminators } = await import(`${__dirname}/${moduleName}`);
-			this._register(modelClass, schema, discriminators);
+			for (const model of models) {
+				const { modelClass, schema, discriminators } = await import(path.resolve(moduleDir, model));
+				this._register(modelClass, schema, discriminators);
 
-			// Allocate a space in the cache for dynamic content
-			this._modelCache[schema.name] = {};
-		}
+				// Allocate a space in the cache for dynamic content
+				this._modelCache[schema.name] = {};
+			}
+		}));
 	}
 
 	/**
