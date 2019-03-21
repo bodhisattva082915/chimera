@@ -32,6 +32,13 @@ describe('Authentication', function () {
 					done();
 				})(this.req, this.res, this.next);
 			});
+
+			it('should succesfully error invalid username/password pairs', function (done) {
+				this.req.headers = { authorization: `Basic ${Buffer.from('test.user@domain.com:badpassword').toString('base64')}` };
+				passport.authenticate('basic', err => {
+					err.should.exist;
+				})(this.req, this.res, this.next);
+			});
 		});
 	});
 });
