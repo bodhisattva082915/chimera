@@ -71,6 +71,8 @@ export class URL extends mongoose.SchemaType {
 		}
 	}
 }
+// Alias needed to support lowercase values ({ urlField: 'url' })
+export const Url = URL;
 
 export class UUID extends mongoose.SchemaType {
 	constructor (...args) {
@@ -98,15 +100,5 @@ export class UUID extends mongoose.SchemaType {
 		}
 	}
 }
-
-mongoose.Schema.Types = {
-	...mongoose.Schema.Types,
-
-	/* Custom Types */
-	Email,
-	Phone,
-	URL,
-	Url: URL, // Alias needed to support lowercase values ({ urlField: 'url' })
-	UUID,
-	Uuid: UUID // Alias needed to support lowercase values ({ uuidField: 'uuid' })
-};
+// Alias needed to support lowercase values ({ uuidField: 'uuid' })
+export const Uuid = UUID;
