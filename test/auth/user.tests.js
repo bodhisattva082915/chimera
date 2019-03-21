@@ -1,6 +1,5 @@
 import crypto from 'crypto';
 import util from 'util';
-import uuidv4 from 'uuid/v4';
 import mongoose from 'mongoose';
 import orm from 'app/orm';
 import factory from 'factory-girl';
