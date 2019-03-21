@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import { mockReq, mockRes } from 'sinon-express-mock';
@@ -78,6 +79,30 @@ describe('Authentication', function () {
 					user.username.should.equal = this.testUser.username;
 
 					done();
+				})(this.req, this.res, this.next);
+			});
+
+			it('should gracefully error when given invalid claims (invalid userId)', function (done) {
+				this.accessToken = jwt.sign({ userId: mongoose.Types.ObjectId() }, process.env.CHIMERA_SECRET);
+				this.req.headers = { authorization: `JWT ${this.accessToken}` };
+				passport.authenticate('jwt', err => {
+
+					err.should.exist;
+					err.should.be.an.instanceOf(AuthenticationError);
+					done();
+
+				})(this.req, this.res, this.next);
+			});
+
+			it('should gracefully error when given invalid claims (non-existent userId)', function (done) {
+				this.accessToken = jwt.sign({ userKey: 'jwt' }, process.env.CHIMERA_SECRET);
+				this.req.headers = { authorization: `JWT ${this.accessToken}` };
+				passport.authenticate('jwt', err => {
+
+					err.should.exist;
+					err.should.be.an.instanceOf(AuthenticationError);
+					done();
+
 				})(this.req, this.res, this.next);
 			});
 		});
