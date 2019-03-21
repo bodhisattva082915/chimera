@@ -1,4 +1,5 @@
 import passport from 'passport';
+import jwt from 'jsonwebtoken';
 import { mockReq, mockRes } from 'sinon-express-mock';
 import factory from 'factory-girl';
 import { AuthenticationError } from 'app/auth/errors';
@@ -28,7 +29,7 @@ describe('Authentication', function () {
 	});
 
 	describe('Strategies', function () {
-		describe('basic', function () {
+		describe('Basic', function () {
 			it('should succesfully authenticate valid username/password pairs', function (done) {
 				this.req.headers = { authorization: `Basic ${Buffer.from(this.username + ':' + this.password).toString('base64')}` };
 				passport.authenticate('basic', (err, user) => {
@@ -61,6 +62,22 @@ describe('Authentication', function () {
 					err.should.be.an.instanceOf(AuthenticationError);
 					done();
 
+				})(this.req, this.res, this.next);
+			});
+		});
+
+		describe('JSON Web Token', function () {
+			it('should successfully authenticate valid JWTs', function (done) {
+				this.accessToken = jwt.sign({ userId: this.testUser.id }, process.env.CHIMERA_SECRET);
+				this.req.headers = { authorization: `JWT ${this.accessToken}` };
+				passport.authenticate('jwt', (err, user) => {
+					if (err) {
+						done(err);
+					}
+
+					user.username.should.equal = this.testUser.username;
+
+					done();
 				})(this.req, this.res, this.next);
 			});
 		});
