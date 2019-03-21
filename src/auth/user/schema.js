@@ -14,7 +14,7 @@ const schema = new ChimeraSchema('User', {
 })
 	/** Middleware */
 	.pre('save', function (next) {
-
+		next();
 	});
 
 export default schema;
