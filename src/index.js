@@ -1,17 +1,21 @@
 import express from 'express';
 import proxy from 'express-http-proxy';
-import './db';
-import './orm';
+import passport from 'passport';
+import auth from './auth';
 import api from './api';
 
 const app = express();
 
-/* REST API */
+/** Register Middleware */
+app.use(passport.initialize());
+
+/** Auth API */
+app.use('/auth', auth);
+
+/** REST API */
 app.use('/api', api);
 
-/* Mongo-Express UI */
+/** Mongo-Express UI */
 app.use('/', proxy('localhost:27018'));
 
-app.listen(3000, () => {
-	console.log('Chimera watching on port 3000');
-});
+export default app;

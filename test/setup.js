@@ -19,7 +19,7 @@ before(async function () {
 	process.env.CHIMERADB_PORT = await this.testDb.getPort();
 	process.env.CHIMERADB_NAME = await this.testDb.getDbName();
 
-	await (await import('app/db')).default;
+	await (await import('app/db')).default();
 	await (await import('app/orm')).init();
 
 	await import('./_factories');

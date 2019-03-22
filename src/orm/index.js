@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import jsonschemaSupport from 'mongoose-schema-jsonschema';
+import uniqueValidator from 'mongoose-unique-validator';
 import toJSONTransformation from './plugins/toJSONTransformations';
 import ModelRegistry from './registry';
 import * as customFieldTypes from './field/types';
@@ -9,6 +10,7 @@ jsonschemaSupport(mongoose);
 /**
  * Global Plugins
  */
+mongoose.plugin(uniqueValidator);
 mongoose.plugin(toJSONTransformation);
 
 /**
