@@ -1,6 +1,7 @@
 import 'env';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import chaiHttp from 'chai-http';
 import chaiSubset from 'chai-subset';
 import chaiSinon from 'chai-sinon';
 import MongoMemoryServer from 'mongodb-memory-server';
@@ -9,6 +10,7 @@ import mongoose from 'mongoose';
 chai.use(chaiSubset);
 chai.use(chaiAsPromised);
 chai.use(chaiSinon);
+chai.use(chaiHttp);
 
 should = chai.should();
 

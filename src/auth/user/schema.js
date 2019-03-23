@@ -14,9 +14,9 @@ const schema = new ChimeraSchema('User', {
 		required: true
 	},
 	salt: 'uuid'
-
 })
 	/** Middleware */
+	// TODO: Convert this to use argon2i encryption
 	.pre('save', async function () {
 		if (this.isNew) {
 			this.salt = uuidV4();

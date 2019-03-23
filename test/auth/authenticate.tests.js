@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
+import chai from 'chai';
 import { mockReq, mockRes } from 'sinon-express-mock';
 import factory from 'factory-girl';
-import { AuthenticationError } from 'app/auth/errors';
+import app from 'app';
 
 describe('Authentication', function () {
 	before(async function () {
@@ -15,6 +16,10 @@ describe('Authentication', function () {
 			username: this.username,
 			password: this.password
 		});
+	});
+
+	after(async function () {
+		await factory.cleanUp();
 	});
 
 	beforeEach(function () {
@@ -46,23 +51,27 @@ describe('Authentication', function () {
 
 			it('should gracefully error given invalid usernames', function (done) {
 				this.req.headers = { authorization: `Basic ${Buffer.from('test.user@domain.com:' + this.password).toString('base64')}` };
-				passport.authenticate('basic', err => {
+				passport.authenticate('basic', (err, user) => {
+					if (err) {
+						done(err);
+					}
 
-					err.should.exist;
-					err.should.be.an.instanceOf(AuthenticationError);
+					user.should.equal(false);
+
 					done();
-
 				})(this.req, this.res, this.next);
 			});
 
 			it('should gracefully error given invalid passwords', function (done) {
 				this.req.headers = { authorization: `Basic ${Buffer.from(this.username + ':badpassword').toString('base64')}` };
-				passport.authenticate('basic', err => {
+				passport.authenticate('basic', (err, user) => {
+					if (err) {
+						done(err);
+					}
 
-					err.should.exist;
-					err.should.be.an.instanceOf(AuthenticationError);
+					user.should.equal(false);
+
 					done();
-
 				})(this.req, this.res, this.next);
 			});
 		});
@@ -85,25 +94,57 @@ describe('Authentication', function () {
 			it('should gracefully error when given invalid claims (invalid userId)', function (done) {
 				this.accessToken = jwt.sign({ userId: mongoose.Types.ObjectId() }, process.env.CHIMERA_SECRET);
 				this.req.headers = { authorization: `JWT ${this.accessToken}` };
-				passport.authenticate('jwt', err => {
+				passport.authenticate('jwt', (err, user) => {
+					if (err) {
+						done(err);
+					}
 
-					err.should.exist;
-					err.should.be.an.instanceOf(AuthenticationError);
+					user.should.equal(false);
+
 					done();
-
 				})(this.req, this.res, this.next);
 			});
 
 			it('should gracefully error when given invalid claims (non-existent userId)', function (done) {
 				this.accessToken = jwt.sign({ userKey: 'jwt' }, process.env.CHIMERA_SECRET);
 				this.req.headers = { authorization: `JWT ${this.accessToken}` };
-				passport.authenticate('jwt', err => {
+				passport.authenticate('jwt', (err, user) => {
+					if (err) {
+						done(err);
+					}
 
-					err.should.exist;
-					err.should.be.an.instanceOf(AuthenticationError);
+					user.should.equal(false);
+
 					done();
-
 				})(this.req, this.res, this.next);
+			});
+		});
+	});
+
+	describe('REST API', function () {
+		before(function () {
+			this.server = chai.request(app).keepOpen();
+		});
+
+		after(function () {
+			this.server.close();
+		});
+
+		describe('/login', function () {
+			it('should authenticate and respond with access / refresh tokens', async function () {
+				const res = await this.server
+					.post('/auth/login')
+					.auth(this.username, this.password);
+
+				res.statusCode.should.equal(200);
+			});
+
+			it('should fail authentication with bad password and respond with 401', async function () {
+				const res = await this.server
+					.post('/auth/login')
+					.auth(this.username, 'badpass');
+
+				res.statusCode.should.equal(401);
 			});
 		});
 	});

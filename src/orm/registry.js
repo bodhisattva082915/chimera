@@ -56,7 +56,7 @@ class ModelRegistry extends EventEmitter {
 	 * Loads statically defined schemas into the registry. This should be called first in order to boostrap the ORM.
 	 * @param {[string]} staticModules - Additional modules outside the ORM to be loaded
 	 */
-	async _loadStaticSchemas (staticModules) {
+	async _loadStaticSchemas (staticModules = []) {
 		await Promise.all([path.basename(__dirname), ...staticModules].map(async module => {
 			const moduleDir = path.resolve(path.dirname(__dirname), module);
 			const models = fs
@@ -154,7 +154,11 @@ class ModelRegistry extends EventEmitter {
 				mongoose.deleteModel(namespace);
 			}
 
-			registered.model = mongoose.model(registered.modelClass || registered.schema.name, registered.schema);
+			if (registered.modelClass) {
+				registered.schema.loadClass(registered.modelClass);
+			}
+
+			registered.model = mongoose.model(registered.schema.name, registered.schema);
 			compiled.push(registered.model);
 
 			if (registered.discriminators) {

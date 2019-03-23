@@ -3,19 +3,18 @@ import crypto from 'crypto';
 import { BasicStrategy } from 'passport-http';
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
 import orm from 'app/orm';
-import { AuthenticationError } from './errors';
 
 export const basic = new BasicStrategy(async function (username, password, done) {
 	const user = await orm.model('User').findOne({ username });
 
 	if (!user) {
-		return done(new AuthenticationError('Invalid credentials supplied.'));
+		return done(null, false);
 	}
 
 	const derivedKey = await util.promisify(crypto.pbkdf2)(password, user.salt, 100000, 128, 'sha512');
 	const isValidPassword = Buffer.compare(user.password, derivedKey) === 0;
 	if (!isValidPassword) {
-		return done(new AuthenticationError('Invalid credentials supplied.'));
+		return done(null, false);
 	}
 
 	done(null, user);
@@ -28,7 +27,7 @@ export const jwt = new JWTStrategy({
 	const user = await orm.model('User').findById(userId);
 
 	if (!user) {
-		return done(new AuthenticationError('Invalid claims supplied.'));
+		return done(null, false);
 	}
 
 	done(null, user);
