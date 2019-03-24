@@ -1,8 +1,7 @@
-import crypto from 'crypto';
-import util from 'util';
 import mongoose from 'mongoose';
 import orm from 'app/orm';
 import factory from 'factory-girl';
+import argon2 from 'argon2';
 
 describe('User', function () {
 	before(async function () {
@@ -38,15 +37,12 @@ describe('User', function () {
 	});
 
 	describe('middleware', function () {
-		it('should encrypt passwords using pbkdf2 on user create', async function () {
+		it('should encrypt passwords using argon2 on user create', async function () {
 			const userData = { username: factory.chance('email'), password: 'unecrypted' };
 			const user = await factory.create('User', userData);
 
 			user.password.should.not.equal(userData.password);
-			Buffer.compare(
-				user.password,
-				await util.promisify(crypto.pbkdf2)(userData.password, user.salt, 100000, 128, 'sha512')
-			).should.equal(0);
+			(await argon2.verify(user.password, userData.password)).should.be.true;
 		});
 	});
 });

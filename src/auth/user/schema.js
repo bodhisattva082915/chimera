@@ -1,7 +1,5 @@
-import crypto from 'crypto';
-import util from 'util';
-import uuidV4 from 'uuid/v4';
 import ChimeraSchema from 'app/orm/schema';
+import { encryptPassword } from '../utils';
 
 const schema = new ChimeraSchema('User', {
 	username: {
@@ -10,17 +8,14 @@ const schema = new ChimeraSchema('User', {
 		unique: true
 	},
 	password: {
-		type: Buffer,
+		type: String,
 		required: true
-	},
-	salt: 'uuid'
+	}
 })
 	/** Middleware */
-	// TODO: Convert this to use argon2i encryption
 	.pre('save', async function () {
 		if (this.isNew) {
-			this.salt = uuidV4();
-			this.password = await util.promisify(crypto.pbkdf2)(this.password, this.salt, 100000, 128, 'sha512');
+			this.password = await encryptPassword(this.password);
 		}
 	});
 
