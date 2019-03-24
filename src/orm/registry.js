@@ -154,7 +154,7 @@ class ModelRegistry extends EventEmitter {
 				mongoose.deleteModel(namespace);
 			}
 
-			if (registered.modelClass) {
+			if (registered.modelClass && registered.modelClass.prototype instanceof mongoose.Model) {
 				registered.schema.loadClass(registered.modelClass);
 			}
 
