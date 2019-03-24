@@ -139,12 +139,28 @@ describe('Authentication', function () {
 				res.statusCode.should.equal(200);
 			});
 
+			it('should fail authentication with bad username and respond with 401', async function () {
+				const res = await this.server
+					.post('/auth/login')
+					.auth('baduser', this.password);
+
+				res.statusCode.should.equal(401);
+			});
+
 			it('should fail authentication with bad password and respond with 401', async function () {
 				const res = await this.server
 					.post('/auth/login')
 					.auth(this.username, 'badpass');
 
 				res.statusCode.should.equal(401);
+			});
+
+			it('should fail authentication with malformed authorization string and respond with 400', async function () {
+				const res = await this.server
+					.post('/auth/login')
+					.set('Authorization', 'Basic thisisnotthecorrectformat');
+
+				res.statusCode.should.equal(400);
 			});
 		});
 	});
