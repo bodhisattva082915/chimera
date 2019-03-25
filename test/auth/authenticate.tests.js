@@ -79,7 +79,7 @@ describe('Authentication', function () {
 		describe('JSON Web Token', function () {
 			it('should successfully authenticate valid JWTs', function (done) {
 				this.accessToken = jwt.sign({ userId: this.testUser.id }, process.env.CHIMERA_SECRET);
-				this.req.headers = { authorization: `JWT ${this.accessToken}` };
+				this.req.headers = { authorization: `Bearer ${this.accessToken}` };
 				passport.authenticate('jwt', (err, user) => {
 					if (err) {
 						done(err);
@@ -93,7 +93,7 @@ describe('Authentication', function () {
 
 			it('should gracefully error when given invalid claims (invalid userId)', function (done) {
 				this.accessToken = jwt.sign({ userId: mongoose.Types.ObjectId() }, process.env.CHIMERA_SECRET);
-				this.req.headers = { authorization: `JWT ${this.accessToken}` };
+				this.req.headers = { authorization: `Bearer ${this.accessToken}` };
 				passport.authenticate('jwt', (err, user) => {
 					if (err) {
 						done(err);
@@ -107,7 +107,7 @@ describe('Authentication', function () {
 
 			it('should gracefully error when given invalid claims (non-existent userId)', function (done) {
 				this.accessToken = jwt.sign({ userKey: 'jwt' }, process.env.CHIMERA_SECRET);
-				this.req.headers = { authorization: `JWT ${this.accessToken}` };
+				this.req.headers = { authorization: `Bearer ${this.accessToken}` };
 				passport.authenticate('jwt', (err, user) => {
 					if (err) {
 						done(err);

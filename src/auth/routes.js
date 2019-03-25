@@ -9,15 +9,9 @@ authRouter.use('/auth', authRoutes);
 authRoutes
 	.post('/login', passport.authenticate('basic', { session: false }), [
 		handlers.generateTokens
-		// authenticationErrorHandler,
 	])
-	.all('/logout', [
-		// deauthenicationHandler
-	])
-	.post('/password-reset', [
-		// validatePasswordReset,
-		// passwordResetErrorHandler,
-		// passwordResetSuccessHandler
+	.post('/password-reset', passport.authenticate('bearer'), [
+
 	]);
 
 export default authRouter;

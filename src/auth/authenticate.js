@@ -20,7 +20,7 @@ export const basic = new BasicStrategy(async function (username, password, done)
 
 export const jwt = new JWTStrategy({
 	secretOrKey: process.env.CHIMERA_SECRET,
-	jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('jwt')
+	jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
 }, async function ({ userId }, done) {
 	const user = await orm.model('User').findById(userId);
 
