@@ -1,4 +1,5 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 // import proxy from 'express-http-proxy';
 import passport from 'passport';
 import auth from './auth';
@@ -7,6 +8,8 @@ import api from './api';
 const app = express();
 
 /** Register Middleware */
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
 
 /** Auth API */

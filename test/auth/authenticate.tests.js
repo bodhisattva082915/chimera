@@ -164,5 +164,30 @@ describe('Authentication', function () {
 				res.statusCode.should.equal(400);
 			});
 		});
+
+		describe('/request-reset', function () {
+			it('should validate the body post request', async function () {
+				const res1 = await this.server
+					.post('/auth/request-reset')
+					.set('content-type', 'application/json');
+
+				const res2 = await this.server
+					.post('/auth/request-reset')
+					.set('content-type', 'application/json')
+					.send({ email: 'benaseotn' });
+
+				res1.statusCode.should.equal(422);
+				res1.body.errors.should.have.length(2);
+				res2.statusCode.should.equal(422);
+				res2.body.errors.should.have.length(1);
+			});
+
+			it('should email a reset token to the user of the request', function () {
+				const res1 = await this.server
+					.post('/auth/request-reset')
+					.set('content-type', 'application/json')
+					.send({ email: this.testUser.email });
+			});
+		});
 	});
 });
