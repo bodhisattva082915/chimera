@@ -8,7 +8,7 @@ const authRoutes = new Router();
 authRouter.use('/auth', authRoutes);
 authRoutes
 	.post('/login', passport.authenticate('basic', { session: false }), [
-		handlers.authenticationSuccess
+		handlers.generateTokens
 		// authenticationErrorHandler,
 	])
 	.all('/logout', [

@@ -131,12 +131,13 @@ describe('Authentication', function () {
 		});
 
 		describe('/login', function () {
-			it('should authenticate and respond with access / refresh tokens', async function () {
+			it('should authenticate and respond with 200 and an access token', async function () {
 				const res = await this.server
 					.post('/auth/login')
 					.auth(this.username, this.password);
 
 				res.statusCode.should.equal(200);
+				res.body.should.have.keys('accessToken');
 			});
 
 			it('should fail authentication with bad username and respond with 401', async function () {

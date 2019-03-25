@@ -1,6 +1,6 @@
-export const authenticationSuccess = (req, res) => {
+export const generateTokens = (req, res) => {
 	const { user } = req;
-	const { accessToken, refreshToken } = user.generateTokens();
+	const { accessToken } = user.generateTokens();
 
-	res.json({ accessToken, refreshToken });
+	res.json({ accessToken });
 };
