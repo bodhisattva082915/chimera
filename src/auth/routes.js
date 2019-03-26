@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Router } from 'express';
 import { body } from 'express-validator/check';
-import { validationErrors } from 'app/middleware';
+import { validateReq } from 'app/middleware';
 import * as handlers from './handlers';
 
 const authRouter = new Router();
@@ -19,9 +19,10 @@ authRoutes
 	 * 2.) Initiate the password reset. Recieves a request with new password credentials and the reset token to perform the password reset.
 	 */
 	.post('/request-reset', [
-		body('email', 'Email is required.').exists(),
-		body('email', 'Value must be an email.').isEmail(),
-		validationErrors,
+		validateReq(
+			body('email', 'Email is required.').exists(),
+			body('email', 'Value must be an email.').isEmail()
+		),
 		handlers.sendResetToken
 	])
 	.post('/initiate-reset', passport.authenticate('bearer', { session: false }), [
