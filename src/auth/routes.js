@@ -25,7 +25,10 @@ authRoutes
 		),
 		handlers.sendResetToken
 	])
-	.post('/initiate-reset', passport.authenticate('bearer', { session: false }), [
+	.post('/initiate-reset', passport.authenticate('jwt', { session: false }), [
+		validateReq(
+			body('password', 'Password is required.').exists()
+		),
 		handlers.resetUserPassword
 	]);
 

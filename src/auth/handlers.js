@@ -27,6 +27,11 @@ export const sendResetToken = async (req, res, next) => {
 	res.sendStatus(200);
 };
 
-export const resetUserPassword = (req, res) => {
-	res.json();
+export const resetUserPassword = async (req, res) => {
+	const { user } = req;
+	const { password } = req.body;
+
+	await user.resetPassword(password);
+
+	res.sendStatus(204);
 };

@@ -1,4 +1,3 @@
-
 import ChimeraSchema from 'app/orm/schema';
 import { encryptPassword } from '../utils';
 
