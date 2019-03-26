@@ -13,13 +13,15 @@ export const generateTokens = (req, res) => {
 /**
  * Sends password reset token to the given user of the request.
  */
-export const sendResetToken = async (req, res) => {
+export const sendResetToken = async (req, res, next) => {
 	const User = orm.model('User');
 	const { email } = req.body;
 	const user = await User.findOne({ email });
 
 	if (user) {
-		user.emailResetToken();
+		user.emailResetToken().catch(err => {
+			return next(err);
+		});
 	}
 
 	res.sendStatus(200);

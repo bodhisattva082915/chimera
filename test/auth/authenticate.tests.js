@@ -10,7 +10,7 @@ describe('Authentication', function () {
 	before(async function () {
 		await import('app/auth');
 
-		this.username = factory.chance('email')();
+		this.username = factory.chance('word')();
 		this.password = factory.chance('word', { length: 12 })();
 		this.testUser = await factory.create('User', {
 			username: this.username,
@@ -186,7 +186,7 @@ describe('Authentication', function () {
 				const res = await this.server
 					.post('/auth/request-reset')
 					.set('content-type', 'application/json')
-					.send({ email: this.testUser.username });
+					.send({ email: this.testUser.email });
 
 				res.statusCode.should.equal(200);
 			});

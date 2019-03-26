@@ -1,7 +1,9 @@
+import util from 'util';
 import mongoose from 'mongoose';
 import orm from 'app/orm';
 import factory from 'factory-girl';
 import argon2 from 'argon2';
+import jsdom from 'jsdom';
 import jwt from 'jsonwebtoken';
 
 describe('User', function () {
@@ -21,7 +23,8 @@ describe('User', function () {
 				.and.containSubset({
 					errors: {
 						username: { kind: 'required' },
-						password: { kind: 'required' }
+						password: { kind: 'required' },
+						email: { kind: 'required' }
 					}
 				});
 		});
@@ -32,6 +35,16 @@ describe('User', function () {
 				.and.containSubset({
 					errors: {
 						username: { kind: 'unique' }
+					}
+				});
+		});
+
+		it('should enforce uniqueness constraint {email}', function () {
+			return new this.User(this.testUser.toObject()).validate()
+				.should.eventually.be.rejectedWith(mongoose.Error.ValidationError)
+				.and.containSubset({
+					errors: {
+						email: { kind: 'unique' }
 					}
 				});
 		});
@@ -55,6 +68,29 @@ describe('User', function () {
 			payload.should.containSubset({
 				userId: this.testUser.id
 			});
+		});
+	});
+
+	describe('emailResetToken', function () {
+		before(function (done) {
+			this.testSMTP.deleteAllEmail(done);
+		});
+
+		after(function (done) {
+			this.testSMTP.deleteAllEmail(done);
+		});
+
+		it('should email the user a valid password reset token', async function () {
+			const envelope = await this.testUser.emailResetToken();
+			const emails = await util.promisify(this.testSMTP.getAllEmail)();
+			envelope.should.exist;
+			emails.should.have.lengthOf(1);
+
+			// Verify the token placed in the email is valid
+			const dom = new jsdom.JSDOM(emails[0].html);
+			const resetLink = dom.window.document.querySelector('a');
+			const resetToken = new URL(resetLink.href).searchParams.get('token');
+			jwt.verify(resetToken, process.env.CHIMERA_SECRET);
 		});
 	});
 });

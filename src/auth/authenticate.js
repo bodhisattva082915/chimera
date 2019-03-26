@@ -3,6 +3,7 @@ import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
 import argon2 from 'argon2';
 import orm from 'app/orm';
 
+// TODO: Support user lookup by username or email
 export const basic = new BasicStrategy(async function (username, password, done) {
 	const user = await orm.model('User').findOne({ username });
 

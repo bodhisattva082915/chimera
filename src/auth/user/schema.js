@@ -1,3 +1,4 @@
+
 import ChimeraSchema from 'app/orm/schema';
 import { encryptPassword } from '../utils';
 
@@ -10,7 +11,13 @@ const schema = new ChimeraSchema('User', {
 	password: {
 		type: String,
 		required: true
-	}
+	},
+	email: {
+		type: 'email',
+		required: true,
+		unique: true
+	},
+	verified: Boolean
 })
 	/** Middleware */
 	.pre('save', async function () {
