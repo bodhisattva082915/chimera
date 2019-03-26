@@ -182,11 +182,13 @@ describe('Authentication', function () {
 				res2.body.errors.should.have.length(1);
 			});
 
-			it('should email a reset token to the user of the request', function () {
-				const res1 = await this.server
+			it('should route requests to the sendResetToken handler and respond successfully with 200', async function () {
+				const res = await this.server
 					.post('/auth/request-reset')
 					.set('content-type', 'application/json')
-					.send({ email: this.testUser.email });
+					.send({ email: this.testUser.username });
+
+				res.statusCode.should.equal(200);
 			});
 		});
 	});

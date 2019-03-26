@@ -5,7 +5,10 @@ import chaiHttp from 'chai-http';
 import chaiSubset from 'chai-subset';
 import chaiSinon from 'chai-sinon';
 import MongoMemoryServer from 'mongodb-memory-server';
+import MailDev from 'maildev';
 import mongoose from 'mongoose';
+import uuidv4 from 'uuid/v4';
+import util from 'util';
 
 chai.use(chaiSubset);
 chai.use(chaiAsPromised);
@@ -16,13 +19,26 @@ should = chai.should();
 
 before(async function () {
 	this.testDb = new MongoMemoryServer();
+	this.testSMTPCreds = { username: 'support@domain.com', password: uuidv4() };
+	this.testSMTP = new MailDev({
+		smtp: 587,
+		silent: true,
+		incomingUser: this.testSMTPCreds.username,
+		incomingPass: this.testSMTPCreds.password
+	});
+	this.testSMTP.listen();
 
 	process.env.NODE_ENV = 'test';
 	process.env.CHIMERADB_PORT = await this.testDb.getPort();
 	process.env.CHIMERADB_NAME = await this.testDb.getDbName();
+	process.env.CHIMERASMTP_HOST = 'localhost';
+	process.env.CHIMERASMTP_PORT = this.testSMTP.port;
+	process.env.CHIMERASMTP_USERNAME = this.testSMTPCreds.username;
+	process.env.CHIMERASMTP_PASSWORD = this.testSMTPCreds.password;
 
-	await (await import('app/db')).default();
-	await (await import('app/orm')).init();
+	await (await import('app/db')).default(); // Init DB Connection
+	await (await import('app/orm')).init(); // Init basic ORM
+	await util.promisify((await import('app/smtp')).default.verify)(); // Init and verify SMTP transport
 
 	await import('./_factories');
 });
@@ -30,4 +46,5 @@ before(async function () {
 after(async function () {
 	await mongoose.disconnect();
 	this.testDb.stop();
+	this.testSMTP.close();
 });
