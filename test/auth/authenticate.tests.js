@@ -179,16 +179,16 @@ describe('Authentication', function () {
 			});
 		});
 
-		describe('/request-reset', function () {
-			it('should validate the request body', async function () {
+		describe('GET /password-reset', function () {
+			it('should validate the request params', async function () {
 				const res1 = await this.server
-					.post('/auth/request-reset')
+					.get('/auth/password-reset')
 					.set('content-type', 'application/json');
 
 				const res2 = await this.server
-					.post('/auth/request-reset')
+					.get('/auth/password-reset')
 					.set('content-type', 'application/json')
-					.send({ email: 'benaseotn' });
+					.query({ email: 'benaseotn' });
 
 				res1.statusCode.should.equal(422);
 				res1.body.errors.should.have.length(2);
@@ -198,15 +198,15 @@ describe('Authentication', function () {
 
 			it('should route requests to the sendResetToken handler and respond successfully with 200', async function () {
 				const res = await this.server
-					.post('/auth/request-reset')
+					.get('/auth/password-reset')
 					.set('content-type', 'application/json')
-					.send({ email: this.testUser.email });
+					.query({ email: this.testUser.email });
 
 				res.statusCode.should.equal(200);
 			});
 		});
 
-		describe('/initiate-reset', function () {
+		describe('POST /password-reset', function () {
 			beforeEach(async function () {
 				this.testUser = await this.testUser.refreshFromDb('+password');
 				this.resetToken = this.testUser.generateResetToken();
@@ -214,7 +214,7 @@ describe('Authentication', function () {
 
 			it('should validate the request body', async function () {
 				const res = await this.server
-					.post('/auth/initiate-reset')
+					.post('/auth/password-reset')
 					.set('Authorization', `Bearer ${this.resetToken}`)
 					.set('content-type', 'application/json');
 
@@ -225,7 +225,7 @@ describe('Authentication', function () {
 			it('should reset the user password to the new password and respond with 204', async function () {
 				const newPassword = 'newpassword';
 				const res = await this.server
-					.post('/auth/initiate-reset')
+					.post('/auth/password-reset')
 					.set('Authorization', `Bearer ${this.resetToken}`)
 					.set('content-type', 'application/json')
 					.send({ password: newPassword });
@@ -236,13 +236,13 @@ describe('Authentication', function () {
 			it('should reject the same token from being used more than once to reset the user password', async function () {
 				const newPassword = 'newpassword';
 				const res = await this.server
-					.post('/auth/initiate-reset')
+					.post('/auth/password-reset')
 					.set('Authorization', `Bearer ${this.resetToken}`)
 					.set('content-type', 'application/json')
 					.send({ password: newPassword });
 
 				const res401 = await this.server
-					.post('/auth/initiate-reset')
+					.post('/auth/password-reset')
 					.set('Authorization', `Bearer ${this.resetToken}`)
 					.set('content-type', 'application/json')
 					.send({ password: newPassword });

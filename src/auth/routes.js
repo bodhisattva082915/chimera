@@ -1,6 +1,6 @@
 import passport from 'passport';
 import { Router } from 'express';
-import { body } from 'express-validator/check';
+import { query, body } from 'express-validator/check';
 import { validateReq } from 'app/middleware';
 import * as handlers from './handlers';
 
@@ -18,14 +18,14 @@ authRoutes
 	 * 1.) Request a password reset. This searchs for the user by the given username and creates a token that is emailed to the user.
 	 * 2.) Initiate the password reset. Recieves a request with new password credentials and the reset token to perform the password reset.
 	 */
-	.post('/request-reset', [
+	.get('/password-reset', [
 		validateReq(
-			body('email', 'Email is required.').exists(),
-			body('email', 'Value must be an email.').isEmail()
+			query('email', 'Email is required.').exists(),
+			query('email', 'Value must be an email.').isEmail()
 		),
 		handlers.sendResetToken
 	])
-	.post('/initiate-reset', passport.authenticate('bearer', { session: false }), [
+	.post('/password-reset', passport.authenticate('bearer', { session: false }), [
 		validateReq(
 			body('password', 'Password is required.').exists()
 		),
