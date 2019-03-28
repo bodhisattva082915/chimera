@@ -83,17 +83,17 @@ describe('User', function () {
 			await util.promisify(this.testSMTP.close)();
 		});
 
-		it('should email the user a valid password reset token', async function () {
-			const envelope = await this.testUser.emailResetToken();
-			const emails = await util.promisify(this.testSMTP.getAllEmail)();
-			envelope.should.exist;
-			emails.should.have.lengthOf(1);
-
-			// Verify the token placed in the email is valid
-			const dom = new jsdom.JSDOM(emails[0].html);
-			const resetLink = dom.window.document.querySelector('a');
-			const resetToken = new URL(resetLink.href).searchParams.get('token');
-			jwt.verify(resetToken, process.env.CHIMERA_SECRET);
+		it('should email the user a valid password reset token', function (done) {
+			this.testUser.emailResetToken()
+				.then(() => {
+					this.testSMTP.on('new', email => {
+						// Verify the token placed in the email is valid
+						const dom = new jsdom.JSDOM(email.html);
+						const resetLink = dom.window.document.querySelector('a');
+						const resetToken = new URL(resetLink.href).searchParams.get('token');
+						jwt.verify(resetToken, this.testUser.password, done);
+					});
+				}).catch(done);
 		});
 	});
 });
