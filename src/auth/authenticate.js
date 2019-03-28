@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 
 // TODO: Support user lookup by username or email
 export const basic = new BasicStrategy(async function (username, password, done) {
-	const user = await orm.model('User').findOne({ username });
+	const user = await orm.model('User').findOne({ username }, '+password');
 
 	if (!user) {
 		return done(null, false);
@@ -26,7 +26,7 @@ export const bearer = new BearerStrategy(async function (token, done) {
 		return done(null, false);
 	}
 
-	const user = await orm.model('User').findById(userId);
+	const user = await orm.model('User').findById(userId, '+password');
 	if (!user) {
 		return done(null, false);
 	}

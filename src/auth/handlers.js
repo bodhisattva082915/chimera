@@ -16,7 +16,7 @@ export const generateTokens = (req, res) => {
 export const sendResetToken = async (req, res, next) => {
 	const User = orm.model('User');
 	const { email } = req.body;
-	const user = await User.findOne({ email });
+	const user = await User.findOne({ email }, '+password');
 
 	if (user) {
 		user.emailResetToken().catch(err => {

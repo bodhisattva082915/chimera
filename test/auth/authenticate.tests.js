@@ -208,7 +208,7 @@ describe('Authentication', function () {
 
 		describe('/initiate-reset', function () {
 			beforeEach(async function () {
-				this.testUser = await this.testUser.refreshFromDb();
+				this.testUser = await this.testUser.refreshFromDb('+password');
 				this.resetToken = this.testUser.generateResetToken();
 			});
 
