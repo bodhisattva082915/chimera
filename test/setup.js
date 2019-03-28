@@ -8,7 +8,6 @@ import MongoMemoryServer from 'mongodb-memory-server';
 import MailDev from 'maildev';
 import mongoose from 'mongoose';
 import uuidv4 from 'uuid/v4';
-import util from 'util';
 
 chai.use(chaiSubset);
 chai.use(chaiAsPromised);
@@ -37,7 +36,7 @@ before(async function () {
 
 	await (await import('app/db')).default(); // Init DB Connection
 	await (await import('app/orm')).init(); // Init basic ORM
-	await (await import('app/smtp')); // Init SMTP transport
+	await import('app/smtp'); // Init SMTP transport
 
 	await import('./_factories');
 });

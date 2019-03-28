@@ -1,10 +1,10 @@
 import util from 'util';
 import mongoose from 'mongoose';
-import orm from 'app/orm';
 import factory from 'factory-girl';
 import argon2 from 'argon2';
 import jsdom from 'jsdom';
 import jwt from 'jsonwebtoken';
+import orm from 'app/orm';
 
 describe('User', function () {
 	before(async function () {
@@ -72,14 +72,15 @@ describe('User', function () {
 	});
 
 	describe('emailResetToken', function () {
-		before(function (done) {
-			this.testSMTP.listen();
-			this.testSMTP.deleteAllEmail(done);
+		before(async function () {
+			await util.promisify(this.testSMTP.listen)();
+			await util.promisify(this.testSMTP.deleteAllEmail)();
+			await (await import('app/smtp')).default.verify();
 		});
 
-		after(function (done) {
-			this.testSMTP.close();
-			this.testSMTP.deleteAllEmail(done);
+		after(async function () {
+			await util.promisify(this.testSMTP.deleteAllEmail)();
+			await util.promisify(this.testSMTP.close)();
 		});
 
 		it('should email the user a valid password reset token', async function () {
