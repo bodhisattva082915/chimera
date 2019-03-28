@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import jsonschemaSupport from 'mongoose-schema-jsonschema';
 import uniqueValidator from 'mongoose-unique-validator';
 import toJSONTransformation from './plugins/toJSONTransformations';
+import refreshFromDb from './plugins/refreshFromDb';
 import ModelRegistry from './registry';
 import * as customFieldTypes from './field/types';
 
@@ -12,6 +13,7 @@ jsonschemaSupport(mongoose);
  */
 mongoose.plugin(uniqueValidator);
 mongoose.plugin(toJSONTransformation);
+mongoose.plugin(refreshFromDb);
 
 /**
  * Register custom field types

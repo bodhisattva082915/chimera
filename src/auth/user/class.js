@@ -18,15 +18,15 @@ class User extends mongoose.Model {
 		};
 
 		return {
-			accessToken: jwt.sign({ userId: this.id }, process.env.CHIMERA_SECRET, opts)
+			accessToken: jwt.sign({ userId: this.id }, this.password, opts)
 		};
 	};
 
 	generateResetToken (jwtOpts = {}) {
-		const payload = { userId: this.id, password: this.password };
+		const payload = { userId: this.id };
 		const opts = { expiresIn: '10 minutes', ...jwtOpts };
 
-		return jwt.sign(payload, process.env.CHIMERA_SECRET, opts);
+		return jwt.sign(payload, this.password, opts);
 	}
 
 	async resetPassword (password) {

@@ -78,9 +78,9 @@ describe('Authentication', function () {
 
 		describe('JSON Web Token', function () {
 			it('should successfully authenticate valid JWTs', function (done) {
-				this.accessToken = jwt.sign({ userId: this.testUser.id }, process.env.CHIMERA_SECRET);
+				this.accessToken = jwt.sign({ userId: this.testUser.id }, this.testUser.password);
 				this.req.headers = { authorization: `Bearer ${this.accessToken}` };
-				passport.authenticate('jwt', (err, user) => {
+				passport.authenticate('bearer', (err, user) => {
 					if (err) {
 						done(err);
 					}
@@ -91,10 +91,10 @@ describe('Authentication', function () {
 				})(this.req, this.res, this.next);
 			});
 
-			it('should gracefully error when given invalid claims (invalid userId)', function (done) {
-				this.accessToken = jwt.sign({ userId: mongoose.Types.ObjectId() }, process.env.CHIMERA_SECRET);
+			it('should gracefully error when given invalid claims (non-existent userId)', function (done) {
+				this.accessToken = jwt.sign({ userKey: 'jwt' }, this.testUser.password);
 				this.req.headers = { authorization: `Bearer ${this.accessToken}` };
-				passport.authenticate('jwt', (err, user) => {
+				passport.authenticate('bearer', (err, user) => {
 					if (err) {
 						done(err);
 					}
@@ -105,10 +105,24 @@ describe('Authentication', function () {
 				})(this.req, this.res, this.next);
 			});
 
-			it('should gracefully error when given invalid claims (non-existent userId)', function (done) {
-				this.accessToken = jwt.sign({ userKey: 'jwt' }, process.env.CHIMERA_SECRET);
+			it('should gracefully error when given invalid claims (invalid userId)', function (done) {
+				this.accessToken = jwt.sign({ userId: mongoose.Types.ObjectId() }, this.testUser.password);
 				this.req.headers = { authorization: `Bearer ${this.accessToken}` };
-				passport.authenticate('jwt', (err, user) => {
+				passport.authenticate('bearer', (err, user) => {
+					if (err) {
+						done(err);
+					}
+
+					user.should.equal(false);
+
+					done();
+				})(this.req, this.res, this.next);
+			});
+
+			it('should gracefully error when given bad signature', function (done) {
+				this.accessToken = jwt.sign({ userId: this.testUser.id }, 'hackerNoHacking');
+				this.req.headers = { authorization: `Bearer ${this.accessToken}` };
+				passport.authenticate('bearer', (err, user) => {
 					if (err) {
 						done(err);
 					}
@@ -193,7 +207,8 @@ describe('Authentication', function () {
 		});
 
 		describe('/initiate-reset', function () {
-			before(async function () {
+			beforeEach(async function () {
+				this.testUser = await this.testUser.refreshFromDb();
 				this.resetToken = this.testUser.generateResetToken();
 			});
 
@@ -215,7 +230,25 @@ describe('Authentication', function () {
 					.set('content-type', 'application/json')
 					.send({ password: newPassword });
 
+				res.statusCode.should.equal(204);
+			});
 
+			it('should reject the same token from being used more than once to reset the user password', async function () {
+				const newPassword = 'newpassword';
+				const res = await this.server
+					.post('/auth/initiate-reset')
+					.set('Authorization', `Bearer ${this.resetToken}`)
+					.set('content-type', 'application/json')
+					.send({ password: newPassword });
+
+				const res401 = await this.server
+					.post('/auth/initiate-reset')
+					.set('Authorization', `Bearer ${this.resetToken}`)
+					.set('content-type', 'application/json')
+					.send({ password: newPassword });
+
+				res.statusCode.should.equal(204);
+				res401.statusCode.should.equal(401);
 			});
 		});
 	});

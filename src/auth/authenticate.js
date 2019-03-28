@@ -1,7 +1,8 @@
 import { BasicStrategy } from 'passport-http';
-import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
+import { Strategy as BearerStrategy } from 'passport-http-bearer';
 import argon2 from 'argon2';
 import orm from 'app/orm';
+import jwt from 'jsonwebtoken';
 
 // TODO: Support user lookup by username or email
 export const basic = new BasicStrategy(async function (username, password, done) {
@@ -19,15 +20,22 @@ export const basic = new BasicStrategy(async function (username, password, done)
 	done(null, user);
 });
 
-export const jwt = new JWTStrategy({
-	secretOrKey: process.env.CHIMERA_SECRET,
-	jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
-}, async function ({ userId }, done) {
-	const user = await orm.model('User').findById(userId);
+export const bearer = new BearerStrategy(async function (token, done) {
+	const { userId } = jwt.decode(token);
+	if (!userId) {
+		return done(null, false);
+	}
 
+	const user = await orm.model('User').findById(userId);
 	if (!user) {
 		return done(null, false);
 	}
 
-	done(null, user);
+	jwt.verify(token, user.password, err => {
+		if (err) {
+			return done(null, false);
+		}
+
+		done(null, user);
+	});
 });

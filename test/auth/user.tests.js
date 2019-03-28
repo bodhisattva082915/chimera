@@ -63,7 +63,7 @@ describe('User', function () {
 	describe('generateTokens', function () {
 		it('should create a valid JWT with the userId contained in the payload', function () {
 			const { accessToken } = this.testUser.generateTokens();
-			const payload = jwt.verify(accessToken, process.env.CHIMERA_SECRET);
+			const payload = jwt.verify(accessToken, this.testUser.password);
 
 			payload.should.containSubset({
 				userId: this.testUser.id
@@ -73,10 +73,12 @@ describe('User', function () {
 
 	describe('emailResetToken', function () {
 		before(function (done) {
+			this.testSMTP.listen();
 			this.testSMTP.deleteAllEmail(done);
 		});
 
 		after(function (done) {
+			this.testSMTP.close();
 			this.testSMTP.deleteAllEmail(done);
 		});
 

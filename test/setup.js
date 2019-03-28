@@ -26,7 +26,6 @@ before(async function () {
 		incomingUser: this.testSMTPCreds.username,
 		incomingPass: this.testSMTPCreds.password
 	});
-	this.testSMTP.listen();
 
 	process.env.NODE_ENV = 'test';
 	process.env.CHIMERADB_PORT = await this.testDb.getPort();
@@ -38,7 +37,7 @@ before(async function () {
 
 	await (await import('app/db')).default(); // Init DB Connection
 	await (await import('app/orm')).init(); // Init basic ORM
-	await util.promisify((await import('app/smtp')).default.verify)(); // Init and verify SMTP transport
+	await (await import('app/smtp')); // Init SMTP transport
 
 	await import('./_factories');
 });
@@ -46,5 +45,4 @@ before(async function () {
 after(async function () {
 	await mongoose.disconnect();
 	this.testDb.stop();
-	this.testSMTP.close();
 });
