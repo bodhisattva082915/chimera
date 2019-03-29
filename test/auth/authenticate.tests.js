@@ -157,7 +157,7 @@ describe('Authentication', function () {
 			this.server.close();
 		});
 
-		describe('/login', function () {
+		describe('POST /login', function () {
 			it('should authenticate and respond with 200 and an access token', async function () {
 				const res = await this.server
 					.post('/auth/login')
