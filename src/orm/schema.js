@@ -51,7 +51,7 @@ class ChimeraSchema extends mongoose.Schema {
 
 		const ref = modelName;
 
-		const localField = options.localField || `${camelCase(modelName)}Id`;
+		const localField = options.localField || `${options.as || camelCase(modelName)}Id`;
 		if (!this.path(localField)) {
 			this.add({
 				[localField]: {
@@ -60,6 +60,8 @@ class ChimeraSchema extends mongoose.Schema {
 					ref
 				}
 			});
+		} else {
+			console.warn(`Unable to register new association path as it already exists: ${this.name}.${localField}`);
 		}
 
 		const associationName = options.as || camelCase(modelName);

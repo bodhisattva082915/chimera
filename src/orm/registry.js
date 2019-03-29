@@ -19,6 +19,7 @@ class ModelRegistry extends EventEmitter {
 	}
 
 	async bootstrap (staticModules) {
+		await this._loadGlobalPlugins(staticModules);
 		await this._loadStaticSchemas(staticModules);
 		return this._compile();
 	}
@@ -53,7 +54,22 @@ class ModelRegistry extends EventEmitter {
 	}
 
 	/**
-	 * Loads statically defined schemas into the registry. This should be called first in order to boostrap the ORM.
+	 * Loads plugins defined in all static modules into mongoose. This should be called before loading schemas.
+	 * @param {[string]} staticModules - Additional modules outside the ORM containing global plugins to be loaded.
+	 */
+	async _loadGlobalPlugins (staticModules = []) {
+		await Promise.all([path.basename(__dirname), ...staticModules].map(async module => {
+			const pluginDir = path.resolve(path.dirname(__dirname), module, 'plugins');
+			const plugins = fs.readdirSync(pluginDir);
+
+			for (const pluginFile of plugins) {
+				mongoose.plugin(await import(path.resolve(pluginDir, pluginFile)));
+			}
+		}));
+	}
+
+	/**
+	 * Loads statically defined schemas into the registry. This should be called after plugins have already been loaded.
 	 * @param {[string]} staticModules - Additional modules outside the ORM to be loaded
 	 */
 	async _loadStaticSchemas (staticModules = []) {
