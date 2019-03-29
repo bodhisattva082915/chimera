@@ -44,4 +44,5 @@ before(async function () {
 after(async function () {
 	await mongoose.disconnect();
 	this.testDb.stop();
+	this.testSMTP.close();
 });
