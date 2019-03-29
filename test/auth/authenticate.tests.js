@@ -40,10 +40,23 @@ describe('Authentication', function () {
 				this.req.headers = { authorization: `Basic ${Buffer.from(this.username + ':' + this.password).toString('base64')}` };
 				passport.authenticate('basic', (err, user) => {
 					if (err) {
-						done(err);
+						return done(err);
 					};
 
 					user.username.should.equal(this.username);
+
+					done();
+				})(this.req, this.res, this.next);
+			});
+
+			it('should successfully authenticate valid email/password pairs', function (done) {
+				this.req.headers = { authorization: `Basic ${Buffer.from(this.testUser.email + ':' + this.password).toString('base64')}` };
+				passport.authenticate('basic', (err, user) => {
+					if (err) {
+						return done(err);
+					};
+
+					user.email.should.equal(this.testUser.email);
 
 					done();
 				})(this.req, this.res, this.next);
@@ -53,7 +66,7 @@ describe('Authentication', function () {
 				this.req.headers = { authorization: `Basic ${Buffer.from('test.user@domain.com:' + this.password).toString('base64')}` };
 				passport.authenticate('basic', (err, user) => {
 					if (err) {
-						done(err);
+						return done(err);
 					}
 
 					user.should.equal(false);
