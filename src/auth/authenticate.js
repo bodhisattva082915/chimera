@@ -4,6 +4,9 @@ import isEmail from 'validator/lib/isEmail';
 import argon2 from 'argon2';
 import orm from 'app/orm';
 import jwt from 'jsonwebtoken';
+import cls from 'cls-hooked';
+
+const context = cls.getNamespace('httpContext');
 
 export const basic = new BasicStrategy(async function (username, password, done) {
 	try {
@@ -22,6 +25,7 @@ export const basic = new BasicStrategy(async function (username, password, done)
 			return done(null, false);
 		}
 
+		context.set('user', user);
 		done(null, user);
 	} catch (err) {
 		done(err);
@@ -29,21 +33,26 @@ export const basic = new BasicStrategy(async function (username, password, done)
 });
 
 export const bearer = new BearerStrategy(async function (token, done) {
-	const { userId } = jwt.decode(token);
-	if (!userId) {
-		return done(null, false);
-	}
-
-	const user = await orm.model('User').findById(userId, '+password');
-	if (!user) {
-		return done(null, false);
-	}
-
-	jwt.verify(token, user.password, err => {
-		if (err) {
+	try {
+		const { userId } = jwt.decode(token);
+		if (!userId) {
 			return done(null, false);
 		}
 
-		done(null, user);
-	});
+		const user = await orm.model('User').findById(userId, '+password');
+		if (!user) {
+			return done(null, false);
+		}
+
+		jwt.verify(token, user.password, err => {
+			if (err) {
+				return done(null, false);
+			}
+			context.set('user', user);
+			done(null, user);
+		});
+	} catch (err) {
+		done(err);
+	}
+
 });

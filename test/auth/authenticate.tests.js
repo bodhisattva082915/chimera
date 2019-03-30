@@ -79,7 +79,7 @@ describe('Authentication', function () {
 				this.req.headers = { authorization: `Basic ${Buffer.from(this.username + ':badpassword').toString('base64')}` };
 				passport.authenticate('basic', (err, user) => {
 					if (err) {
-						done(err);
+						return done(err);
 					}
 
 					user.should.equal(false);
@@ -95,7 +95,7 @@ describe('Authentication', function () {
 				this.req.headers = { authorization: `Bearer ${this.accessToken}` };
 				passport.authenticate('bearer', (err, user) => {
 					if (err) {
-						done(err);
+						return done(err);
 					}
 
 					user.username.should.equal = this.testUser.username;
@@ -109,7 +109,7 @@ describe('Authentication', function () {
 				this.req.headers = { authorization: `Bearer ${this.accessToken}` };
 				passport.authenticate('bearer', (err, user) => {
 					if (err) {
-						done(err);
+						return done(err);
 					}
 
 					user.should.equal(false);
@@ -123,7 +123,7 @@ describe('Authentication', function () {
 				this.req.headers = { authorization: `Bearer ${this.accessToken}` };
 				passport.authenticate('bearer', (err, user) => {
 					if (err) {
-						done(err);
+						return done(err);
 					}
 
 					user.should.equal(false);
@@ -137,7 +137,7 @@ describe('Authentication', function () {
 				this.req.headers = { authorization: `Bearer ${this.accessToken}` };
 				passport.authenticate('bearer', (err, user) => {
 					if (err) {
-						done(err);
+						return done(err);
 					}
 
 					user.should.equal(false);

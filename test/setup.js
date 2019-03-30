@@ -36,6 +36,7 @@ before(async function () {
 
 	await (await import('app/db')).default(); // Init DB Connection
 	await (await import('app/orm')).init(); // Init basic ORM
+	await import('app'); // Init express configuration
 	await import('app/smtp'); // Init SMTP transport
 
 	await import('./_factories');
