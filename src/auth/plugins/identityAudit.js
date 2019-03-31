@@ -16,6 +16,12 @@ module.exports = function identityAudit (schema) {
 			if (this.isNew && user) {
 				this.createdById = user._id;
 				this.updatedById = user._id;
+				return next();
+			}
+
+			if (this.isModified() && user) {
+				this.updatedById = user._id;
+				next();
 			}
 
 			next();
