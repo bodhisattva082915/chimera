@@ -1,9 +1,11 @@
+import util from 'util';
 import mongoose from 'mongoose';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import chai from 'chai';
 import { mockReq, mockRes } from 'sinon-express-mock';
 import factory from 'factory-girl';
+import cls from 'cls-hooked';
 import app from 'app';
 
 describe('Authentication', function () {
@@ -35,32 +37,36 @@ describe('Authentication', function () {
 	});
 
 	describe('Strategies', function () {
+		const ctx = cls.getNamespace('httpContext');
+
 		describe('Basic', function () {
-			it('should succesfully authenticate valid username/password pairs', function (done) {
+			it('should succesfully authenticate valid username/password pairs', ctx.bind(async function () {
 				this.req.headers = { authorization: `Basic ${Buffer.from(this.username + ':' + this.password).toString('base64')}` };
-				passport.authenticate('basic', (err, user) => {
-					if (err) {
-						return done(err);
-					};
 
-					user.username.should.equal(this.username);
+				const user = await new Promise((resolve, reject) => {
+					return passport.authenticate('basic', { session: false }, (err, user) => {
+						if (err) reject(new Error(err));
+						else if (!user) reject(new Error('Not authenticated'));
+						resolve(user);
+					})(this.req, this.res, this.next);
+				});
 
-					done();
-				})(this.req, this.res, this.next);
-			});
+				user.username.should.equal(this.username);
+			}));
 
-			it('should successfully authenticate valid email/password pairs', function (done) {
+			it('should successfully authenticate valid email/password pairs', ctx.bind(async function () {
 				this.req.headers = { authorization: `Basic ${Buffer.from(this.testUser.email + ':' + this.password).toString('base64')}` };
-				passport.authenticate('basic', (err, user) => {
-					if (err) {
-						return done(err);
-					};
 
-					user.email.should.equal(this.testUser.email);
+				const user = await new Promise((resolve, reject) => {
+					return passport.authenticate('basic', { session: false }, (err, user) => {
+						if (err) reject(new Error(err));
+						else if (!user) reject(new Error('Not authenticated'));
+						resolve(user);
+					})(this.req, this.res, this.next);
+				});
 
-					done();
-				})(this.req, this.res, this.next);
-			});
+				user.username.should.equal(this.username);
+			}));
 
 			it('should gracefully error given invalid usernames', function (done) {
 				this.req.headers = { authorization: `Basic ${Buffer.from('test.user@domain.com:' + this.password).toString('base64')}` };
@@ -90,19 +96,20 @@ describe('Authentication', function () {
 		});
 
 		describe('JSON Web Token', function () {
-			it('should successfully authenticate valid JWTs', function (done) {
+			it('should successfully authenticate valid JWTs', ctx.bind(async function () {
 				this.accessToken = jwt.sign({ userId: this.testUser.id }, this.testUser.password);
 				this.req.headers = { authorization: `Bearer ${this.accessToken}` };
-				passport.authenticate('bearer', (err, user) => {
-					if (err) {
-						return done(err);
-					}
 
-					user.username.should.equal = this.testUser.username;
+				const user = await new Promise((resolve, reject) => {
+					return passport.authenticate('bearer', { session: false }, (err, user) => {
+						if (err) reject(new Error(err));
+						else if (!user) reject(new Error('Not authenticated'));
+						resolve(user);
+					})(this.req, this.res, this.next);
+				});
 
-					done();
-				})(this.req, this.res, this.next);
-			});
+				user.username.should.equal(this.username);
+			}));
 
 			it('should gracefully error when given invalid claims (non-existent userId)', function (done) {
 				this.accessToken = jwt.sign({ userKey: 'jwt' }, this.testUser.password);

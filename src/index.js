@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import passport from 'passport';
-import context from './context';
+import context from './httpContext';
 import auth from './auth';
 import api from './api';
 
