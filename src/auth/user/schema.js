@@ -10,7 +10,7 @@ const schema = new ChimeraSchema('User', {
 	password: {
 		type: String,
 		required: true,
-		select: false // TODO: Fix all the places where this breaks shit
+		select: false
 	},
 	email: {
 		type: 'email',
