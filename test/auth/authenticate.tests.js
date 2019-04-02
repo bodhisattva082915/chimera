@@ -229,7 +229,7 @@ describe('Authentication', function () {
 		describe('POST /password-reset', function () {
 			beforeEach(async function () {
 				this.testUser = await this.testUser.refreshFromDb('+password');
-				this.resetToken = this.testUser.generateResetToken();
+				this.resetToken = this.testUser.generateToken(null, { expiresIn: '10 minutes' });
 			});
 
 			it('should validate the request body', async function () {

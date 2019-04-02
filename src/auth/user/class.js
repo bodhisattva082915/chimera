@@ -3,30 +3,23 @@ import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import smtp from 'app/smtp';
 import { encryptPassword } from '../utils';
+import { AuthenticationError } from '../errors';
 
 class User extends mongoose.Model {
 
-	/**
-     * Generate access token for the given user.
-	 * TODO: Support generating refresh tokens
-     */
-	generateTokens (jwtOpts = {}) {
-		const opts = {
-			issuer: os.hostname(),
+	generateToken (payload = {}, opts = {}) {
+
+		if (!this.password) {
+			throw new AuthenticationError(`Cannot sign tokens with password: ${this.password}`);
+		}
+
+		return jwt.sign({
+			userId: this.id,
+			...payload
+		}, this.password, {
 			expiresIn: '1hr',
-			...jwtOpts
-		};
-
-		return {
-			accessToken: jwt.sign({ userId: this.id }, this.password, opts)
-		};
-	};
-
-	generateResetToken (jwtOpts = {}) {
-		const payload = { userId: this.id };
-		const opts = { expiresIn: '10 minutes', ...jwtOpts };
-
-		return jwt.sign(payload, this.password, opts);
+			...opts
+		});
 	}
 
 	async resetPassword (password) {
@@ -38,7 +31,7 @@ class User extends mongoose.Model {
 	 * Emails a password reset token to the given user.
 	 */
 	async emailResetToken () {
-		const resetToken = this.generateResetToken();
+		const resetToken = this.generateToken(null, { expiresIn: '10 minutes' });
 		const resetUrl = `https://${os.hostname}.com/auth/password-reset?token=${resetToken}`;
 
 		const info = await smtp.sendMail({

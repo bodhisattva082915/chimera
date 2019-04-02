@@ -17,7 +17,7 @@ const schema = new ChimeraSchema('User', {
 		required: true,
 		unique: true
 	},
-	verified: Boolean
+	emailVerified: Boolean
 })
 	/** Middleware */
 	.pre('save', async function () {

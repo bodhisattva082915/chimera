@@ -60,9 +60,9 @@ describe('User', function () {
 		});
 	});
 
-	describe('generateTokens', function () {
+	describe('generateToken', function () {
 		it('should create a valid JWT with the userId contained in the payload', function () {
-			const { accessToken } = this.testUser.generateTokens();
+			const accessToken = this.testUser.generateToken();
 			const payload = jwt.verify(accessToken, this.testUser.password);
 
 			payload.should.containSubset({

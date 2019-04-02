@@ -5,7 +5,7 @@ import orm from 'app/orm';
  */
 export const generateTokens = (req, res) => {
 	const { user } = req;
-	const { accessToken } = user.generateTokens();
+	const accessToken = user.generateToken();
 
 	res.json({ accessToken });
 };
