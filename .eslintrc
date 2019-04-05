@@ -1,5 +1,8 @@
 {
-    "extends": "standard",
+    "extends": [
+        "standard", 
+        "plugin:react/recommended"
+    ],
     "parser": "babel-eslint",
     "parserOptions": {
         "ecmaFeatures": {
@@ -28,5 +31,10 @@
         "padded-blocks": ["off"],
         "mocha/no-exclusive-tests": "error",
         "chai-friendly/no-unused-expressions": ["error", { "allowTernary": true }]
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
     }
 }

@@ -14,7 +14,8 @@
 		"test": "mocha",
 		"build": "webpack",
 		"start": "docker-compose up -d && webpack --watch",
-		"stop": "docker-compose down"
+		"stop": "docker-compose down",
+		"dev:clients": "webpack-dev-server"
 	},
 	"dependencies": {
 		"argon2": "^0.21.0",
@@ -31,6 +32,8 @@
 		"passport": "^0.4.0",
 		"passport-http": "^0.3.0",
 		"passport-http-bearer": "^1.0.1",
+		"react": "^16.8.6",
+		"react-dom": "^16.8.6",
 		"uuid": "^3.3.2",
 		"validator": "^10.9.0"
 	},
@@ -38,6 +41,7 @@
 		"@babel/core": "^7.1.5",
 		"@babel/plugin-proposal-class-properties": "^7.1.0",
 		"@babel/plugin-syntax-dynamic-import": "^7.2.0",
+		"@babel/plugin-transform-react-jsx": "^7.3.0",
 		"@babel/preset-env": "^7.1.5",
 		"@babel/register": "^7.0.0",
 		"babel-eslint": "^10.0.1",
@@ -60,18 +64,20 @@
 		"eslint-plugin-mocha": "^5.2.0",
 		"eslint-plugin-node": "^8.0.0",
 		"eslint-plugin-promise": "^4.0.1",
+		"eslint-plugin-react": "^7.12.4",
 		"eslint-plugin-standard": "^4.0.0",
 		"express-http-proxy": "^1.5.0",
 		"factory-girl": "^5.0.3",
+		"html-webpack-plugin": "^3.2.0",
 		"jsdom": "^14.0.0",
 		"maildev": "^1.0.0",
 		"mocha": "^5.2.0",
 		"mongodb-memory-server": "^2.7.0",
-		"nodemon-webpack-plugin": "^4.0.6",
 		"sinon": "^7.1.1",
 		"sinon-express-mock": "^2.1.0",
 		"webpack": "^4.24.0",
 		"webpack-cli": "^3.1.2",
+		"webpack-dev-server": "^3.2.1",
 		"webpack-node-externals": "^1.7.2"
 	}
 }
