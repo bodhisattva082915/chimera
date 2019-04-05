@@ -1,10 +1,7 @@
 import 'env';
 import mongoose from 'mongoose';
-import uniqueValidator from 'mongoose-unique-validator';
 
-mongoose.plugin(uniqueValidator);
-
-export default mongoose
+export default () => mongoose
 	.connect(
 		'mongodb://' +
 		`${process.env.NODE_ENV !== 'test' ? process.env.CHIMERADB_USERNAME + ':' : ''}` +

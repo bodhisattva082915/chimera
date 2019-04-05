@@ -1,13 +1,30 @@
 import mongoose from 'mongoose';
 import jsonschemaSupport from 'mongoose-schema-jsonschema';
-import toJSONTransformation from './plugins/toJSONTransformations';
+import uniqueValidator from 'mongoose-unique-validator';
+// import toJSONTransformation from './plugins/toJSONTransformations';
+// import refreshFromDb from './plugins/refreshFromDb';
 import ModelRegistry from './registry';
+import * as customFieldTypes from './field/types';
 
 jsonschemaSupport(mongoose);
 
-mongoose.plugin(toJSONTransformation);
+/**
+ * Global Third-Party Plugins
+ */
+mongoose.plugin(uniqueValidator);
+// mongoose.plugin(toJSONTransformation);
+// mongoose.plugin(refreshFromDb);
+
+/**
+ * Register custom field types
+ */
+mongoose.Schema.Types = {
+	...mongoose.Schema.Types,
+	...customFieldTypes
+};
 
 const registry = new ModelRegistry();
+const staticModules = ['auth'];
 
 /**
  * Asynchronously loads all models (static and dynamic) into the model registry
@@ -21,7 +38,7 @@ export async function init () {
  * Initalizes a minimal ORM
  */
 async function bootstrap () {
-	await registry.bootstrap();
+	await registry.bootstrap(staticModules);
 };
 
 /**

@@ -1,17 +1,29 @@
 import express from 'express';
-import proxy from 'express-http-proxy';
-import './db';
-import './orm';
+import bodyParser from 'body-parser';
+import passport from 'passport';
+import context from './httpContext';
+import auth from './auth';
 import api from './api';
 
 const app = express();
 
-/* REST API */
+/** Register Middleware */
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(passport.initialize());
+app.use(context.initialize());
+
+/** Auth API */
+app.use(auth);
+
+/** REST API */
 app.use('/api', api);
 
-/* Mongo-Express UI */
-app.use('/', proxy('localhost:27018'));
+/** Init conxtext for cross-scope request access */
 
-app.listen(3000, () => {
-	console.log('Chimera watching on port 3000');
-});
+/** Mongo-Express UI */
+// Move this out to initialization logic
+// import proxy from 'express-http-proxy';
+// app.use('/', proxy('localhost:27018'));
+
+export default app;

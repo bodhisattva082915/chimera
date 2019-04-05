@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { discriminators } from './index';
 
 const defaultMessage = 'Error, expected `{PATH}` to be unique. Value: `{VALUE}`';
 
@@ -82,6 +83,10 @@ export default {
 		reverseName: {
 			uniqueUniversally: {
 				validator: async function (value) {
+					if (!Object.keys(discriminators).includes(this.type)) {
+						return true;
+					}
+
 					const model = this.constructor;
 					const baseModel = mongoose.model(model.baseModelName);
 
@@ -100,6 +105,10 @@ export default {
 			},
 			uniqueSecondary: {
 				validator: async function (value) {
+					if (!Object.keys(discriminators).includes(this.type)) {
+						return true;
+					}
+
 					const model = this.constructor;
 					const baseModel = mongoose.model(model.baseModelName);
 

@@ -69,8 +69,12 @@ export class URL extends mongoose.SchemaType {
 		if (!isURL(_val, _validatorOpts)) {
 			throw new Error(`${_val} is not a correctly formatted URL.`);
 		}
+
+		return val;
 	}
 }
+// Alias needed to support lowercase values ({ urlField: 'url' })
+export const Url = URL;
 
 export class UUID extends mongoose.SchemaType {
 	constructor (...args) {
@@ -96,17 +100,9 @@ export class UUID extends mongoose.SchemaType {
 				throw new Error(`${_val} is not a valid UUID.`);
 			}
 		}
+
+		return val;
 	}
 }
-
-mongoose.Schema.Types = {
-	...mongoose.Schema.Types,
-
-	/* Custom Types */
-	Email,
-	Phone,
-	URL,
-	Url: URL, // Alias needed to support lowercase values ({ urlField: 'url' })
-	UUID,
-	Uuid: UUID // Alias needed to support lowercase values ({ uuidField: 'uuid' })
-};
+// Alias needed to support lowercase values ({ uuidField: 'uuid' })
+export const Uuid = UUID;

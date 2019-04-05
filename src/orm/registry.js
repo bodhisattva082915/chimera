@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import EventEmitter from 'events';
 import map from 'lodash/map';
 import pickBy from 'lodash/pickBy';
@@ -17,8 +18,9 @@ class ModelRegistry extends EventEmitter {
 		this._modelCache = {};
 	}
 
-	async bootstrap () {
-		await this._loadStaticSchemas();
+	async bootstrap (staticModules) {
+		await this._loadGlobalPlugins(staticModules);
+		await this._loadStaticSchemas(staticModules);
 		return this._compile();
 	}
 
@@ -52,21 +54,40 @@ class ModelRegistry extends EventEmitter {
 	}
 
 	/**
-	 * Loads statically defined schemas into the registry. This should be called first in order to boostrap the ORM.
+	 * Loads plugins defined in all static modules into mongoose. This should be called before loading schemas.
+	 * @param {[string]} staticModules - Additional modules outside the ORM containing global plugins to be loaded.
 	 */
-	async _loadStaticSchemas () {
-		const modules = fs
-			.readdirSync(__dirname)
-			.filter(file => !file.includes('.js'))
-			.filter(file => !file.includes('plugins'));
+	async _loadGlobalPlugins (staticModules = []) {
+		await Promise.all([path.basename(__dirname), ...staticModules].map(async module => {
+			const pluginDir = path.resolve(path.dirname(__dirname), module, 'plugins');
+			const plugins = fs.readdirSync(pluginDir);
 
-		for (const moduleName of modules) {
-			const { modelClass, schema, discriminators } = await import(`${__dirname}/${moduleName}`);
-			this._register(modelClass, schema, discriminators);
+			for (const pluginFile of plugins) {
+				mongoose.plugin(await import(path.resolve(pluginDir, pluginFile)));
+			}
+		}));
+	}
 
-			// Allocate a space in the cache for dynamic content
-			this._modelCache[schema.name] = {};
-		}
+	/**
+	 * Loads statically defined schemas into the registry. This should be called after plugins have already been loaded.
+	 * @param {[string]} staticModules - Additional modules outside the ORM to be loaded
+	 */
+	async _loadStaticSchemas (staticModules = []) {
+		await Promise.all([path.basename(__dirname), ...staticModules].map(async module => {
+			const moduleDir = path.resolve(path.dirname(__dirname), module);
+			const models = fs
+				.readdirSync(moduleDir)
+				.filter(file => !file.includes('.js'))
+				.filter(file => !file.includes('plugins'));
+
+			for (const model of models) {
+				const { modelClass, schema, discriminators } = await import(path.resolve(moduleDir, model));
+				this._register(modelClass, schema, discriminators);
+
+				// Allocate a space in the cache for dynamic content
+				this._modelCache[schema.name] = {};
+			}
+		}));
 	}
 
 	/**
@@ -149,7 +170,11 @@ class ModelRegistry extends EventEmitter {
 				mongoose.deleteModel(namespace);
 			}
 
-			registered.model = mongoose.model(registered.modelClass || registered.schema.name, registered.schema);
+			if (registered.modelClass && registered.modelClass.prototype instanceof mongoose.Model) {
+				registered.schema.loadClass(registered.modelClass);
+			}
+
+			registered.model = mongoose.model(registered.schema.name, registered.schema);
 			compiled.push(registered.model);
 
 			if (registered.discriminators) {
