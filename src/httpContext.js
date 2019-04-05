@@ -5,7 +5,7 @@ import cls from 'cls-hooked';
  */
 const context = cls.createNamespace('httpContext');
 
-module.exports = {
+export default {
 	initialize () {
 		return function (req, res, next) {
 			context.bindEmitter(req);

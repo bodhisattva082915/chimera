@@ -2,7 +2,7 @@ const nodeExternals = require('webpack-node-externals');
 const NodemonPlugin = require('nodemon-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
-module.exports = {
+const server = {
 	mode: process.env.NODE_ENV || 'production',
 	target: 'node',
 	node: {
@@ -35,3 +35,5 @@ module.exports = {
 		]
 	}
 };
+
+module.exports = [server];
