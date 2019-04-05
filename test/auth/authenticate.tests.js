@@ -1,4 +1,3 @@
-import util from 'util';
 import mongoose from 'mongoose';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
