@@ -44,7 +44,7 @@ export const bearer = new BearerStrategy(async function (token, done) {
 			return done(null, false);
 		}
 
-		jwt.verify(token, user.password, err => {
+		jwt.verify(token, user[context.get('signedWith') || 'password'], err => {
 			if (err) {
 				return done(null, false);
 			}

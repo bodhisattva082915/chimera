@@ -17,12 +17,21 @@ const schema = new ChimeraSchema('User', {
 		required: true,
 		unique: true
 	},
-	emailVerified: Boolean
+	verified: {
+		type: Boolean,
+		default: false
+	}
 })
 	/** Middleware */
 	.pre('save', async function () {
 		if (this.isNew) {
 			this.password = await encryptPassword(this.password);
+		}
+	})
+	.post('save', async function () {
+		if (this.isModified('email') && !this.verified) {
+			console.log('sending verification token');
+			await this.emailVerificationToken();
 		}
 	});
 

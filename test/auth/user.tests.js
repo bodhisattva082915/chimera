@@ -71,7 +71,7 @@ describe('User', function () {
 		});
 	});
 
-	describe('emailResetToken', function () {
+	describe('SMTP Methods', function () {
 		before(async function () {
 			await util.promisify(this.testSMTP.listen)();
 			await util.promisify(this.testSMTP.deleteAllEmail)();
@@ -83,17 +83,39 @@ describe('User', function () {
 			await util.promisify(this.testSMTP.close)();
 		});
 
-		it('should email the user a valid password reset token', function (done) {
-			this.testUser.emailResetToken()
-				.then(() => {
-					this.testSMTP.on('new', email => {
-						// Verify the token placed in the email is valid
-						const dom = new jsdom.JSDOM(email.html);
-						const resetLink = dom.window.document.querySelector('a');
-						const resetToken = new URL(resetLink.href).searchParams.get('token');
-						jwt.verify(resetToken, this.testUser.password, done);
-					});
-				}).catch(done);
+		afterEach(function () {
+			this.testSMTP.removeAllListeners('new');
+		});
+
+		describe('emailVerificationToken', function () {
+			it('should email the user an email verification token', function (done) {
+				this.testUser.emailVerificationToken()
+					.then(() => {
+						this.testSMTP.on('new', email => {
+							// Verify the token placed in the email is valid
+							const dom = new jsdom.JSDOM(email.html);
+							const verifyLink = dom.window.document.querySelector('a');
+							const verifyToken = new URL(verifyLink.href).searchParams.get('token');
+							jwt.verify(verifyToken, this.testUser.email, done);
+						});
+					})
+					.catch(done);
+			});
+		});
+
+		describe('emailResetToken', function () {
+			it('should email the user a valid password reset token', function (done) {
+				this.testUser.emailResetToken()
+					.then(() => {
+						this.testSMTP.on('new', email => {
+							// Verify the token placed in the email is valid
+							const dom = new jsdom.JSDOM(email.html);
+							const resetLink = dom.window.document.querySelector('a');
+							const resetToken = new URL(resetLink.href).searchParams.get('token');
+							jwt.verify(resetToken, this.testUser.password, done);
+						});
+					}).catch(done);
+			});
 		});
 	});
 });

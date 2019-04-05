@@ -1,4 +1,5 @@
 import passport from 'passport';
+import cls from 'cls-hooked';
 import { Router } from 'express';
 import { query, body } from 'express-validator/check';
 import { validateReq } from 'app/middleware';
@@ -6,6 +7,7 @@ import * as handlers from './handlers';
 
 const authRouter = new Router();
 const authRoutes = new Router();
+const ctx = cls.getNamespace('httpContext');
 
 authRouter.use('/auth', authRoutes);
 authRoutes
@@ -30,6 +32,14 @@ authRoutes
 			body('password', 'Password is required.').exists()
 		),
 		handlers.resetUserPassword
-	]);
+	])
+	.get('/verify',
+		(req, res, next) => {
+			ctx.set('signedWith', 'email');
+			next();
+		},
+		passport.authenticate('bearer', { session: false }),
+		handlers.verifyUserEmail
+	);
 
 export default authRouter;

@@ -164,6 +164,19 @@ describe('Authentication', function () {
 			this.server.close();
 		});
 
+		describe('GET /verify', function () {
+			it('should verify the email with a valid token and respond with 204', async function () {
+				this.testUser = await this.testUser.refreshFromDb();
+				this.verificationToken = this.testUser.generateVerificationToken();
+
+				const res = await this.server
+					.get('/auth/verify')
+					.set('Authorization', `Bearer ${this.verificationToken}`);
+
+				res.statusCode.should.equal(204);
+			});
+		});
+
 		describe('POST /login', function () {
 			it('should authenticate and respond with 200 and an access token', async function () {
 				const res = await this.server
