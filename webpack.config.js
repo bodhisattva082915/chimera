@@ -80,6 +80,7 @@ const clients = {
 	],
 	devServer: {
 		contentBase: path.join(__dirname, '/dist'),
+		index: 'auth.html',
 		compress: true,
 		port: 9000
 	}

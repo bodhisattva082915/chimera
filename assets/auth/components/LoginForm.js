@@ -23,9 +23,8 @@ class LoginForm extends React.Component {
 					variant='contained'
 					fullWidth={true}
 					onClick={ev => ev.preventDefault()}
-				>
-                    Login
-				</Button>
+					children={'Login'}
+				/>
 			</form>
 		);
 	}

@@ -1,0 +1,12 @@
+import React from 'react';
+import { MuiThemeProvider } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import theme from '../global/theme';
+
+const RootProviders = props =>
+	<MuiThemeProvider theme={theme}>
+		<CssBaseline />
+		{props.children}
+	</MuiThemeProvider>;
+
+export default RootProviders;
