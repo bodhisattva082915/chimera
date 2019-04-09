@@ -10,6 +10,7 @@ const styles = theme => ({
 });
 
 class LoginForm extends React.Component {
+
 	render () {
 		const { classes } = this.props;
 		return (
@@ -44,12 +45,14 @@ class LoginForm extends React.Component {
 							key="forgotUsername"
 							component={ChimeraLink}
 							children={'Forgot Username'}
+							onClick={this.props.forgotUsername}
 						/>,
 						<Grid
 							item
 							key="forgotPassword"
 							component={ChimeraLink}
 							children={'Forgot Password'}
+							onClick={this.props.forgotPassword}
 						/>
 					]}
 				/>
