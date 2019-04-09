@@ -1,12 +1,12 @@
 import React from 'react';
 import RootProviders from './providers';
-import LoginForm from './components/LoginForm';
+import RootView from './views';
 
 class App extends React.Component {
 	render () {
 		return (
 			<RootProviders>
-				<LoginForm />
+				<RootView />
 			</RootProviders>
 		);
 	}

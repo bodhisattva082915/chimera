@@ -32,7 +32,7 @@
         "mocha/no-exclusive-tests": "error",
         "chai-friendly/no-unused-expressions": ["error", { "allowTernary": true }],
         "react/no-children-prop": ["off"],
-        "react/prop-types": [2, { "ignore": ["children"] }]
+        "react/prop-types": [2, { "ignore": ["children", "classes"] }]
     },
     "settings": {
         "react": {
