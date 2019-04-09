@@ -10,6 +10,9 @@ const chimeraTheme = createMuiTheme({
 		MuiButton: {
 			root: {
 				borderRadius: 0
+			},
+			contained: {
+				boxShadow: 'none'
 			}
 		}
 	}
