@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { TextField, Button, Grid } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { ChimeraLink } from 'chimera-ui/global/components';
@@ -10,6 +11,11 @@ const styles = theme => ({
 });
 
 class LoginForm extends React.Component {
+
+	static propTypes = {
+		forgotUsername: PropTypes.func.isRequired,
+		forgotPassword: PropTypes.func.isRequired
+	};
 
 	render () {
 		const { classes } = this.props;
