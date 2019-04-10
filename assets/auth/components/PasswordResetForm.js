@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Typography, TextField, InputAdornment, Button } from '@material-ui/core';
+import { Typography, TextField, InputAdornment, IconButton, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 
 const styles = theme => ({
 	spaced: {
@@ -12,41 +14,63 @@ const styles = theme => ({
 class PasswordResetForm extends React.Component {
 
 	static propTypes = {
-
+		resetPassword: PropTypes.func.isRequired
 	};
 
+	constructor (props) {
+		super(props);
+
+		this.state = {
+			passwordVisibility: false
+		};
+	}
+
 	render () {
-		const { classes } = this.props;
+		const { classes, resetPassword } = this.props;
+
+		const PasswordVisibility = () => {
+			return <InputAdornment
+				position={'end'}
+				children={
+					<IconButton
+						aria-label="Toggle password visibility"
+						onClick={() => this.setState({ passwordVisibility: !this.state.passwordVisibility })}
+						children={!this.state.passwordVisibility ? <Visibility /> : <VisibilityOff />}
+					/>
+				}
+			/>;
+		};
+
 		return (
 			<form>
 				<Typography
-					component="h2"
-					variant="display2"
+					variant="h2"
 					children={'Password Reset'}
 				/>
 				<TextField
-					type="password"
+					type={!this.state.passwordVisibility ? 'password' : 'text'}
 					label="New Password"
 					fullWidth={true}
 					margin="normal"
+					InputProps={{
+						endAdornment: <PasswordVisibility />
+					}}
 				/>
 				<TextField
-					type="password"
+					type={!this.state.passwordVisibility ? 'password' : 'text'}
 					label="Confirm Password"
 					fullWidth={true}
 					margin="normal"
-					// InputProps={{
-					// 	endAdornment: <InputAdornment
-					// 		position={'end'}
-					// 	/>
-					// }}
+					InputProps={{
+						endAdornment: <PasswordVisibility />
+					}}
 				/>
 				<Button
 					type='submit'
 					variant='contained'
 					fullWidth={true}
 					className={classes.spaced}
-					onClick={ev => ev.preventDefault()}
+					onClick={resetPassword}
 					children={'Reset Password'}
 				/>
 			</form>
