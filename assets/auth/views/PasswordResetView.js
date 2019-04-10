@@ -19,7 +19,9 @@ class PasswordResetView extends React.Component {
 				justify={'center'}
 				alignContent={'center'}
 				children={
-					<PasswordResetForm resetPassword={() => console.log('reset password')} />
+					<PasswordResetForm
+						resetPassword={() => console.log('reset password')}
+					/>
 				}
 			/>
 		);

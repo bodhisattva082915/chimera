@@ -1,15 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Typography, TextField, InputAdornment, IconButton, Button } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
+import { Typography, TextField, InputAdornment, IconButton } from '@material-ui/core';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
-
-const styles = theme => ({
-	spaced: {
-		margin: `${theme.spacing.unit * 1.5}px 0`
-	}
-});
+import { SubmitButton } from 'chimera-ui/global/components';
 
 class PasswordResetForm extends React.Component {
 
@@ -26,7 +20,7 @@ class PasswordResetForm extends React.Component {
 	}
 
 	render () {
-		const { classes, resetPassword } = this.props;
+		const { resetPassword } = this.props;
 
 		const PasswordVisibility = () => {
 			return <InputAdornment
@@ -42,7 +36,7 @@ class PasswordResetForm extends React.Component {
 		};
 
 		return (
-			<form>
+			<form onSubmit={ev => ev.preventDefault() && resetPassword(ev)}>
 				<Typography
 					variant="h2"
 					children={'Password Reset'}
@@ -65,12 +59,9 @@ class PasswordResetForm extends React.Component {
 						endAdornment: <PasswordVisibility />
 					}}
 				/>
-				<Button
-					type='submit'
+				<SubmitButton
 					variant='contained'
 					fullWidth={true}
-					className={classes.spaced}
-					onClick={resetPassword}
 					children={'Reset Password'}
 				/>
 			</form>
@@ -78,4 +69,4 @@ class PasswordResetForm extends React.Component {
 	}
 }
 
-export default withStyles(styles)(PasswordResetForm);
+export default PasswordResetForm;
