@@ -6,6 +6,11 @@ const chimeraTheme = createMuiTheme({
 	typography: {
 		useNextVariants: true
 	},
+	palette: {
+		background: {
+			default: '#fff'
+		}
+	},
 	overrides: {
 		MuiButton: {
 			root: {

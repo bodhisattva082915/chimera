@@ -1,31 +1,26 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
+import HexPattern from 'chimera-ui/global/components/HexPattern';
 import Routes from './routes';
 
 const styles = theme => ({
-	otherCorner: {
+	hexPattern: {
 		position: 'fixed',
-		width: '70vw',
-		height: '25vw',
-		top: '-15vw',
-		right: '-15vw',
-		background: `${theme.palette.primary.main}`,
-		transform: 'rotate(25deg)',
-		'-webkit-box-shadow': '-5px 5px 10px 1px rgba(117,117,117,0.75)',
-		'-moz-box-shadow': '-5px 5px 10px 1px rgba(117,117,117,0.75)',
-		'box-shadow': '-5px 5px 10px 1px rgba(117,117,117,0.75)'
+		height: '50vh',
+		width: '50vw',
+		bottom: 0,
+		left: 0,
+		zIndex: -10
 	},
-	corner: {
-		position: 'fixed',
-		width: '70vw',
-		height: '25vw',
-		bottom: '-15vw',
-		left: '-15vw',
-		background: `${theme.palette.primary.main}`,
-		transform: 'rotate(25deg)',
-		'-webkit-box-shadow': '0px -5px 10px 1px rgba(117,117,117,0.75)',
-		'-moz-box-shadow': '0px -5px 10px 1px rgba(117,117,117,0.75)',
-		'box-shadow': '0px -5px 10px 1px rgba(117,117,117,0.75)'
+	gradient: {
+		position: 'absolute',
+		right: 0,
+		bottom: 0,
+		left: 0,
+		top: 0,
+		height: '100%',
+		width: '100%',
+		background: `linear-gradient(to top right,  rgba(255,255,255,0), rgba(255,255,255,1) 70%)`
 	}
 });
 
@@ -34,10 +29,13 @@ class AppContainer extends React.Component {
 		const { classes } = this.props;
 		return (
 			<React.Fragment>
-				<div className={classes.otherCorner}></div>
 				<Routes />
-				<div className={classes.corner}></div>
+				<div className={classes.hexPattern}>
+					<HexPattern />
+					<div className={classes.gradient}></div>
+				</div>
 			</React.Fragment>
+
 		);
 	}
 }
