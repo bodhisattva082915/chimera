@@ -30,11 +30,22 @@ class IndexView extends React.Component {
 			<Grid
 				container
 				className={classes.root}
-				justify={'space-evenly'}
+				justify={'center'}
 				alignItems={'center'}
 				alignContent={'center'}
+				direction={'column'}
 				children={
 					<React.Fragment>
+						<Grid
+							item
+							className={classes.logo}
+							children={
+								<img
+									alt={'chimera_logo.png'}
+									src={ChimeraLogo}
+								/>
+							}
+						/>
 						<Grid
 							item xs={4}
 							children={(
@@ -49,16 +60,6 @@ class IndexView extends React.Component {
 									/>
 								</SwipeableViews>
 							)}
-						/>
-						<Grid
-							item xs={4}
-							className={classes.logo}
-							children={
-								<img
-									alt={'chimera_logo.png'}
-									src={ChimeraLogo}
-								/>
-							}
 						/>
 					</React.Fragment>
 				}
