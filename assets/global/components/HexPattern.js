@@ -12,6 +12,10 @@ const styles = theme => ({
 class HexPattern extends React.PureComponent {
 	render () {
 		const { classes } = this.props;
+		/**
+         * Based off of codepen example by Geoff Graham
+         * https://codepen.io/geoffgraham/pen/oWLLvZ
+         */
 		return (
 			<svg width="100%" height="100%">
 
