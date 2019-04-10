@@ -11,6 +11,7 @@ const styles = theme => ({
 });
 
 class ForgotCredentialsForm extends React.Component {
+
 	static propTypes = {
 		mode: PropTypes.string,
 		back: PropTypes.func.isRequired

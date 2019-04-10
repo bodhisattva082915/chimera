@@ -79,10 +79,10 @@ const clients = {
 		})
 	],
 	devServer: {
-		contentBase: path.join(__dirname, '/dist'),
+		port: 9000,
 		index: 'auth.html',
 		compress: true,
-		port: 9000
+		historyApiFallback: { index: '/' }
 	}
 };
 
