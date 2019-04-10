@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Typography, TextField, InputAdornment, IconButton } from '@material-ui/core';
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
-import { SubmitButton } from 'chimera-ui/global/components';
+import { Typography, TextField } from '@material-ui/core';
+import { SubmitButton, PasswordVisibility } from 'chimera-ui/global/components';
 
 class PasswordResetForm extends React.Component {
 
@@ -22,19 +20,6 @@ class PasswordResetForm extends React.Component {
 	render () {
 		const { resetPassword } = this.props;
 
-		const PasswordVisibility = () => {
-			return <InputAdornment
-				position={'end'}
-				children={
-					<IconButton
-						aria-label="Toggle password visibility"
-						onClick={() => this.setState({ passwordVisibility: !this.state.passwordVisibility })}
-						children={!this.state.passwordVisibility ? <Visibility /> : <VisibilityOff />}
-					/>
-				}
-			/>;
-		};
-
 		return (
 			<form onSubmit={ev => ev.preventDefault() && resetPassword(ev)}>
 				<Typography
@@ -47,7 +32,10 @@ class PasswordResetForm extends React.Component {
 					fullWidth={true}
 					margin="normal"
 					InputProps={{
-						endAdornment: <PasswordVisibility />
+						endAdornment: <PasswordVisibility
+							isVisible={this.state.passwordVisibility}
+							toggleVisibility={() => this.setState({ passwordVisibility: !this.state.passwordVisibility })}
+						/>
 					}}
 				/>
 				<TextField
@@ -56,7 +44,10 @@ class PasswordResetForm extends React.Component {
 					fullWidth={true}
 					margin="normal"
 					InputProps={{
-						endAdornment: <PasswordVisibility />
+						endAdornment: <PasswordVisibility
+							isVisible={this.state.passwordVisibility}
+							toggleVisibility={() => this.setState({ passwordVisibility: !this.state.passwordVisibility })}
+						/>
 					}}
 				/>
 				<SubmitButton
