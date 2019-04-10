@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
 	path: {
 		fill: theme.palette.background.default,
-		stroke: 'lightgrey',
+		stroke: theme.palette.grey[500],
 		strokeWidth: 2
 	}
 });
