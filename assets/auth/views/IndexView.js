@@ -3,6 +3,7 @@ import SwipeableViews from 'react-swipeable-views';
 import { Grid } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { LoginForm, ForgotCredentialsForm } from '../components';
+import ChimeraLogo from 'chimera-ui/images/logo.png';
 
 const styles = theme => ({
 	root: {
@@ -51,9 +52,13 @@ class IndexView extends React.Component {
 						/>
 						<Grid
 							item xs={4}
-							component={'img'}
-							alt={'chimera_logo.png'}
 							className={classes.logo}
+							children={
+								<img
+									alt={'chimera_logo.png'}
+									src={ChimeraLogo}
+								/>
+							}
 						/>
 					</React.Fragment>
 				}
