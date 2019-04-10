@@ -33,11 +33,11 @@ class IndexView extends React.Component {
 				justify={'center'}
 				alignItems={'center'}
 				alignContent={'center'}
-				direction={'column'}
+				direction={'row'}
 				children={
 					<React.Fragment>
 						<Grid
-							item
+							item xs={12}
 							className={classes.logo}
 							children={
 								<img
@@ -47,7 +47,7 @@ class IndexView extends React.Component {
 							}
 						/>
 						<Grid
-							item xs={4}
+							item md={4} xs={8}
 							children={(
 								<SwipeableViews disabled index={this.state.view}>
 									<LoginForm
