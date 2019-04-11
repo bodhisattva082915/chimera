@@ -13,9 +13,9 @@
 		"lint": "eslint .",
 		"test": "mocha",
 		"build": "webpack",
-		"start": "docker-compose up -d && webpack --watch",
+		"start": "docker-compose up -d && webpack",
 		"stop": "docker-compose down",
-		"dev:clients": "webpack-dev-server"
+		"dev": "webpack-dev-server"
 	},
 	"dependencies": {
 		"@material-ui/core": "^3.9.3",

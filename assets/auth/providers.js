@@ -6,7 +6,7 @@ import theme from '../global/theme';
 
 const RootProviders = props =>
 	<MuiThemeProvider theme={theme}>
-		<Router>
+		<Router basename="/auth">
 			<CssBaseline />
 			{props.children}
 		</Router>

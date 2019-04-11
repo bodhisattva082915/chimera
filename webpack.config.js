@@ -101,9 +101,13 @@ const clients = {
 	],
 	devServer: {
 		port: 9000,
-		index: 'auth.html',
+		contentBase: path.resolve('./public'),
 		compress: true,
-		historyApiFallback: { index: '/' }
+		historyApiFallback: {
+			rewrites: [
+				{ from: /^\/auth/, to: '/public/auth.html' }
+			]
+		}
 	}
 };
 
