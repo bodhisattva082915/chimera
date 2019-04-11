@@ -20,8 +20,17 @@ app.use('/api', [
 	api
 ]);
 
+/** HealthCheck API */
+app.use('/status', (req, res) => {
+	if (req.xhr) {
+		return res.json({ status: 'OK' });
+	}
+
+	res.sendStatus(200);
+});
+
 /** Serves static files from 'public' */
 app.use('/public', express.static('public'));
-app.use('/', (req, res) => res.sendFile(path.resolve('./public/auth.html')));
+app.use('/auth', (req, res) => res.sendFile(path.resolve('./public/auth.html')));
 
 export default app;
