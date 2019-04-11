@@ -1,4 +1,3 @@
-import util from 'util';
 import mongoose from 'mongoose';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
@@ -6,11 +5,11 @@ import chai from 'chai';
 import { mockReq, mockRes } from 'sinon-express-mock';
 import factory from 'factory-girl';
 import cls from 'cls-hooked';
-import app from 'app';
+import app from 'chimera/app';
 
 describe('Authentication', function () {
 	before(async function () {
-		await import('app/auth');
+		await import('chimera/auth');
 
 		this.username = factory.chance('word')();
 		this.password = factory.chance('word', { length: 12 })();

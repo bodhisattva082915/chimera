@@ -1,4 +1,4 @@
-import orm from 'app/orm';
+import orm from 'chimera/orm';
 
 /**
  * Generates and responds to the client with an access token for the authenticated user.

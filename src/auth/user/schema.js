@@ -1,4 +1,4 @@
-import ChimeraSchema from 'app/orm/schema';
+import ChimeraSchema from 'chimera/orm/schema';
 import { encryptPassword } from '../utils';
 
 const schema = new ChimeraSchema('User', {

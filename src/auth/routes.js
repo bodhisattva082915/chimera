@@ -2,7 +2,7 @@ import passport from 'passport';
 import cls from 'cls-hooked';
 import { Router } from 'express';
 import { query, body } from 'express-validator/check';
-import { validateReq } from 'app/middleware';
+import { validateReq } from 'chimera/middleware';
 import * as handlers from './handlers';
 
 const authRouter = new Router();

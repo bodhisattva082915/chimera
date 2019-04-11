@@ -15,8 +15,8 @@
         "transform-dynamic-import",
         ["module-resolver", {
             "alias": {
-                "app": "./src",
                 "env": "./env",
+                "chimera": "./src",
                 "chimera-ui": "./assets"
             }
         }]

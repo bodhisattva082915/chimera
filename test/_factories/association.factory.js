@@ -1,5 +1,5 @@
 import factory from 'factory-girl';
-import orm from 'app/orm';
+import orm from 'chimera/orm';
 
 const Hierarchical = orm.model('HierarchicalAssociation');
 const NonHierarchical = orm.model('NonHierarchicalAssociation');

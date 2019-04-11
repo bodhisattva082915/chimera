@@ -1,5 +1,5 @@
 import cls from 'cls-hooked';
-import ChimeraSchema from 'app/orm/schema';
+import ChimeraSchema from 'chimera/orm/schema';
 
 /**
  * Adds createdBy and updatedBy fields for audting purposes. Automatically sets values for

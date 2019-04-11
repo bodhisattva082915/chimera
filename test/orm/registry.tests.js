@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import factory from 'factory-girl';
 import sinon from 'sinon';
-import ModelRegistry from 'app/orm/registry';
+import ModelRegistry from 'chimera/orm/registry';
 
 describe('ModelRegistry', function () {
 	before(async function () {

@@ -34,10 +34,10 @@ before(async function () {
 	process.env.CHIMERASMTP_USERNAME = this.testSMTPCreds.username;
 	process.env.CHIMERASMTP_PASSWORD = this.testSMTPCreds.password;
 
-	await (await import('app/db')).default(); // Init DB Connection
-	await (await import('app/orm')).init(); // Init basic ORM
-	await import('app'); // Init express configuration
-	await import('app/smtp'); // Init SMTP transport
+	await (await import('chimera/db')).default(); // Init DB Connection
+	await (await import('chimera/orm')).init(); // Init basic ORM
+	await import('chimera/smtp'); // Init SMTP transport
+	await import('chimera'); // Init express configuration
 
 	await import('./_factories');
 });

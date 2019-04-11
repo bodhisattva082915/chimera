@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import ChimeraSchema from 'app/orm/schema';
+import ChimeraSchema from 'chimera/orm/schema';
 
 describe('ChimeraSchema', function () {
 	describe('config', function () {
