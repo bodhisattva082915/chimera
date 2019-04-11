@@ -15,10 +15,10 @@ app.use(passport.initialize());
 app.use(context.initialize());
 
 /** Auth API */
-app.use(auth);
+// app.use(auth);
 
 /** REST API */
-app.use('/api', api);
+app.use('/api', [auth, api]);
 
 /** Serves static files from 'public' */
 app.use('/public', express.static('public'));
