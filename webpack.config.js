@@ -1,3 +1,4 @@
+const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -45,6 +46,7 @@ const server = {
 	]
 };
 
+const PUBLIC = '/public';
 const clients = {
 	name: 'clients',
 	mode: process.env.NODE_ENV || 'production',
@@ -71,12 +73,19 @@ const clients = {
 			{
 				test: /\.(png|svg|jpg|gif|woff|woff2|eot|ttf|otf)$/,
 				use: [
-					'file-loader'
+					{
+						loader: 'file-loader',
+						options: {
+							publicPath: PUBLIC
+						}
+					}
 				]
 			}
 		]
 	},
 	output: {
+		path: path.resolve(__dirname, './public'),
+		publicPath: PUBLIC,
 		filename: '[name].js'
 	},
 	plugins: [
