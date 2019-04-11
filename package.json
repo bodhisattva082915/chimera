@@ -15,7 +15,8 @@
 		"build": "webpack",
 		"start": "docker-compose up -d && webpack",
 		"stop": "docker-compose down",
-		"dev": "webpack-dev-server"
+		"dev:server": "webpack --watch",
+		"dev:clients": "webpack-dev-server --config assets/webpack.config.js"
 	},
 	"dependencies": {
 		"@material-ui/core": "^3.9.3",
