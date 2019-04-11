@@ -37,7 +37,7 @@ before(async function () {
 	await (await import('chimera/db')).default(); // Init DB Connection
 	await (await import('chimera/orm')).init(); // Init basic ORM
 	await import('chimera/smtp'); // Init SMTP transport
-	await import('chimera'); // Init express configuration
+	await import('chimera/app'); // Init express configuration
 
 	await import('./_factories');
 });

@@ -19,11 +19,4 @@ app.use(auth);
 /** REST API */
 app.use('/api', api);
 
-/** Init conxtext for cross-scope request access */
-
-/** Mongo-Express UI */
-// Move this out to initialization logic
-// import proxy from 'express-http-proxy';
-// app.use('/', proxy('localhost:27018'));
-
 export default app;

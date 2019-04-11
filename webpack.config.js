@@ -1,13 +1,20 @@
 const nodeExternals = require('webpack-node-externals');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const NodemonPlugin = require('nodemon-webpack-plugin');
 
 const server = {
+	name: 'server',
 	mode: process.env.NODE_ENV || 'production',
+	entry: './src/app.js',
 	target: 'node',
 	node: {
 		__filename: true,
 		__dirname: true
+	},
+	output: {
+		libraryExport: 'default',
+		libraryTarget: 'umd'
 	},
 	externals: [nodeExternals()],
 	optimization: {
@@ -30,10 +37,16 @@ const server = {
 				]
 			}
 		]
-	}
+	},
+	plugins: [
+		new NodemonPlugin({
+			script: './index.js'
+		})
+	]
 };
 
 const clients = {
+	name: 'clients',
 	mode: process.env.NODE_ENV || 'production',
 	entry: {
 		auth: './assets/auth/index.js'
