@@ -14,11 +14,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
 app.use(context.initialize());
 
-/** Auth API */
-// app.use(auth);
-
-/** REST API */
-app.use('/api', [auth, api]);
+/** Register API Routes */
+app.use('/api', [
+	auth,
+	api
+]);
 
 /** Serves static files from 'public' */
 app.use('/public', express.static('public'));
