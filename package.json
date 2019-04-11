@@ -16,7 +16,8 @@
 		"start": "docker-compose up -d && webpack",
 		"stop": "docker-compose down",
 		"dev:server": "webpack --watch",
-		"dev:clients": "webpack-dev-server --config assets/webpack.config.js"
+		"dev:clients": "webpack-dev-server --config assets/webpack.config.js",
+		"dev": "concurrently \"npm run dev:server\" \"npm run dev:clients\""
 	},
 	"dependencies": {
 		"@material-ui/core": "^3.9.3",
@@ -60,6 +61,7 @@
 		"chai-http": "^4.2.1",
 		"chai-sinon": "^2.8.1",
 		"chai-subset": "^1.6.0",
+		"concurrently": "^4.1.0",
 		"css-loader": "^2.1.1",
 		"dotenv": "^6.1.0",
 		"dotenv-extended": "^2.3.0",
