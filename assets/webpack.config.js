@@ -55,11 +55,11 @@ module.exports = {
 		})
 	],
 	devServer: {
-		port: 9000,
+		port: 3000,
 		contentBase: path.resolve('./public'),
 		compress: true,
 		proxy: {
-			'/api': 'localhost:3000'
+			'/api': 'http://localhost:8000'
 		},
 		historyApiFallback: {
 			rewrites: [
