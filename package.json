@@ -87,6 +87,7 @@
 		"jsdom": "^14.0.0",
 		"maildev": "^1.0.0",
 		"mocha": "^5.2.0",
+		"mongo-express": "^0.52.2",
 		"mongodb-memory-server": "^2.7.0",
 		"nodemon-webpack-plugin": "^4.0.8",
 		"sinon": "^7.1.1",
