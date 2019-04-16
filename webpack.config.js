@@ -39,7 +39,11 @@ module.exports = {
 	},
 	plugins: [
 		new NodemonPlugin({
-			script: './index.js'
+			script: './index.js',
+			nodeArgs: [
+				process.env.NODE_ENV === 'development' ? '--inspect' : ''
+			]
 		})
-	]
+	],
+	devtool: process.env.NODE_ENV === 'development' ? 'eval-source-map' : false
 };

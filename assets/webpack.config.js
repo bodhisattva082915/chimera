@@ -58,6 +58,9 @@ module.exports = {
 		port: 9000,
 		contentBase: path.resolve('./public'),
 		compress: true,
+		proxy: {
+			'/api': 'localhost:3000'
+		},
 		historyApiFallback: {
 			rewrites: [
 				{ from: /^\/auth/, to: '/public/auth.html' }

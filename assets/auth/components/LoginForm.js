@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import http from 'chimera-ui/global/http';
 import { TextField, Button, Grid } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { ChimeraLink } from 'chimera-ui/global/components';
@@ -16,6 +17,16 @@ class LoginForm extends React.Component {
 		forgotUsername: PropTypes.func.isRequired,
 		forgotPassword: PropTypes.func.isRequired
 	};
+
+	login (ev) {
+		ev.preventDefault();
+		http.post('/auth/login', {
+			auth: {
+				username: 'janedoe',
+				password: 's00pers3cret'
+			}
+		}).then(res => console.log(res));
+	}
 
 	render () {
 		const { classes } = this.props;
@@ -38,7 +49,7 @@ class LoginForm extends React.Component {
 					variant='contained'
 					fullWidth={true}
 					className={classes.spaced}
-					onClick={ev => ev.preventDefault()}
+					onClick={this.login}
 					children={'Login'}
 				/>
 				<Grid
