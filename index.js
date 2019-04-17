@@ -13,6 +13,10 @@ if (process.env.NODE_ENV === 'development') {
 	app.use('/mongo-express', mongoExpress(config));
 }
 
+app.connectDB().then(() => {
+	console.info('Chimera DB Connection open...');
+});
+
 app.listen(8000, err => {
 	if (err) {
 		console.error(err);
