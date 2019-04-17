@@ -11,9 +11,10 @@ const ctx = cls.getNamespace('httpContext');
 
 authRouter.use('/auth', authRoutes);
 authRoutes
-	.post('/login', passport.authenticate('basic', { session: false }), [
+	.post('/login',
+		handlers.challenge(),
 		handlers.generateTokens
-	])
+	)
 
 	/**
 	 * Password Reset Flow
