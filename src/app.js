@@ -2,15 +2,11 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import passport from 'passport';
 import path from 'path';
-import db from './db';
 import context from './httpContext';
 import auth from './auth';
 import api from './api';
 
 const app = express();
-
-/** Store a reference to the db connector */
-app.connectDB = db;
 
 /** Register Middleware */
 app.use(bodyParser.json());

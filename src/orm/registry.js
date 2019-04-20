@@ -4,6 +4,7 @@ import EventEmitter from 'events';
 import map from 'lodash/map';
 import pickBy from 'lodash/pickBy';
 import mongoose from 'mongoose';
+import initDBConnection from './db';
 
 /**
  * An interface layer between the application and mongoose for registering and compiling models. This class handles
@@ -23,6 +24,7 @@ class ModelRegistry extends EventEmitter {
 	 * Asynchronously loads all models (static and dynamic) into the model registry
 	 */
 	async init () {
+		await initDBConnection();
 		await this.bootstrap();
 		await this.compile();
 	}

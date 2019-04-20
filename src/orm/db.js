@@ -12,4 +12,5 @@ export default () => mongoose
 			useNewUrlParser: true,
 			useCreateIndex: true
 		})
+	.then(() => console.info('Chimera DB connection open...'))
 	.catch(console.error);
