@@ -1,5 +1,6 @@
 import passport from 'passport';
 import orm from 'chimera/orm';
+import { isMalformedAuthorization } from './utils';
 
 /**
  * Authenticates the basic credentials of the user to verify if they can generate a login token.
@@ -11,10 +12,16 @@ export const challenge = (strategy = 'basic') => {
 				next(err);
 			}
 
+			/** Check for malformed authorization header for more accurate response */
+			if (!user && isMalformedAuthorization(req, strategy)) {
+				return res.sendStatus(400);
+			}
+
 			if (!user) {
 				return res.sendStatus(401);
 			}
 
+			req.user = user;
 			next();
 		})(req, res, next);
 	};
