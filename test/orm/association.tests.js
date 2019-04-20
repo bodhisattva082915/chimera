@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import factory from 'factory-girl';
-import orm from 'app/orm';
+import orm from 'chimera/orm';
 
 describe('ChimeraAssociation', function () {
 	before(async function () {

@@ -1,4 +1,24 @@
-import orm from 'app/orm';
+import passport from 'passport';
+import orm from 'chimera/orm';
+
+/**
+ * Authenticates the basic credentials of the user to verify if they can generate a login token.
+ */
+export const challenge = (strategy = 'basic') => {
+	return (req, res, next) => {
+		passport.authenticate(strategy, { session: false }, (err, user) => {
+			if (err) {
+				next(err);
+			}
+
+			if (!user) {
+				return res.sendStatus(401);
+			}
+
+			next();
+		})(req, res, next);
+	};
+};
 
 /**
  * Generates and responds to the client with an access token for the authenticated user.

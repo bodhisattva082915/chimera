@@ -2,7 +2,7 @@ import { BasicStrategy } from 'passport-http';
 import { Strategy as BearerStrategy } from 'passport-http-bearer';
 import isEmail from 'validator/lib/isEmail';
 import argon2 from 'argon2';
-import orm from 'app/orm';
+import orm from 'chimera/orm';
 import jwt from 'jsonwebtoken';
 import cls from 'cls-hooked';
 

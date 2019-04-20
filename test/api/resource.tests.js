@@ -2,7 +2,7 @@ import factory from 'factory-girl';
 import mongoose from 'mongoose';
 import sinon from 'sinon';
 import { mockReq, mockRes } from 'sinon-express-mock';
-import ChimeraResource from 'app/api/resource';
+import ChimeraResource from 'chimera/api/resource';
 
 describe('ChimeraResource', function () {
 	before(async function () {

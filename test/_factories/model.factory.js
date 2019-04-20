@@ -1,6 +1,6 @@
 import factory from 'factory-girl';
 import get from 'lodash/get';
-import orm from 'app/orm';
+import orm from 'chimera/orm';
 
 const model = orm.model('ChimeraModel');
 

@@ -1,7 +1,7 @@
 import os from 'os';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
-import smtp from 'app/smtp';
+import smtp from 'chimera/smtp';
 import { encryptPassword } from '../utils';
 import { AuthenticationError } from '../errors';
 

@@ -1,0 +1,8 @@
+/**
+ * Global CSS Rules
+ * These should only be stylings that cannot be easily handled by the
+ * MUIThemeProvider or CSSBaseline components.
+ */
+html, body, #root {
+    height: 100%;
+}

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import factory from 'factory-girl';
 import cls from 'cls-hooked';
-import ChimeraSchema from 'app/orm/schema';
+import ChimeraSchema from 'chimera/orm/schema';
 
 describe('Auth Plugins', function () {
 	before(async function () {

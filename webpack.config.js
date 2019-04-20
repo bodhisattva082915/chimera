@@ -1,18 +1,21 @@
 const nodeExternals = require('webpack-node-externals');
-const NodemonPlugin = require('nodemon-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const NodemonPlugin = require('nodemon-webpack-plugin');
 
 module.exports = {
+	name: 'server',
 	mode: process.env.NODE_ENV || 'production',
+	entry: './src/app.js',
 	target: 'node',
 	node: {
 		__filename: true,
 		__dirname: true
 	},
+	output: {
+		libraryExport: 'default',
+		libraryTarget: 'umd'
+	},
 	externals: [nodeExternals()],
-	plugins: [
-		new NodemonPlugin()
-	],
 	optimization: {
 		minimizer: [
 			new UglifyJsPlugin({
@@ -33,5 +36,14 @@ module.exports = {
 				]
 			}
 		]
-	}
+	},
+	plugins: [
+		new NodemonPlugin({
+			script: './index.js',
+			nodeArgs: [
+				process.env.NODE_ENV === 'development' ? '--inspect' : ''
+			]
+		})
+	],
+	devtool: process.env.NODE_ENV === 'development' ? 'eval-source-map' : false
 };

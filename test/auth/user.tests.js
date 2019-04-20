@@ -4,7 +4,7 @@ import factory from 'factory-girl';
 import argon2 from 'argon2';
 import jsdom from 'jsdom';
 import jwt from 'jsonwebtoken';
-import orm from 'app/orm';
+import orm from 'chimera/orm';
 
 describe('User', function () {
 	before(async function () {
@@ -75,7 +75,7 @@ describe('User', function () {
 		before(async function () {
 			await util.promisify(this.testSMTP.listen)();
 			await util.promisify(this.testSMTP.deleteAllEmail)();
-			await (await import('app/smtp')).default.verify();
+			await (await import('chimera/smtp')).default.verify();
 		});
 
 		after(async function () {

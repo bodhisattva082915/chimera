@@ -2,7 +2,7 @@ import passport from 'passport';
 import cls from 'cls-hooked';
 import { Router } from 'express';
 import { query, body } from 'express-validator/check';
-import { validateReq } from 'app/middleware';
+import { validateReq } from 'chimera/middleware';
 import * as handlers from './handlers';
 
 const authRouter = new Router();
@@ -11,9 +11,10 @@ const ctx = cls.getNamespace('httpContext');
 
 authRouter.use('/auth', authRoutes);
 authRoutes
-	.post('/login', passport.authenticate('basic', { session: false }), [
+	.post('/login',
+		handlers.challenge(),
 		handlers.generateTokens
-	])
+	)
 
 	/**
 	 * Password Reset Flow

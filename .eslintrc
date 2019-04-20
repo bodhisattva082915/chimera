@@ -1,5 +1,8 @@
 {
-    "extends": "standard",
+    "extends": [
+        "standard", 
+        "plugin:react/recommended"
+    ],
     "parser": "babel-eslint",
     "parserOptions": {
         "ecmaFeatures": {
@@ -24,9 +27,17 @@
         "indent": ["error", "tab", { "SwitchCase": 1 }],
         "no-mixed-spaces-and-tabs": ["error"],
         "no-unused-expressions": 0,
-        "require-jsdoc": ["error"],
+        "no-unused-vars": "warn",
+        "require-jsdoc": "off",
         "padded-blocks": ["off"],
         "mocha/no-exclusive-tests": "error",
-        "chai-friendly/no-unused-expressions": ["error", { "allowTernary": true }]
+        "chai-friendly/no-unused-expressions": ["error", { "allowTernary": true }],
+        "react/no-children-prop": ["off"],
+        "react/prop-types": ["warn", { "ignore": ["children", "classes"] }]
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
     }
 }

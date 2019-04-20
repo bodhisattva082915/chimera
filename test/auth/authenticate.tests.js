@@ -1,4 +1,3 @@
-import util from 'util';
 import mongoose from 'mongoose';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
@@ -6,11 +5,11 @@ import chai from 'chai';
 import { mockReq, mockRes } from 'sinon-express-mock';
 import factory from 'factory-girl';
 import cls from 'cls-hooked';
-import app from 'app';
+import app from 'chimera/app';
 
 describe('Authentication', function () {
 	before(async function () {
-		await import('app/auth');
+		await import('chimera/auth');
 
 		this.username = factory.chance('word')();
 		this.password = factory.chance('word', { length: 12 })();
@@ -170,7 +169,7 @@ describe('Authentication', function () {
 				this.verificationToken = this.testUser.generateVerificationToken();
 
 				const res = await this.server
-					.get('/auth/verify')
+					.get('/api/auth/verify')
 					.set('Authorization', `Bearer ${this.verificationToken}`);
 
 				res.statusCode.should.equal(204);
@@ -180,7 +179,7 @@ describe('Authentication', function () {
 		describe('POST /login', function () {
 			it('should authenticate and respond with 200 and an access token', async function () {
 				const res = await this.server
-					.post('/auth/login')
+					.post('/api//auth/login')
 					.auth(this.username, this.password);
 
 				res.statusCode.should.equal(200);
@@ -189,7 +188,7 @@ describe('Authentication', function () {
 
 			it('should fail authentication with bad username and respond with 401', async function () {
 				const res = await this.server
-					.post('/auth/login')
+					.post('/api//auth/login')
 					.auth('baduser', this.password);
 
 				res.statusCode.should.equal(401);
@@ -197,7 +196,7 @@ describe('Authentication', function () {
 
 			it('should fail authentication with bad password and respond with 401', async function () {
 				const res = await this.server
-					.post('/auth/login')
+					.post('/api/auth/login')
 					.auth(this.username, 'badpass');
 
 				res.statusCode.should.equal(401);
@@ -205,7 +204,7 @@ describe('Authentication', function () {
 
 			it('should fail authentication with malformed authorization string and respond with 400', async function () {
 				const res = await this.server
-					.post('/auth/login')
+					.post('/api/auth/login')
 					.set('Authorization', 'Basic thisisnotthecorrectformat');
 
 				res.statusCode.should.equal(400);
@@ -215,11 +214,11 @@ describe('Authentication', function () {
 		describe('GET /password-reset', function () {
 			it('should validate the request params', async function () {
 				const res1 = await this.server
-					.get('/auth/password-reset')
+					.get('/api/auth/password-reset')
 					.set('content-type', 'application/json');
 
 				const res2 = await this.server
-					.get('/auth/password-reset')
+					.get('/api/auth/password-reset')
 					.set('content-type', 'application/json')
 					.query({ email: 'benaseotn' });
 
@@ -231,7 +230,7 @@ describe('Authentication', function () {
 
 			it('should route requests to the sendResetToken handler and respond successfully with 200', async function () {
 				const res = await this.server
-					.get('/auth/password-reset')
+					.get('/api/auth/password-reset')
 					.set('content-type', 'application/json')
 					.query({ email: this.testUser.email });
 
@@ -247,7 +246,7 @@ describe('Authentication', function () {
 
 			it('should validate the request body', async function () {
 				const res = await this.server
-					.post('/auth/password-reset')
+					.post('/api/auth/password-reset')
 					.set('Authorization', `Bearer ${this.resetToken}`)
 					.set('content-type', 'application/json');
 
@@ -258,7 +257,7 @@ describe('Authentication', function () {
 			it('should reset the user password to the new password and respond with 204', async function () {
 				const newPassword = 'newpassword';
 				const res = await this.server
-					.post('/auth/password-reset')
+					.post('/api/auth/password-reset')
 					.set('Authorization', `Bearer ${this.resetToken}`)
 					.set('content-type', 'application/json')
 					.send({ password: newPassword });
@@ -269,13 +268,13 @@ describe('Authentication', function () {
 			it('should reject the same token from being used more than once to reset the user password', async function () {
 				const newPassword = 'newpassword';
 				const res = await this.server
-					.post('/auth/password-reset')
+					.post('/api/auth/password-reset')
 					.set('Authorization', `Bearer ${this.resetToken}`)
 					.set('content-type', 'application/json')
 					.send({ password: newPassword });
 
 				const res401 = await this.server
-					.post('/auth/password-reset')
+					.post('/api/auth/password-reset')
 					.set('Authorization', `Bearer ${this.resetToken}`)
 					.set('content-type', 'application/json')
 					.send({ password: newPassword });
