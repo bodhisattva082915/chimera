@@ -12,15 +12,24 @@ import mongoose from 'mongoose';
  */
 class ModelRegistry extends EventEmitter {
 
-	constructor () {
+	constructor ({ staticModules = [] } = {}) {
 		super();
 
+		this._staticModules = staticModules;
 		this._modelCache = {};
 	}
 
-	async bootstrap (staticModules) {
-		await this._loadGlobalPlugins(staticModules);
-		await this._loadStaticSchemas(staticModules);
+	/**
+	 * Asynchronously loads all models (static and dynamic) into the model registry
+	 */
+	async init () {
+		await this.bootstrap();
+		await this.compile();
+	}
+
+	async bootstrap () {
+		await this._loadGlobalPlugins();
+		await this._loadStaticSchemas();
 		return this._compile();
 	}
 
@@ -55,10 +64,9 @@ class ModelRegistry extends EventEmitter {
 
 	/**
 	 * Loads plugins defined in all static modules into mongoose. This should be called before loading schemas.
-	 * @param {[string]} staticModules - Additional modules outside the ORM containing global plugins to be loaded.
 	 */
-	async _loadGlobalPlugins (staticModules = []) {
-		await Promise.all([path.basename(__dirname), ...staticModules].map(async module => {
+	async _loadGlobalPlugins () {
+		await Promise.all([path.basename(__dirname), ...this._staticModules].map(async module => {
 			const pluginDir = path.resolve(path.dirname(__dirname), module, 'plugins');
 			const plugins = fs.readdirSync(pluginDir);
 
@@ -70,10 +78,9 @@ class ModelRegistry extends EventEmitter {
 
 	/**
 	 * Loads statically defined schemas into the registry. This should be called after plugins have already been loaded.
-	 * @param {[string]} staticModules - Additional modules outside the ORM to be loaded
 	 */
-	async _loadStaticSchemas (staticModules = []) {
-		await Promise.all([path.basename(__dirname), ...staticModules].map(async module => {
+	async _loadStaticSchemas () {
+		await Promise.all([path.basename(__dirname), ...this._staticModules].map(async module => {
 			const moduleDir = path.resolve(path.dirname(__dirname), module);
 			const models = fs
 				.readdirSync(moduleDir)
