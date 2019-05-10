@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import orm from 'chimera/orm';
 import ChimeraSchema from 'chimera/orm/schema';
 
 describe('ChimeraSchema', function () {
@@ -28,13 +28,13 @@ describe('ChimeraSchema', function () {
 
 				this.testSchemaA.belongsTo('ModelB');
 
-				this.testModelA = mongoose.model(this.testSchemaA.name, this.testSchemaA);
-				this.testModelB = mongoose.model(this.testSchemaB.name, this.testSchemaB);
+				this.testModelA = orm.model(this.testSchemaA.name, this.testSchemaA);
+				this.testModelB = orm.model(this.testSchemaB.name, this.testSchemaB);
 			});
 
 			after(function () {
-				mongoose.deleteModel('ModelA');
-				mongoose.deleteModel('ModelB');
+				orm.deleteModel('ModelA');
+				orm.deleteModel('ModelB');
 			});
 
 			it('should represent a many-to-one relationship between two schemas', function () {
@@ -65,13 +65,13 @@ describe('ChimeraSchema', function () {
 
 				this.testSchemaB.belongsTo('ModelA');
 
-				this.testModelA = mongoose.model(this.testSchemaA.name, this.testSchemaA);
-				this.testModelB = mongoose.model(this.testSchemaB.name, this.testSchemaB);
+				this.testModelA = orm.model(this.testSchemaA.name, this.testSchemaA);
+				this.testModelB = orm.model(this.testSchemaB.name, this.testSchemaB);
 			});
 
 			after(function () {
-				mongoose.deleteModel('ModelA');
-				mongoose.deleteModel('ModelB');
+				orm.deleteModel('ModelA');
+				orm.deleteModel('ModelB');
 			});
 
 			it('should represent a one-to-many relationship between two schemas', function () {
@@ -110,13 +110,13 @@ describe('ChimeraSchema', function () {
 					as: 'modelA'
 				});
 
-				this.testModelA = mongoose.model(this.testSchemaA.name, this.testSchemaA);
-				this.testModelB = mongoose.model(this.testSchemaB.name, this.testSchemaB);
+				this.testModelA = orm.model(this.testSchemaA.name, this.testSchemaA);
+				this.testModelB = orm.model(this.testSchemaB.name, this.testSchemaB);
 			});
 
 			after(function () {
-				mongoose.deleteModel('ModelA');
-				mongoose.deleteModel('ModelB');
+				orm.deleteModel('ModelA');
+				orm.deleteModel('ModelB');
 			});
 
 			it('should represent a one-to-one relationship between two schemas', function () {
@@ -155,14 +155,14 @@ describe('ChimeraSchema', function () {
 				this.testSchemaAB.belongsTo('ModelA', {}, { required: true });
 				this.testSchemaAB.belongsTo('ModelB', {}, { required: true });
 
-				this.testModelA = mongoose.model(this.testSchemaA.name, this.testSchemaA);
-				this.testModelB = mongoose.model(this.testSchemaB.name, this.testSchemaB);
-				this.testModelAB = mongoose.model(this.testSchemaAB.name, this.testSchemaAB);
+				this.testModelA = orm.model(this.testSchemaA.name, this.testSchemaA);
+				this.testModelB = orm.model(this.testSchemaB.name, this.testSchemaB);
+				this.testModelAB = orm.model(this.testSchemaAB.name, this.testSchemaAB);
 			});
 
 			after(function () {
-				mongoose.deleteModel('ModelA');
-				mongoose.deleteModel('ModelB');
+				orm.deleteModel('ModelA');
+				orm.deleteModel('ModelB');
 			});
 
 			it('should represent a many-to-many relationship between two schemas', function () {

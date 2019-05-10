@@ -1,11 +1,11 @@
-import mongoose from 'mongoose';
 import factory from 'factory-girl';
 import sinon from 'sinon';
-import ModelRegistry from 'chimera/orm/registry';
+import ORM from 'chimera/orm/orm';
 
-describe('ModelRegistry', function () {
+describe('ORM', function () {
 	before(async function () {
-		this.registry = new ModelRegistry();
+		this.orm = new ORM();
+		await this.orm.init();
 
 		this.staticModels = [
 			'ChimeraModel',
@@ -24,25 +24,22 @@ describe('ModelRegistry', function () {
 
 	after(async function () {
 		await factory.cleanUp();
-	});
-
-	afterEach(async function () {
-		this.registry = new ModelRegistry();
+		await this.orm.disconnect();
 	});
 
 	describe('_loadStaticSchemas', function () {
 		it('should register statically defined schemas', async function () {
-			await this.registry._loadStaticSchemas();
+			await this.orm._loadStaticSchemas();
 
-			this.registry.should.include.keys(this.staticModels);
+			this.orm._registry.should.include.keys(this.staticModels);
 		});
 	});
 
 	describe('_loadDynamicSchemas', function () {
 		it('should register dynamically defined schemas', async function () {
-			await this.registry._loadDynamicSchemas();
+			await this.orm._loadDynamicSchemas();
 
-			this.registry.should.include.keys(this.dynamicModels.map(m => m.name));
+			this.orm._registry.should.include.keys(this.dynamicModels.map(m => m.name));
 		});
 	});
 
@@ -58,12 +55,12 @@ describe('ModelRegistry', function () {
 				toModelId: this.dynamicModels[2].id
 			});
 
-			await this.registry._loadStaticSchemas();
-			await this.registry._loadDynamicSchemas();
+			await this.orm._loadStaticSchemas();
+			await this.orm._loadDynamicSchemas();
 
-			this.schemaSpy1 = sinon.spy(this.registry[this.dynamicModels[0].name].schema, 'associate');
-			this.schemaSpy2 = sinon.spy(this.registry[this.dynamicModels[1].name].schema, 'associate');
-			this.schemaSpy3 = sinon.spy(this.registry[this.dynamicModels[2].name].schema, 'associate');
+			this.schemaSpy1 = sinon.spy(this.orm._registry[this.dynamicModels[0].name].schema, 'associate');
+			this.schemaSpy2 = sinon.spy(this.orm._registry[this.dynamicModels[1].name].schema, 'associate');
+			this.schemaSpy3 = sinon.spy(this.orm._registry[this.dynamicModels[2].name].schema, 'associate');
 		});
 
 		after(function () {
@@ -73,7 +70,7 @@ describe('ModelRegistry', function () {
 		});
 
 		it('should apply associations to registered schemas', function () {
-			this.registry._applyAssociations();
+			this.orm._applyAssociations();
 
 			this.schemaSpy1.should.have.been.calledOnce;
 			this.schemaSpy1.firstCall.args.should.containSubset([
@@ -97,14 +94,14 @@ describe('ModelRegistry', function () {
 
 	describe('_compile', function () {
 		before(async function () {
-			await this.registry._loadStaticSchemas();
-			await this.registry._loadDynamicSchemas();
+			await this.orm._loadStaticSchemas();
+			await this.orm._loadDynamicSchemas();
 		});
 
 		it('should compile registered schemas into mongoose models', function () {
-			this.registry._compile();
+			this.orm._compile();
 
-			mongoose.modelNames().should.containSubset([
+			this.orm.modelNames().should.containSubset([
 				...this.staticModels,
 				...this.dynamicModels.map(m => m.name)
 			]);

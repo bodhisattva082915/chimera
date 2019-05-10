@@ -1,16 +1,16 @@
-import mongoose from 'mongoose';
 import factory from 'factory-girl';
+import orm from 'chimera/orm';
 
 describe('ChimeraField', function () {
 	before(async function () {
-		this.ChimeraField = mongoose.model('ChimeraField');
+		this.ChimeraField = orm.model('ChimeraField');
 		this.testField = await factory.create('ChimeraField');
 	});
 
 	describe('schema', function () {
 		it('should enforce uniquness constraint {name, chimeraModelId}', function () {
 			return new this.ChimeraField(this.testField.toObject()).validate()
-				.should.eventually.be.rejectedWith(mongoose.Error.ValidationError)
+				.should.eventually.be.rejectedWith(orm.Error.ValidationError)
 				.and.containSubset({
 					errors: {
 						name: { kind: 'unique' },
@@ -34,20 +34,20 @@ describe('ChimeraField', function () {
 
 describe('ChimeraFieldTypes', function () {
 	beforeEach(function () {
-		this.schema = new mongoose.Schema();
+		this.schema = new orm.Schema('customFieldTypesSchema');
 		this.modelName = 'CustomTypeTest';
 
 		this.testCustomType = function (fieldDef, validValue, invalidValue) {
 			this.schema.add({ customFieldType: fieldDef });
 
-			const Model = mongoose.model(this.modelName, this.schema);
+			const Model = orm.model(this.modelName, this.schema);
 			const isInvalid = new Model({ customFieldType: invalidValue || `invalidValue${factory.chance('word')()}` }).validateSync();
 			const isValid = new Model({ customFieldType: validValue }).validateSync();
 
 			should.exist(isInvalid);
 			should.not.exist(isValid);
 
-			isInvalid.should.be.an.instanceof(mongoose.Error.ValidationError);
+			isInvalid.should.be.an.instanceof(orm.Error.ValidationError);
 			isInvalid.errors.should.containSubset({
 				customFieldType: {
 					name: 'CastError'
@@ -59,9 +59,9 @@ describe('ChimeraFieldTypes', function () {
 
 		this.resetModeling = function () {
 			try {
-				mongoose.deleteModel(this.modelName);
+				orm.deleteModel(this.modelName);
 			} catch (err) {
-				if (!(err instanceof mongoose.Error.MissingSchemaError)) {
+				if (!(err instanceof orm.Error.MissingSchemaError)) {
 					throw err;
 				}
 			}

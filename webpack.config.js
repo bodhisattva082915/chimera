@@ -12,6 +12,8 @@ module.exports = {
 		__dirname: true
 	},
 	output: {
+		filename: 'chimera.js',
+		library: 'chimera',
 		libraryExport: 'default',
 		libraryTarget: 'umd'
 	},

@@ -1,11 +1,11 @@
 import os from 'os';
-import mongoose from 'mongoose';
+import orm from 'chimera/orm';
 import jwt from 'jsonwebtoken';
 import smtp from 'chimera/smtp';
 import { encryptPassword } from '../utils';
 import { AuthenticationError } from '../errors';
 
-class User extends mongoose.Model {
+class User extends orm.Model {
 
 	generateToken (payload = {}, opts = {}) {
 		const jwtOpts = { ...opts };

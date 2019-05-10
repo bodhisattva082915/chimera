@@ -1,6 +1,12 @@
+import Schema from 'mongoose/lib/schema';
 import camelCase from 'lodash/camelCase';
-import mongoose from 'mongoose';
-import registry from './index';
+import * as customFieldTypes from './field/types';
+import orm from './index';
+
+Schema.Types = {
+	...Schema.Types,
+	...customFieldTypes
+};
 
 class ChimeraSchemaError extends Error {
 	constructor (message) {
@@ -9,7 +15,7 @@ class ChimeraSchemaError extends Error {
 	}
 };
 
-class ChimeraSchema extends mongoose.Schema {
+class ChimeraSchema extends Schema {
 	/**
      * Enhances functionality of the base mongoose Schema class for use by Chimera.
      * * Add a naming identity at the schema level. This value will be used to name the mongoose model and mongodb collection.
@@ -56,7 +62,7 @@ class ChimeraSchema extends mongoose.Schema {
 			this.add({
 				[localField]: {
 					...schemaOptions,
-					type: mongoose.Schema.Types.ObjectId,
+					type: orm.Schema.Types.ObjectId,
 					ref
 				}
 			});
@@ -243,15 +249,15 @@ class ChimeraSchema extends mongoose.Schema {
 		if (!assoc.through) {
 			const implicitName = `${assoc.from.namespace}_${assoc.to.namespace}`;
 
-			if (registry.isRegistered(implicitName)) {
-				junction = registry[implicitName].schema;
+			if (orm.isRegistered(implicitName)) {
+				junction = orm._registry[implicitName].schema;
 			} else {
-				junction = registry._register(implicitName, new ChimeraSchema(implicitName)).schema;
+				junction = orm._register(implicitName, new ChimeraSchema(implicitName)).schema;
 			}
 
 		// Use an explicit through model
 		} else {
-			junction = registry[assoc.through.namespace].schema;
+			junction = orm._registry[assoc.through.namespace].schema;
 		}
 
 		junction.belongsTo(assoc.from.namespace, {

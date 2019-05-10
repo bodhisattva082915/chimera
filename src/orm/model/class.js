@@ -1,8 +1,7 @@
-import mongoose from 'mongoose';
 import ChimeraSchema from '../schema';
 import orm from '../index';
 
-class ChimeraModel extends mongoose.Model {
+class ChimeraModel extends orm.Model {
 
 	/**
 	 * Queries and populates ChimeraModel(s) with associated support content.
@@ -60,7 +59,5 @@ class ChimeraModel extends mongoose.Model {
 		return chimeraSchema;
 	}
 }
-
-// ChimeraModel.on('compile', ChimeraModel.compile);
 
 export default ChimeraModel;

@@ -1,18 +1,18 @@
-import mongoose from 'mongoose';
 import factory from 'factory-girl';
 import cls from 'cls-hooked';
+import orm from 'chimera/orm';
 import ChimeraSchema from 'chimera/orm/schema';
 
 describe('Auth Plugins', function () {
 	before(async function () {
-		this.testModel = mongoose.model('TestModel', new ChimeraSchema('TestSchema', { name: String }));
+		this.testModel = orm.model('TestModel', new ChimeraSchema('TestSchema', { name: String }));
 		this.testUser = await factory.create('User');
 		this.testUser2 = await factory.create('User');
 	});
 
 	after(async function () {
 		await factory.cleanUp();
-		mongoose.deleteModel('TestModel');
+		orm.deleteModel('TestModel');
 	});
 
 	describe('identityAudit', function () {

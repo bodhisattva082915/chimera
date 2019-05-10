@@ -3,10 +3,10 @@
  * @mongoose-option - Denotes that the given value will be used to defined the mongoose SchemaType option of the same name.
  */
 
-import mongoose from 'mongoose';
+import orm from 'chimera/orm';
 import ChimeraSchema from '../schema';
 
-const { Mixed, Array } = mongoose.Schema.Types;
+const { Mixed, Array } = orm.Schema.Types;
 const schema = new ChimeraSchema('ChimeraField', {
 	/**
 	 * The name that will be used to uniquely identify the property on the model.
@@ -33,7 +33,7 @@ const schema = new ChimeraSchema('ChimeraField', {
 	type: {
 		type: String,
 		required: true,
-		enum: Object.keys(mongoose.SchemaTypes)
+		enum: Object.keys(orm.SchemaTypes)
 	},
 
 	/**
@@ -101,7 +101,7 @@ const schema = new ChimeraSchema('ChimeraField', {
 
 	/** Middleware */
 	.post('save', function (field, next) {
-		mongoose.model('ChimeraModel').emit('compile', field.chimeraModelId);
+		orm.model('ChimeraModel').emit('compile', field.chimeraModelId);
 		next();
 	});
 

@@ -6,8 +6,8 @@ import chaiSubset from 'chai-subset';
 import chaiSinon from 'chai-sinon';
 import MongoMemoryServer from 'mongodb-memory-server';
 import MailDev from 'maildev';
-import mongoose from 'mongoose';
 import uuidv4 from 'uuid/v4';
+import app from 'chimera/app';
 
 chai.use(chaiSubset);
 chai.use(chaiAsPromised);
@@ -17,6 +17,7 @@ chai.use(chaiHttp);
 should = chai.should();
 
 before(async function () {
+	this.app = app;
 	this.testDb = new MongoMemoryServer();
 	this.testSMTPCreds = { username: 'support@domain.com', password: uuidv4() };
 	this.testSMTP = new MailDev({
@@ -34,15 +35,14 @@ before(async function () {
 	process.env.CHIMERASMTP_USERNAME = this.testSMTPCreds.username;
 	process.env.CHIMERASMTP_PASSWORD = this.testSMTPCreds.password;
 
-	await (await import('chimera/orm')).default.init(); // Init basic ORM
-	await import('chimera/smtp'); // Init SMTP transport
-	await import('chimera/app'); // Init express configuration
+	await this.app.orm.init();
 
-	await import('./_factories');
+	await import('chimera/smtp'); // Init SMTP transport
+	await import('./_factories'); // Init factories
 });
 
 after(async function () {
-	await mongoose.disconnect();
+	await this.app.orm.disconnect();
 	this.testDb.stop();
 	this.testSMTP.close();
 });

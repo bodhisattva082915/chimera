@@ -38,3 +38,19 @@ By default mongodb uses ObjectIDs as primary keys for new documents. Mongoose fo
 Should consider modeling the API using the open API specification
 
 # GraphQL API
+
+# Packaging System
+
+## Package
+Should be used to group together a collection of modules. This is primarly used to create partitions between core libary modules, internally defined modules, and third-party external modules. This would result in resource organization as such:
+- Package (ie. core, internal, external)
+  - Module 1 (ie. auth, orm, accounting, etc.)
+    - Model (module specific resource)
+    - Schema (module specific resource)
+    - Class (module specific resource)
+    - ... any other resources created
+  - Module 2
+    ...
+  - Module 3
+    ...
+  ...

@@ -1,12 +1,11 @@
-import mongoose from 'mongoose';
 import factory from 'factory-girl';
 import orm from 'chimera/orm';
 
 describe('ChimeraAssociation', function () {
 	before(async function () {
-		this.ChimeraAssociation = mongoose.model('ChimeraAssociation');
-		this.Hierarchical = mongoose.model('HierarchicalAssociation');
-		this.NonHierarchical = mongoose.model('NonHierarchicalAssociation');
+		this.ChimeraAssociation = orm.model('ChimeraAssociation');
+		this.Hierarchical = orm.model('HierarchicalAssociation');
+		this.NonHierarchical = orm.model('NonHierarchicalAssociation');
 
 		this.testModelADoc = await factory.create('ChimeraModel');
 		this.testModelBDoc = await factory.create('ChimeraModel');
@@ -21,7 +20,7 @@ describe('ChimeraAssociation', function () {
 			const isInvalid = await new this.ChimeraAssociation().validate().should.be.rejected;
 			should.exist(isInvalid);
 
-			isInvalid.should.be.an.instanceOf(mongoose.Error.ValidationError);
+			isInvalid.should.be.an.instanceOf(orm.Error.ValidationError);
 			isInvalid.errors.should.containSubset({
 				type: { kind: 'required' },
 				fromModelId: { kind: 'required' },
@@ -33,7 +32,7 @@ describe('ChimeraAssociation', function () {
 			const isInvalid = await new this.ChimeraAssociation({ type: 'manyyTooManyy' }).validate().should.be.rejected;
 			should.exist(isInvalid);
 
-			isInvalid.should.be.an.instanceOf(mongoose.Error.ValidationError);
+			isInvalid.should.be.an.instanceOf(orm.Error.ValidationError);
 			isInvalid.errors.should.containSubset({
 				type: { kind: 'enum' }
 			});

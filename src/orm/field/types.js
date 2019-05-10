@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import SchemaType from 'mongoose/lib/schematype';
 import pick from 'lodash/pick';
 import mapKeys from 'lodash/mapKeys';
 import snakeCase from 'lodash/snakeCase';
@@ -8,7 +8,7 @@ import isURL from 'validator/lib/isURL';
 import isUUID from 'validator/lib/isUUID';
 import { isMobilePhoneLocales } from 'validator';
 
-export class Email extends mongoose.SchemaType {
+export class Email extends SchemaType {
 	constructor (...args) {
 		super(...args, 'Email');
 	}
@@ -24,7 +24,7 @@ export class Email extends mongoose.SchemaType {
 	}
 }
 
-export class Phone extends mongoose.SchemaType {
+export class Phone extends SchemaType {
 	constructor (...args) {
 		const _opts = args[1];
 		const locales = isMobilePhoneLocales;
@@ -57,7 +57,7 @@ export class Phone extends mongoose.SchemaType {
 	}
 }
 
-export class URL extends mongoose.SchemaType {
+export class URL extends SchemaType {
 	constructor (...args) {
 		super(...args, 'URL');
 	}
@@ -76,7 +76,7 @@ export class URL extends mongoose.SchemaType {
 // Alias needed to support lowercase values ({ urlField: 'url' })
 export const Url = URL;
 
-export class UUID extends mongoose.SchemaType {
+export class UUID extends SchemaType {
 	constructor (...args) {
 		const _opts = args[1];
 		const versions = [3, 4, 5];

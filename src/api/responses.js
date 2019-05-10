@@ -1,11 +1,11 @@
 import http from 'http';
-import mongoose from 'mongoose';
+import orm from '../orm';
 
 /**
  * Express error handler for non-existent documents. Responds with statusCode 404.
  */
 export function documentDoesNotExist (err, req, res, next) {
-	if (err instanceof mongoose.Error.DocumentNotFoundError) {
+	if (err instanceof orm.Error.DocumentNotFoundError) {
 		res.status(404).json({
 			error: {
 				name: err.name,
@@ -24,7 +24,7 @@ export function documentDoesNotExist (err, req, res, next) {
  * Express error handler for failed validation. Responds with statusCode 422.
  */
 export function validationFailed (err, req, res, next) {
-	if (err instanceof mongoose.Error.ValidationError) {
+	if (err instanceof orm.Error.ValidationError) {
 		res.status(422).json({
 			error: {
 				name: err.name,

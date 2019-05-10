@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import orm from '../index';
 import ChimeraSchema from '../schema';
 import validators from './validators';
 
@@ -87,14 +87,14 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 
 		let err;
 		if (!this.type) {
-			err = new mongoose.Error.ValidatorError({
+			err = new orm.Error.ValidatorError({
 				type: 'required',
 				path: 'type',
 				value: this.type,
 				message: `Path 'type' is required.`
 			});
 		} else if (!validDiscriminators.includes(this.type)) {
-			err = new mongoose.Error.ValidatorError({
+			err = new orm.Error.ValidatorError({
 				type: 'enum',
 				path: 'type',
 				value: this.type,
@@ -104,7 +104,7 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 		}
 
 		if (err) {
-			const validationError = new mongoose.Error.ValidationError(this);
+			const validationError = new orm.Error.ValidationError(this);
 			validationError.errors.type = err;
 
 			// Surface other validation errors before kicking out

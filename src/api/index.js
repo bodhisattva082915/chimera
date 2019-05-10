@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
 import each from 'lodash/each';
 import { Router } from 'express';
+import orm from '../orm';
 import ChimeraResource from './resource';
 
 const apiRouter = new Router();
-const models = mongoose.models;
+const models = orm.models;
 const resources = {};
 
 each(models, model => {

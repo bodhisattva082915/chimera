@@ -8,7 +8,8 @@
 		"type": "git",
 		"url": "https://github.com/abettke/chimera"
 	},
-	"main": "index.js",
+	"main": "dist/chimera.js",
+	"module": "src/index.js",
 	"scripts": {
 		"lint": "eslint .",
 		"test": "mocha",
@@ -19,7 +20,8 @@
 		"build": "concurrently \"npm run build:server\" \"npm run build:clients\"",
 		"dev:server": "cross-env NODE_ENV=development webpack --watch",
 		"dev:clients": "cross-env NODE_ENV=development webpack-dev-server --config assets/webpack.config.js",
-		"dev": "concurrently \"npm run dev:server\" \"npm run dev:clients\""
+		"dev": "concurrently \"npm run dev:server\" \"npm run dev:clients\"",
+		"migrate": "node ./scripts/migrate.js"
 	},
 	"dependencies": {
 		"@material-ui/core": "^3.9.3",

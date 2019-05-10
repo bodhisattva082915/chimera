@@ -1,13 +1,13 @@
 import factory from 'factory-girl';
-import mongoose from 'mongoose';
 import sinon from 'sinon';
 import { mockReq, mockRes } from 'sinon-express-mock';
+import orm from 'chimera/orm';
 import ChimeraResource from 'chimera/api/resource';
 import * as errorResponses from 'chimera/api/responses';
 
 describe('ChimeraResourceErrors', function () {
 	before(async function () {
-		this.testModel = mongoose.model(factory.chance('word')(), new mongoose.Schema());
+		this.testModel = orm.model(factory.chance('word')(), new orm.Schema('testModel'));
 		this.testResource = new ChimeraResource(this.testModel);
 
 		this.documentDoesNotExist = errorResponses.documentDoesNotExist;
@@ -43,7 +43,7 @@ describe('ChimeraResourceErrors', function () {
 
 	describe('documentDoesNotExist', function () {
 		it('should handle responses when controllers throw DocumentDoesNotExistError', function () {
-			const err = new mongoose.Error.DocumentNotFoundError();
+			const err = new orm.Error.DocumentNotFoundError();
 
 			this.testResource.router.stack.should.containSubset([{
 				name: this.documentDoesNotExist.name
@@ -56,7 +56,7 @@ describe('ChimeraResourceErrors', function () {
 
 	describe('validationFailed', function () {
 		it('should handle responses when controllers throw ValidationError', function () {
-			const err = new mongoose.Error.ValidationError();
+			const err = new orm.Error.ValidationError();
 
 			this.testResource.router.stack.should.containSubset([{
 				name: this.validationFailed.name

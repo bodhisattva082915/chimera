@@ -1,5 +1,4 @@
 import util from 'util';
-import mongoose from 'mongoose';
 import factory from 'factory-girl';
 import argon2 from 'argon2';
 import jsdom from 'jsdom';
@@ -19,7 +18,7 @@ describe('User', function () {
 	describe('schema', function () {
 		it('should enforce required fields', function () {
 			return new this.User().validate()
-				.should.eventually.be.rejectedWith(mongoose.Error.ValidationError)
+				.should.eventually.be.rejectedWith(orm.Error.ValidationError)
 				.and.containSubset({
 					errors: {
 						username: { kind: 'required' },
@@ -31,7 +30,7 @@ describe('User', function () {
 
 		it('should enforce uniqueness constraint {username}', function () {
 			return new this.User(this.testUser.toObject()).validate()
-				.should.eventually.be.rejectedWith(mongoose.Error.ValidationError)
+				.should.eventually.be.rejectedWith(orm.Error.ValidationError)
 				.and.containSubset({
 					errors: {
 						username: { kind: 'unique' }
@@ -41,7 +40,7 @@ describe('User', function () {
 
 		it('should enforce uniqueness constraint {email}', function () {
 			return new this.User(this.testUser.toObject()).validate()
-				.should.eventually.be.rejectedWith(mongoose.Error.ValidationError)
+				.should.eventually.be.rejectedWith(orm.Error.ValidationError)
 				.and.containSubset({
 					errors: {
 						email: { kind: 'unique' }

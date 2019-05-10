@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import chai from 'chai';
@@ -125,7 +124,7 @@ describe('Authentication', function () {
 			});
 
 			it('should gracefully error when given invalid claims (invalid userId)', function (done) {
-				this.accessToken = jwt.sign({ userId: mongoose.Types.ObjectId() }, this.testUser.password);
+				this.accessToken = jwt.sign({ userId: app.orm.Types.ObjectId() }, this.testUser.password);
 				this.req.headers = { authorization: `Bearer ${this.accessToken}` };
 				passport.authenticate('bearer', (err, user) => {
 					if (err) {

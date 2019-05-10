@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
 import factory from 'factory-girl';
+import orm from 'chimera/orm';
 
 describe('ChimeraModel', function () {
 	before(async function () {
-		this.ChimeraModel = mongoose.model('ChimeraModel');
-		this.ChimeraField = mongoose.model('ChimeraField');
+		this.ChimeraModel = orm.model('ChimeraModel');
+		this.ChimeraField = orm.model('ChimeraField');
 
 		this.testModel = await factory.create('ChimeraModel', {
 			name: 'TestModelA',
@@ -21,7 +21,7 @@ describe('ChimeraModel', function () {
 	describe('schema', function () {
 		it('should enforce required fields', function () {
 			return new this.ChimeraModel().validate()
-				.should.eventually.be.rejectedWith(mongoose.Error.ValidationError)
+				.should.eventually.be.rejectedWith(orm.Error.ValidationError)
 				.and.containSubset({
 					errors: {
 						name: { kind: 'required' }
@@ -31,7 +31,7 @@ describe('ChimeraModel', function () {
 
 		it('should enforce a uniqueness constraint {name, module}', function () {
 			return new this.ChimeraModel(this.testModel.toObject()).validate()
-				.should.eventually.be.rejectedWith(mongoose.Error.ValidationError)
+				.should.eventually.be.rejectedWith(orm.Error.ValidationError)
 				.and.containSubset({
 					errors: {
 						name: { kind: 'unique' },

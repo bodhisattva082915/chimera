@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import mongoose from 'mongoose';
+import orm from '../orm';
 import * as errorResponses from './responses';
 
 /**
@@ -9,7 +9,7 @@ class ChimeraResource {
 
 	/**
 	 * Constructor
-	 * @param {object} model - The mongoose model used to generate the resource routes and controller methods
+	 * @param {object} model - The model used to generate the resource routes and controller methods
 	 * @returns {ChimeraResource} - The resource containing the model's router and route resolvers
 	 */
 	constructor (model) {
@@ -75,7 +75,7 @@ class ChimeraResource {
 		try {
 			document = await query;
 			if (!document) {
-				throw new mongoose.Error.DocumentNotFoundError(id);
+				throw new orm.Error.DocumentNotFoundError(id);
 			}
 
 			document = document.toJSON();
@@ -179,7 +179,7 @@ class ChimeraResource {
 
 		const document = await Model.findById(id);
 		if (!document) {
-			throw new mongoose.Error.DocumentNotFoundError(id);
+			throw new orm.Error.DocumentNotFoundError(id);
 		}
 
 		document.set(body);
@@ -207,7 +207,7 @@ class ChimeraResource {
 		try {
 			document = await Model.findByIdAndDelete(id);
 			if (!document) {
-				throw new mongoose.Error.DocumentNotFoundError(id);
+				throw new orm.Error.DocumentNotFoundError(id);
 			}
 
 			results.data = document.toJSON();

@@ -1,32 +1,52 @@
 import fs from 'fs';
 import path from 'path';
-import EventEmitter from 'events';
 import map from 'lodash/map';
 import pickBy from 'lodash/pickBy';
 import mongoose from 'mongoose';
-import initDBConnection from './db';
+import ChimeraSchema from './schema';
 
 /**
- * An interface layer between the application and mongoose for registering and compiling models. This class handles
- * the compilation of models with mongoose and should be used as a lookup point to see which models will be / have
- * been already compiled.
+ * An extended version of mongoose for registering and compiling models. This class handles bundling together common
+ * conveniences like initalizing the db connection and bulk loading models.
  */
-class ModelRegistry extends EventEmitter {
+class ORM extends mongoose.constructor {
 
-	constructor ({ staticModules = [] } = {}) {
-		super();
+	constructor (options = {}) {
 
-		this._staticModules = staticModules;
+		super(options);
+
+		this.verbose = options.verbose || false;
+		this._staticModules = options.staticModules || [];
 		this._modelCache = {};
+		this._registry = {};
+
+		this.Schema = ChimeraSchema;
 	}
 
 	/**
 	 * Asynchronously loads all models (static and dynamic) into the model registry
 	 */
 	async init () {
-		await initDBConnection();
+		await this._initDBConnection();
 		await this.bootstrap();
 		await this.compile();
+	}
+
+	async _initDBConnection () {
+		await this.connect(
+			'mongodb://' +
+			`${process.env.NODE_ENV !== 'test' ? process.env.CHIMERADB_USERNAME + ':' : ''}` +
+			`${process.env.NODE_ENV !== 'test' ? process.env.CHIMERADB_PASSWORD + '@' : ''}` +
+			`${process.env.CHIMERADB_HOST}:` +
+			`${process.env.CHIMERADB_PORT}/` +
+			`${process.env.CHIMERADB_NAME}`, {
+				useNewUrlParser: true,
+				useCreateIndex: true
+			});
+
+		if (this.verbose) {
+			console.info('Chimera DB connection open...');
+		}
 	}
 
 	async bootstrap () {
@@ -48,20 +68,12 @@ class ModelRegistry extends EventEmitter {
 		return this._compile(namespace);
 	}
 
-	model (namespace) {
-		if (!this.isCompiled(namespace)) {
-			return undefined;
-		}
-
-		return mongoose.model(namespace);
-	}
-
 	isRegistered (namespace) {
-		return !!(namespace in this);
+		return !!(namespace in this._registry);
 	}
 
 	isCompiled (namespace) {
-		return mongoose.modelNames().includes(namespace);
+		return this.modelNames().includes(namespace);
 	}
 
 	/**
@@ -73,7 +85,7 @@ class ModelRegistry extends EventEmitter {
 			const plugins = fs.readdirSync(pluginDir);
 
 			for (const pluginFile of plugins) {
-				mongoose.plugin(await import(path.resolve(pluginDir, pluginFile)));
+				this.plugin(await import(path.resolve(pluginDir, pluginFile)));
 			}
 		}));
 	}
@@ -87,7 +99,8 @@ class ModelRegistry extends EventEmitter {
 			const models = fs
 				.readdirSync(moduleDir)
 				.filter(file => !file.includes('.js'))
-				.filter(file => !file.includes('plugins'));
+				.filter(file => !file.includes('plugins'))
+				.filter(file => !file.includes('migrations'));
 
 			for (const model of models) {
 				const { modelClass, schema, discriminators } = await import(path.resolve(moduleDir, model));
@@ -137,9 +150,9 @@ class ModelRegistry extends EventEmitter {
 	_register (modelClass, schema, discriminators) {
 		const namespace = schema.name;
 
-		this[namespace] = { modelClass, schema, discriminators };
+		this._registry[namespace] = { modelClass, schema, discriminators };
 
-		return this[namespace];
+		return this._registry[namespace];
 	}
 
 	/**
@@ -150,7 +163,7 @@ class ModelRegistry extends EventEmitter {
 		const scope = this._namespaceToScope(namespace);
 
 		scope.forEach(namespace => {
-			const registered = this[namespace];
+			const registered = this._registry[namespace];
 			const model = this._modelCache[namespace];
 			const associations = [
 				...(model.dominantAssociations || []),
@@ -172,25 +185,26 @@ class ModelRegistry extends EventEmitter {
 		const scope = this._namespaceToScope(namespace);
 		const compiled = [];
 
+		// For some reason, the User schema in the registry changes back into a regular Schema inisde this loop
 		scope.forEach(namespace => {
-			const registered = this[namespace];
+			const registered = this._registry[namespace];
 
 			if (this.isCompiled(namespace)) {
-				mongoose.deleteModel(namespace);
+				this.deleteModel(namespace);
 			}
 
 			if (registered.modelClass && registered.modelClass.prototype instanceof mongoose.Model) {
 				registered.schema.loadClass(registered.modelClass);
 			}
 
-			registered.model = mongoose.model(registered.schema.name, registered.schema);
+			registered.model = this.model(registered.schema.name, registered.schema);
 			compiled.push(registered.model);
 
 			if (registered.discriminators) {
 				map(registered.discriminators, (discrimator, discrimatorName) => {
 
 					if (this.isCompiled(discrimatorName)) {
-						mongoose.deleteModel(discrimatorName);
+						this.deleteModel(discrimatorName);
 					}
 
 					registered.model.discriminator(discrimatorName, discrimator);
@@ -203,9 +217,9 @@ class ModelRegistry extends EventEmitter {
 
 			fullScope.forEach(namespace => {
 				if (!this.isCompiled(namespace)) {
-					const uncompiled = this[namespace];
+					const uncompiled = this._registry[namespace];
 
-					uncompiled.model = mongoose.model(uncompiled.modelClass || uncompiled.schema.name, uncompiled.schema);
+					uncompiled.model = this.model(uncompiled.modelClass || uncompiled.schema.name, uncompiled.schema);
 					compiled.push(uncompiled.model);
 				}
 			});
@@ -236,11 +250,11 @@ class ModelRegistry extends EventEmitter {
 				}
 			});
 		} else {
-			scope = Object.keys(this).filter(namespace => !namespace.startsWith('_'));
+			scope = Object.keys(this._registry).filter(namespace => !namespace.startsWith('_'));
 		}
 
 		return scope;
 	}
 }
 
-export default ModelRegistry;
+export default ORM;

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import orm from '../index';
 import { discriminators } from './index';
 
 const defaultMessage = 'Error, expected `{PATH}` to be unique. Value: `{VALUE}`';
@@ -88,7 +88,7 @@ export default {
 					}
 
 					const model = this.constructor;
-					const baseModel = mongoose.model(model.baseModelName);
+					const baseModel = orm.model(model.baseModelName);
 
 					if (value) {
 						let count = await baseModel.find({
@@ -110,7 +110,7 @@ export default {
 					}
 
 					const model = this.constructor;
-					const baseModel = mongoose.model(model.baseModelName);
+					const baseModel = orm.model(model.baseModelName);
 
 					if (!value) {
 						let count = await baseModel.find({
