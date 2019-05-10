@@ -74,7 +74,7 @@ describe('User', function () {
 		before(async function () {
 			await util.promisify(this.testSMTP.listen)();
 			await util.promisify(this.testSMTP.deleteAllEmail)();
-			await (await import('chimera/smtp')).default.verify();
+			await (await import('chimera/smtp')).default().verify();
 		});
 
 		after(async function () {

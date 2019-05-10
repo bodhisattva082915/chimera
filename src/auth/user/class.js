@@ -38,10 +38,11 @@ class User extends orm.Model {
 	 * Emails a password verification token for the given user's email.
 	 */
 	async emailVerificationToken () {
+		const transport = smtp();
 		const verifyToken = this.generateVerificationToken();
 		const verifyUrl = `https://${os.hostname}.com/auth/verify?token=${verifyToken}`;
 
-		const info = await smtp.sendMail({
+		const info = await transport.sendMail({
 			from: process.env.CHIMERASMTP_USERNAME,
 			to: this.email,
 			subject: 'Email Verification',
@@ -63,10 +64,11 @@ class User extends orm.Model {
 	 * Emails a password reset token to the given user.
 	 */
 	async emailResetToken () {
+		const transport = smtp();
 		const resetToken = this.generateToken(null, { expiresIn: '10 minutes' });
 		const resetUrl = `https://${os.hostname}.com/auth/password-reset?token=${resetToken}`;
 
-		const info = await smtp.sendMail({
+		const info = await transport.sendMail({
 			from: process.env.CHIMERASMTP_USERNAME,
 			to: this.email,
 			subject: 'Password Reset Request',

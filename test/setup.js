@@ -35,9 +35,7 @@ before(async function () {
 	process.env.CHIMERASMTP_USERNAME = this.testSMTPCreds.username;
 	process.env.CHIMERASMTP_PASSWORD = this.testSMTPCreds.password;
 
-	await this.app.orm.init();
-
-	await import('chimera/smtp'); // Init SMTP transport
+	await this.app.init();
 	await import('./_factories'); // Init factories
 });
 

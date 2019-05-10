@@ -1,7 +1,6 @@
-import 'env';
 import nodemailer from 'nodemailer';
 
-export default nodemailer.createTransport({
+export default () => nodemailer.createTransport({
 	host: process.env.CHIMERASMTP_HOST,
 	port: process.env.CHIMERASMTP_PORT,
 	secure: process.env.NODE_ENV === 'production',
