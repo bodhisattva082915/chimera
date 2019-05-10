@@ -27,12 +27,12 @@ class ORM extends mongoose.constructor {
 	 * Asynchronously loads all models (static and dynamic) into the model registry
 	 */
 	async init () {
-		await this._initDBConnection();
+		await this.initDBConnection();
 		await this.bootstrap();
 		await this.compile();
 	}
 
-	async _initDBConnection () {
+	async initDBConnection () {
 		await this.connect(
 			'mongodb://' +
 			`${process.env.NODE_ENV !== 'test' ? process.env.CHIMERADB_USERNAME + ':' : ''}` +
