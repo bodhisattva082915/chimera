@@ -1,5 +1,5 @@
 
-import ChimeraSchema from '../schema';
+import ChimeraSchema from '../../schema';
 
 const schema = new ChimeraSchema('ChimeraModel', {
 	name: {

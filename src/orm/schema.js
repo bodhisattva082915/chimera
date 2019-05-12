@@ -1,6 +1,6 @@
 import Schema from 'mongoose/lib/schema';
 import camelCase from 'lodash/camelCase';
-import * as customFieldTypes from './field/types';
+import * as customFieldTypes from './models/field/types';
 import orm from './index';
 
 Schema.Types = {

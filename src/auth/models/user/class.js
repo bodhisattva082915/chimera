@@ -2,8 +2,8 @@ import os from 'os';
 import orm from 'chimera/orm';
 import jwt from 'jsonwebtoken';
 import smtp from 'chimera/smtp';
-import { encryptPassword } from '../utils';
-import { AuthenticationError } from '../errors';
+import { encryptPassword } from '../../utils';
+import { AuthenticationError } from '../../errors';
 
 class User extends orm.Model {
 

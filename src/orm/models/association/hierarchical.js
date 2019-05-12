@@ -1,4 +1,4 @@
-import ChimeraSchema from '../schema';
+import ChimeraSchema from '../../schema';
 
 const Hierarchical = new ChimeraSchema('HierarchicalAssociation', {
 	many: {

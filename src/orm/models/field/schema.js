@@ -4,7 +4,7 @@
  */
 
 import orm from 'chimera/orm';
-import ChimeraSchema from '../schema';
+import ChimeraSchema from 'chimera/orm/schema';
 
 const { Mixed, Array } = orm.Schema.Types;
 const schema = new ChimeraSchema('ChimeraField', {

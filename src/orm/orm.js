@@ -95,15 +95,12 @@ class ORM extends mongoose.constructor {
 	 */
 	async _loadStaticSchemas () {
 		await Promise.all([path.basename(__dirname), ...this._staticModules].map(async module => {
-			const moduleDir = path.resolve(path.dirname(__dirname), module);
-			const models = fs
-				.readdirSync(moduleDir)
-				.filter(file => !file.includes('.js'))
-				.filter(file => !file.includes('plugins'))
-				.filter(file => !file.includes('migrations'));
+			const modelDir = path.resolve(path.dirname(__dirname), module, 'models');
+			const models = fs.readdirSync(modelDir)
+				.filter(file => !file.includes('index.js'));
 
 			for (const model of models) {
-				const { modelClass, schema, discriminators } = await import(path.resolve(moduleDir, model));
+				const { modelClass, schema, discriminators } = await import(path.resolve(modelDir, model));
 				this._register(modelClass, schema, discriminators);
 
 				// Allocate a space in the cache for dynamic content

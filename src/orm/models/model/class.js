@@ -1,5 +1,5 @@
-import ChimeraSchema from '../schema';
-import orm from '../index';
+import ChimeraSchema from '../../schema';
+import orm from '../../index';
 
 class ChimeraModel extends orm.Model {
 

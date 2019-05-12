@@ -1,5 +1,5 @@
-import orm from '../index';
-import ChimeraSchema from '../schema';
+import orm from '../../index';
+import ChimeraSchema from '../../schema';
 import validators from './validators';
 
 const schema = new ChimeraSchema('ChimeraAssociation', {

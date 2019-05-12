@@ -36,10 +36,10 @@ app.use('/public', express.static('public'));
 app.use('/auth', (req, res) => res.sendFile(path.resolve('./public/auth.html')));
 
 app.init = async function () {
-	await orm.init();
+	this.orm = orm;
+	this.smtp = smtp;
 
-	app.orm = orm;
-	app.smtp = smtp;
+	await this.orm.init();
 };
 
 export default app;

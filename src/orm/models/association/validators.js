@@ -1,4 +1,4 @@
-import orm from '../index';
+import orm from '../../index';
 import { discriminators } from './index';
 
 const defaultMessage = 'Error, expected `{PATH}` to be unique. Value: `{VALUE}`';
