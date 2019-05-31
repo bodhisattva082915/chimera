@@ -7,11 +7,11 @@ import ChimeraResource from 'chimera/api/resource';
 describe('ChimeraResource', function () {
 	before(async function () {
 		/* Chimera Definition */
-		this.cModel = await factory.create('ChimeraModel', {
+		this.cModel = await factory.create('chimera.orm.model', {
 			module: 'testmodule',
 			name: 'TestModel'
 		});
-		this.cFields = await factory.createMany('ChimeraField', 3, {
+		this.cFields = await factory.createMany('chimera.orm.field', 3, {
 			chimeraModelId: this.cModel.id,
 			type: 'Number'
 		});

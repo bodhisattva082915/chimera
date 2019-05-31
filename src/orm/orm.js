@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import map from 'lodash/map';
 import pickBy from 'lodash/pickBy';
+import camelCase from 'lodash/camelCase';
 import mongoose from 'mongoose';
 import ChimeraSchema from './schema';
 
@@ -101,10 +102,11 @@ class ORM extends mongoose.constructor {
 
 			for (const model of models) {
 				const { modelClass, schema, discriminators } = await import(path.resolve(modelDir, model));
-				this._register(modelClass, schema, discriminators);
+				const namespace = `chimera.${module}.${camelCase(schema.name)}`;
+				this._register(namespace, { modelClass, schema, discriminators });
 
 				// Allocate a space in the cache for dynamic content
-				this._modelCache[schema.name] = {};
+				this._modelCache[namespace] = {};
 			}
 		}));
 	}
@@ -123,7 +125,7 @@ class ORM extends mongoose.constructor {
 			}
 			: {};
 
-		const ChimeraModel = this.model('ChimeraModel');
+		const ChimeraModel = this.model('chimera.orm.model');
 		const chimeraModels = await ChimeraModel.loadHydrated(where);
 
 		this._modelCache = chimeraModels.reduce((cache, model) => ({
@@ -135,7 +137,7 @@ class ORM extends mongoose.constructor {
 			const fields = chimeraModel.chimeraFields;
 			const schema = chimeraModel.buildSchema(fields);
 
-			this._register(chimeraModel.namespace, schema);
+			this._register(chimeraModel.namespace, { schema });
 		});
 	}
 
@@ -144,9 +146,7 @@ class ORM extends mongoose.constructor {
      * @param {(string | class)} modelClass - A string or a class to be used for the model
      * @param {object} schema - The schema to pair with this model
      */
-	_register (modelClass, schema, discriminators) {
-		const namespace = schema.name;
-
+	_register (namespace, { modelClass, schema, discriminators }) {
 		this._registry[namespace] = { modelClass, schema, discriminators };
 
 		return this._registry[namespace];
@@ -194,17 +194,18 @@ class ORM extends mongoose.constructor {
 				registered.schema.loadClass(registered.modelClass);
 			}
 
-			registered.model = this.model(registered.schema.name, registered.schema);
+			registered.model = this.model(namespace, registered.schema);
 			compiled.push(registered.model);
 
 			if (registered.discriminators) {
 				map(registered.discriminators, (discrimator, discrimatorName) => {
+					const discrimatorNamespace = this._discriminateNamespace(namespace, discrimatorName);
 
-					if (this.isCompiled(discrimatorName)) {
-						this.deleteModel(discrimatorName);
+					if (this.isCompiled(discrimatorNamespace)) {
+						this.deleteModel(discrimatorNamespace);
 					}
 
-					registered.model.discriminator(discrimatorName, discrimator);
+					registered.model.discriminator(discrimatorNamespace, discrimator);
 				});
 			}
 		});
@@ -251,6 +252,14 @@ class ORM extends mongoose.constructor {
 		}
 
 		return scope;
+	}
+
+	_discriminateNamespace (namespace, discrimatorName) {
+		return `${namespace
+			.split('.')
+			.slice(0, namespace.split('.').length - 1)
+			.join('.')
+		}.${camelCase(discrimatorName)}`;
 	}
 }
 

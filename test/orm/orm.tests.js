@@ -8,15 +8,15 @@ describe('ORM', function () {
 		await this.orm.init();
 
 		this.staticModels = [
-			'ChimeraModel',
-			'ChimeraField',
-			'ChimeraAssociation'
+			'chimera.orm.model',
+			'chimera.orm.field',
+			'chimera.orm.association'
 		];
 
-		this.dynamicModels = await factory.createMany('ChimeraModel', 3);
+		this.dynamicModels = await factory.createMany('chimera.orm.model', 3);
 
 		for (const model of this.dynamicModels) {
-			await factory.createMany('ChimeraField', 3, {
+			await factory.createMany('chimera.orm.field', 3, {
 				chimeraModelId: model.id
 			});
 		}
@@ -39,18 +39,18 @@ describe('ORM', function () {
 		it('should register dynamically defined schemas', async function () {
 			await this.orm._loadDynamicSchemas();
 
-			this.orm._registry.should.include.keys(this.dynamicModels.map(m => m.name));
+			this.orm._registry.should.include.keys(this.dynamicModels.map(m => m.namespace));
 		});
 	});
 
 	describe('_applyAssociations', function () {
 		before(async function () {
 			this.associations = {};
-			this.associations['alpha'] = await factory.create('HierarchicalAssociation', {
+			this.associations['alpha'] = await factory.create('chimera.orm.hierarchicalAssociation', {
 				fromModelId: this.dynamicModels[0].id,
 				toModelId: this.dynamicModels[1].id
 			});
-			this.associations['beta'] = await factory.create('HierarchicalAssociation', {
+			this.associations['beta'] = await factory.create('chimera.orm.hierarchicalAssociation', {
 				fromModelId: this.dynamicModels[1].id,
 				toModelId: this.dynamicModels[2].id
 			});
@@ -58,9 +58,9 @@ describe('ORM', function () {
 			await this.orm._loadStaticSchemas();
 			await this.orm._loadDynamicSchemas();
 
-			this.schemaSpy1 = sinon.spy(this.orm._registry[this.dynamicModels[0].name].schema, 'associate');
-			this.schemaSpy2 = sinon.spy(this.orm._registry[this.dynamicModels[1].name].schema, 'associate');
-			this.schemaSpy3 = sinon.spy(this.orm._registry[this.dynamicModels[2].name].schema, 'associate');
+			this.schemaSpy1 = sinon.spy(this.orm._registry[this.dynamicModels[0].namespace].schema, 'associate');
+			this.schemaSpy2 = sinon.spy(this.orm._registry[this.dynamicModels[1].namespace].schema, 'associate');
+			this.schemaSpy3 = sinon.spy(this.orm._registry[this.dynamicModels[2].namespace].schema, 'associate');
 		});
 
 		after(function () {
@@ -103,7 +103,7 @@ describe('ORM', function () {
 
 			this.orm.modelNames().should.containSubset([
 				...this.staticModels,
-				...this.dynamicModels.map(m => m.name)
+				...this.dynamicModels.map(m => m.namespace)
 			]);
 		});
 	});

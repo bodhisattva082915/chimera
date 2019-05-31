@@ -1,10 +1,10 @@
 import ChimeraSchema from '../../schema';
 import orm from '../../index';
 
-class ChimeraModel extends orm.Model {
+class Model extends orm.Model {
 
 	/**
-	 * Queries and populates ChimeraModel(s) with associated support content.
+	 * Queries and populates chimera model(s) with associated support content.
 	 */
 	static async loadHydrated (where = {}) {
 		const chimeraModels = await this.find()
@@ -37,7 +37,7 @@ class ChimeraModel extends orm.Model {
 	}
 
 	/**
-     * Compiles and registers the defined the ChimeraModel into a mongoose Model
+     * Compiles and registers the defined chimera model into a mongoose Model
      * @async
      * @returns {Promise<mongoose.Model>} - The newly registered mongoose Model
      */
@@ -60,4 +60,4 @@ class ChimeraModel extends orm.Model {
 	}
 }
 
-export default ChimeraModel;
+export default Model;

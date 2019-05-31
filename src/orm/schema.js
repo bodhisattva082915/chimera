@@ -197,7 +197,7 @@ class ChimeraSchema extends Schema {
 
 		associations.forEach(assoc => {
 			switch (assoc.type) {
-				case 'HierarchicalAssociation':
+				case 'chimera.orm.hierarchicalAssociation':
 					isDominant(assoc)
 						? this[assoc.many ? 'hasMany' : 'hasOne'](assoc.to.namespace, {
 							foreignField: assoc.toModel.foreignKey || `${camelCase(this.name)}Id`,
@@ -211,7 +211,7 @@ class ChimeraSchema extends Schema {
 						});
 					break;
 
-				case 'NonHierarchicalAssociation':
+				case 'chimera.orm.nonHierarchicalAssociation':
 					const through = this._buildJunction(assoc);
 
 					isDominant(assoc)
@@ -252,7 +252,8 @@ class ChimeraSchema extends Schema {
 			if (orm.isRegistered(implicitName)) {
 				junction = orm._registry[implicitName].schema;
 			} else {
-				junction = orm._register(implicitName, new ChimeraSchema(implicitName)).schema;
+				junction = new ChimeraSchema(implicitName);
+				orm._register(implicitName, { schema: junction });
 			}
 
 		// Use an explicit through model

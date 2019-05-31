@@ -41,7 +41,7 @@ export const generateTokens = (req, res) => {
  * Verfiies the email address for a given user.
  */
 export const verifyUserEmail = async (req, res, next) => {
-	const User = orm.model('User');
+	const User = orm.model('chimera.auth.user');
 	const { userId } = req.body;
 	const user = await User.findOne({ id: userId });
 
@@ -57,7 +57,7 @@ export const verifyUserEmail = async (req, res, next) => {
  * Sends password reset token to the given user of the request.
  */
 export const sendResetToken = async (req, res, next) => {
-	const User = orm.model('User');
+	const User = orm.model('chimera.auth.user');
 	const { email } = req.body;
 	const user = await User.findOne({ email }, '+password');
 

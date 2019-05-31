@@ -7,7 +7,7 @@ import orm from 'chimera/orm';
 import ChimeraSchema from 'chimera/orm/schema';
 
 const { Mixed, Array } = orm.Schema.Types;
-const schema = new ChimeraSchema('ChimeraField', {
+const schema = new ChimeraSchema('Field', {
 	/**
 	 * The name that will be used to uniquely identify the property on the model.
 	 * This will be set as the key value in the generated mongoose schema.
@@ -89,7 +89,7 @@ const schema = new ChimeraSchema('ChimeraField', {
 	}
 })
 	/** Associations */
-	.belongsTo('ChimeraModel', {
+	.belongsTo('chimera.orm.model', {
 		localField: 'chimeraModelId',
 		as: 'chimeraModel'
 	}, {
@@ -101,7 +101,7 @@ const schema = new ChimeraSchema('ChimeraField', {
 
 	/** Middleware */
 	.post('save', function (field, next) {
-		orm.model('ChimeraModel').emit('compile', field.chimeraModelId);
+		orm.model('chimera.orm.model').emit('compile', field.chimeraModelId);
 		next();
 	});
 

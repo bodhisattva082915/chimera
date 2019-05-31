@@ -7,8 +7,8 @@ import orm from 'chimera/orm';
 
 describe('User', function () {
 	before(async function () {
-		this.User = orm.model('User');
-		this.testUser = await factory.create('User');
+		this.User = orm.model('chimera.auth.user');
+		this.testUser = await factory.create('chimera.auth.user');
 	});
 
 	after(async function () {
@@ -52,7 +52,7 @@ describe('User', function () {
 	describe('middleware', function () {
 		it('should encrypt passwords using argon2 on user create', async function () {
 			const userData = { username: factory.chance('email'), password: 'unecrypted' };
-			const user = await factory.create('User', userData);
+			const user = await factory.create('chimera.auth.user', userData);
 
 			user.password.should.not.equal(userData.password);
 			(await argon2.verify(user.password, userData.password)).should.be.true;

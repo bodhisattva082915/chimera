@@ -1,7 +1,7 @@
 import ChimeraSchema from '../../schema';
 
 const NonHierarchical = new ChimeraSchema('NonHierarchicalAssociation', {})
-	.belongsTo('ChimeraModel', {
+	.belongsTo('chimera.orm.model', {
 		localField: 'throughModelId',
 		as: 'through'
 	});

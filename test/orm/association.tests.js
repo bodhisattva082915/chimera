@@ -1,14 +1,14 @@
 import factory from 'factory-girl';
 import orm from 'chimera/orm';
 
-describe('ChimeraAssociation', function () {
+describe('Association', function () {
 	before(async function () {
-		this.ChimeraAssociation = orm.model('ChimeraAssociation');
-		this.Hierarchical = orm.model('HierarchicalAssociation');
-		this.NonHierarchical = orm.model('NonHierarchicalAssociation');
+		this.ChimeraAssociation = orm.model('chimera.orm.association');
+		this.Hierarchical = orm.model('chimera.orm.hierarchicalAssociation');
+		this.NonHierarchical = orm.model('chimera.orm.nonHierarchicalAssociation');
 
-		this.testModelADoc = await factory.create('ChimeraModel');
-		this.testModelBDoc = await factory.create('ChimeraModel');
+		this.testModelADoc = await factory.create('chimera.orm.model');
+		this.testModelBDoc = await factory.create('chimera.orm.model');
 	});
 
 	after(async function () {
@@ -49,7 +49,7 @@ describe('ChimeraAssociation', function () {
 			describe('foreignKey', function () {
 				describe('uniqueUniversally', function () {
 					it('should enforce uniqueness on NonHierarchical associations {fromModelId, fromModel.foreignKey}', async function () {
-						const assoc = await factory.create('NonHierarchicalAssociation', {
+						const assoc = await factory.create('chimera.orm.nonHierarchicalAssociation', {
 							fromModelId: this.testModelADoc.id
 						});
 
@@ -87,7 +87,7 @@ describe('ChimeraAssociation', function () {
 				});
 				describe('uniqueSecondary', function () {
 					it('should enforce uniqueness on NonHierarchical associations {fromModelId, toModelId, fromModel.foreignKey}', async function () {
-						const assoc = await factory.create('NonHierarchicalAssociation', {
+						const assoc = await factory.create('chimera.orm.nonHierarchicalAssociation', {
 							fromModelId: this.testModelADoc.id,
 							toModelId: this.testModelBDoc.id,
 							fromModel: {
@@ -134,7 +134,7 @@ describe('ChimeraAssociation', function () {
 			describe('relatedName', function () {
 				describe('uniqueUniversally', function () {
 					it('should enforce uniqueness on NonHierarchical associations {fromModelId, fromModel.relatedName}', async function () {
-						const assoc = await factory.create('NonHierarchicalAssociation', {
+						const assoc = await factory.create('chimera.orm.nonHierarchicalAssociation', {
 							fromModelId: this.testModelADoc.id
 						});
 
@@ -172,7 +172,7 @@ describe('ChimeraAssociation', function () {
 				});
 				describe('uniqueSecondary', function () {
 					it('should enforce uniqueness on NonHeirarchical associations {fromModelId, toModelId, fromModel.relatedName}', async function () {
-						const assoc = await factory.create('NonHierarchicalAssociation', {
+						const assoc = await factory.create('chimera.orm.nonHierarchicalAssociation', {
 							fromModelId: this.testModelADoc.id,
 							toModelId: this.testModelBDoc.id
 						});
@@ -216,7 +216,7 @@ describe('ChimeraAssociation', function () {
 			describe('reverseName', function () {
 				describe('uniqueUniversally', function () {
 					it('should enforce uniqueness {fromModelId, fromModel.reverseName}', async function () {
-						const assoc = await factory.create('HierarchicalAssociation', {
+						const assoc = await factory.create('chimera.orm.hierarchicalAssociation', {
 							fromModelId: this.testModelADoc.id
 						});
 
@@ -242,7 +242,7 @@ describe('ChimeraAssociation', function () {
 				});
 				describe('uniqueSecondary', function () {
 					it('should enforce uniqueness {fromModelId, toModelId, fromModel.reverseName}', async function () {
-						const assoc = await factory.create('HierarchicalAssociation', {
+						const assoc = await factory.create('chimera.orm.hierarchicalAssociation', {
 							fromModelId: this.testModelADoc.id,
 							toModelId: this.testModelBDoc.id
 						});
@@ -280,7 +280,7 @@ describe('ChimeraAssociation', function () {
 			describe('foreignKey', function () {
 				describe('uniqueUniversally', function () {
 					it('should enforce uniqueness {toModelId, toModel.foreignKey}', async function () {
-						const assoc = await factory.create('HierarchicalAssociation', {
+						const assoc = await factory.create('chimera.orm.hierarchicalAssociation', {
 							toModelId: this.testModelBDoc.id
 						});
 
@@ -309,7 +309,7 @@ describe('ChimeraAssociation', function () {
 				});
 				describe('uniqueSecondary', function () {
 					it('should enforce uniqueness {fromModelId, toModelId, toModel.foreignKey}', async function () {
-						const assoc = await factory.create('HierarchicalAssociation', {
+						const assoc = await factory.create('chimera.orm.hierarchicalAssociation', {
 							fromModelId: this.testModelADoc.id,
 							toModelId: this.testModelBDoc.id
 						});
@@ -345,7 +345,7 @@ describe('ChimeraAssociation', function () {
 			describe('relatedName', function () {
 				describe('uniqueUniversally', function () {
 					it('should enforce uniqueness {toModelId, toModel.relatedName}', async function () {
-						const assoc = await factory.create('HierarchicalAssociation', {
+						const assoc = await factory.create('chimera.orm.hierarchicalAssociation', {
 							toModelId: this.testModelBDoc.id
 						});
 
@@ -374,7 +374,7 @@ describe('ChimeraAssociation', function () {
 				});
 				describe('uniqueSecondary', function () {
 					it('should enforce uniqueness {fromModelId, toModelId, toModel.relatedName}', async function () {
-						const assoc = await factory.create('HierarchicalAssociation', {
+						const assoc = await factory.create('chimera.orm.hierarchicalAssociation', {
 							fromModelId: this.testModelADoc.id,
 							toModelId: this.testModelBDoc.id
 						});
@@ -410,7 +410,7 @@ describe('ChimeraAssociation', function () {
 			describe('reverseName', function () {
 				describe('uniqueUniversally', function () {
 					it('should enforce uniqueness on NonHierarchical associations {toModelId, toModel.reverseName}', async function () {
-						const assoc = await factory.create('NonHierarchicalAssociation', {
+						const assoc = await factory.create('chimera.orm.nonHierarchicalAssociation', {
 							toModelId: this.testModelBDoc.id
 						});
 
@@ -448,7 +448,7 @@ describe('ChimeraAssociation', function () {
 				});
 				describe('uniqueSecondary', function () {
 					it('should enforce uniqueness on NonHierarchical associations {fromModelId, toModelId, toModel.reverseName}', async function () {
-						const assoc = await factory.create('NonHierarchicalAssociation', {
+						const assoc = await factory.create('chimera.orm.nonHierarchicalAssociation', {
 							fromModelId: this.testModelADoc.id,
 							toModelId: this.testModelBDoc.id
 						});
@@ -549,7 +549,7 @@ describe('ChimeraAssociation', function () {
 				}
 			});
 
-			this.through = await factory.create('ChimeraModel', {
+			this.through = await factory.create('chimera.orm.model', {
 				name: 'm2mThru'
 			}, {
 				autoCreate: {

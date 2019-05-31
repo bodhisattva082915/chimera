@@ -2,7 +2,7 @@ import orm from '../../index';
 import ChimeraSchema from '../../schema';
 import validators from './validators';
 
-const schema = new ChimeraSchema('ChimeraAssociation', {
+const schema = new ChimeraSchema('Association', {
 	fromModel: {
 		primaryKey: {
 			type: String,
@@ -63,13 +63,13 @@ const schema = new ChimeraSchema('ChimeraAssociation', {
 	discriminatorKey: 'type'
 })
 	/** Associations */
-	.belongsTo('ChimeraModel', {
+	.belongsTo('chimera.orm.model', {
 		localField: 'fromModelId',
 		as: 'from'
 	}, {
 		required: true
 	})
-	.belongsTo('ChimeraModel', {
+	.belongsTo('chimera.orm.model', {
 		localField: 'toModelId',
 		as: 'to'
 	}, {

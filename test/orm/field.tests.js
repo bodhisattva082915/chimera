@@ -1,10 +1,10 @@
 import factory from 'factory-girl';
 import orm from 'chimera/orm';
 
-describe('ChimeraField', function () {
+describe('Field', function () {
 	before(async function () {
-		this.ChimeraField = orm.model('ChimeraField');
-		this.testField = await factory.create('ChimeraField');
+		this.ChimeraField = orm.model('chimera.orm.field');
+		this.testField = await factory.create('chimera.orm.field');
 	});
 
 	describe('schema', function () {

@@ -15,7 +15,7 @@ export const basic = new BasicStrategy(async function (username, password, done)
 			conditions = { email: username };
 		}
 
-		const user = await orm.model('User').findOne(conditions, '+password');
+		const user = await orm.model('chimera.auth.user').findOne(conditions, '+password');
 		if (!user) {
 			return done(null, false);
 		}
@@ -39,7 +39,7 @@ export const bearer = new BearerStrategy(async function (token, done) {
 			return done(null, false);
 		}
 
-		const user = await orm.model('User').findById(userId, '+password');
+		const user = await orm.model('chimera.auth.user').findById(userId, '+password');
 		if (!user) {
 			return done(null, false);
 		}

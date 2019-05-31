@@ -1,12 +1,12 @@
 import factory from 'factory-girl';
 import orm from 'chimera/orm';
 
-describe('ChimeraModel', function () {
+describe('Model', function () {
 	before(async function () {
-		this.ChimeraModel = orm.model('ChimeraModel');
-		this.ChimeraField = orm.model('ChimeraField');
+		this.ChimeraModel = orm.model('chimera.orm.model');
+		this.ChimeraField = orm.model('chimera.orm.field');
 
-		this.testModel = await factory.create('ChimeraModel', {
+		this.testModel = await factory.create('chimera.orm.model', {
 			name: 'TestModelA',
 			module: 'TestModuleA'
 		});
@@ -52,7 +52,7 @@ describe('ChimeraModel', function () {
 
 	describe('loadHydrated', function () {
 		before(async function () {
-			await factory.create('ChimeraModel', { name: 'My Modelo' });
+			await factory.create('chimera.orm.model', { name: 'My Modelo' });
 		});
 
 		it('should find and return ChimeraModels hydrated with associated schema configuration content', async function () {

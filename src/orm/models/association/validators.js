@@ -1,5 +1,4 @@
 import orm from '../../index';
-import { discriminators } from './index';
 
 const defaultMessage = 'Error, expected `{PATH}` to be unique. Value: `{VALUE}`';
 
@@ -11,7 +10,7 @@ export default {
 				validator: async function (value) {
 					const model = this.constructor;
 
-					if (value && model.modelName === 'NonHierarchicalAssociation') {
+					if (value && model.modelName === 'chimera.orm.nonHierarchicalAssociation') {
 						let count = await model.find({
 							'fromModelId': this.fromModelId,
 							'fromModel.foreignKey': value
@@ -28,7 +27,7 @@ export default {
 				validator: async function (value) {
 					const model = this.constructor;
 
-					if (!value && model.modelName === 'NonHierarchicalAssociation') {
+					if (!value && model.modelName === 'chimera.orm.nonHierarchicalAssociation') {
 						let count = await model.find({
 							'fromModelId': this.fromModelId,
 							'toModelId': this.toModelId,
@@ -48,7 +47,7 @@ export default {
 				validator: async function (value) {
 					const model = this.constructor;
 
-					if (value && model.modelName === 'NonHierarchicalAssociation') {
+					if (value && model.modelName === 'chimera.orm.nonHierarchicalAssociation') {
 						let count = await model.find({
 							'fromModelId': this.fromModelId,
 							'fromModel.relatedName': value
@@ -65,7 +64,7 @@ export default {
 				validator: async function (value) {
 					const model = this.constructor;
 
-					if (!value && model.modelName === 'NonHierarchicalAssociation') {
+					if (!value && model.modelName === 'chimera.orm.nonHierarchicalAssociation') {
 						let count = await model.find({
 							'fromModelId': this.fromModelId,
 							'toModelId': this.toModelId,
@@ -83,11 +82,11 @@ export default {
 		reverseName: {
 			uniqueUniversally: {
 				validator: async function (value) {
-					if (!Object.keys(discriminators).includes(this.type)) {
+					const model = this.constructor;
+					if (model.modelName === model.baseModelName) {
 						return true;
 					}
 
-					const model = this.constructor;
 					const baseModel = orm.model(model.baseModelName);
 
 					if (value) {
@@ -105,11 +104,11 @@ export default {
 			},
 			uniqueSecondary: {
 				validator: async function (value) {
-					if (!Object.keys(discriminators).includes(this.type)) {
+					const model = this.constructor;
+					if (model.modelName === model.baseModelName) {
 						return true;
 					}
 
-					const model = this.constructor;
 					const baseModel = orm.model(model.baseModelName);
 
 					if (!value) {
@@ -209,7 +208,7 @@ export default {
 				validator: async function (value) {
 					const model = this.constructor;
 
-					if (value && model.modelName === 'NonHierarchicalAssociation') {
+					if (value && model.modelName === 'chimera.orm.nonHierarchicalAssociation') {
 						let count = await model.find({
 							'toModelId': this.toModelId,
 							'toModel.reverseName': value
@@ -226,7 +225,7 @@ export default {
 				validator: async function (value) {
 					const model = this.constructor;
 
-					if (!value && model.modelName === 'NonHierarchicalAssociation') {
+					if (!value && model.modelName === 'chimera.orm.nonHierarchicalAssociation') {
 						let count = await model.find({
 							'fromModelId': this.fromModelId,
 							'toModelId': this.toModelId,

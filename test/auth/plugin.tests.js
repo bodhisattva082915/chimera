@@ -6,8 +6,8 @@ import ChimeraSchema from 'chimera/orm/schema';
 describe('Auth Plugins', function () {
 	before(async function () {
 		this.testModel = orm.model('TestModel', new ChimeraSchema('TestSchema', { name: String }));
-		this.testUser = await factory.create('User');
-		this.testUser2 = await factory.create('User');
+		this.testUser = await factory.create('chimera.auth.user');
+		this.testUser2 = await factory.create('chimera.auth.user');
 	});
 
 	after(async function () {

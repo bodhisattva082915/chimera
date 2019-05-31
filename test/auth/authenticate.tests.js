@@ -12,7 +12,7 @@ describe('Authentication', function () {
 
 		this.username = factory.chance('word')();
 		this.password = factory.chance('word', { length: 12 })();
-		this.testUser = await factory.create('User', {
+		this.testUser = await factory.create('chimera.auth.user', {
 			username: this.username,
 			password: this.password
 		});

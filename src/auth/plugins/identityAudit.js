@@ -7,8 +7,8 @@ import ChimeraSchema from 'chimera/orm/schema';
  */
 module.exports = function identityAudit (schema) {
 	if (schema instanceof ChimeraSchema) {
-		schema.belongsTo('User', { as: 'createdBy' });
-		schema.belongsTo('User', { as: 'updatedBy' });
+		schema.belongsTo('chimera.auth.user', { as: 'createdBy' });
+		schema.belongsTo('chimera.auth.user', { as: 'updatedBy' });
 
 		schema.pre('save', function identityAuditTrail (next) {
 			const user = cls.getNamespace('httpContext').get('user');

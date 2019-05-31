@@ -1,7 +1,7 @@
 import factory from 'factory-girl';
 import orm from 'chimera/orm';
 
-const model = orm.model('User');
+const model = orm.model('chimera.auth.user');
 
 factory.define(model.modelName, model, {
 	username: factory.chance('word', { length: 8 }),
