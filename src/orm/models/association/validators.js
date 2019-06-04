@@ -83,7 +83,7 @@ export default {
 			uniqueUniversally: {
 				validator: async function (value) {
 					const model = this.constructor;
-					if (model.modelName === model.baseModelName) {
+					if (!model.baseModelName) {
 						return true;
 					}
 
@@ -105,7 +105,7 @@ export default {
 			uniqueSecondary: {
 				validator: async function (value) {
 					const model = this.constructor;
-					if (model.modelName === model.baseModelName) {
+					if (!model.baseModelName) {
 						return true;
 					}
 
