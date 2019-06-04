@@ -107,4 +107,41 @@ describe('ORM', function () {
 			]);
 		});
 	});
+
+	describe('migrate', function () {
+		before(function () {
+			this.mockMigrations = [
+				{
+					name: 'migration_alpha',
+					description: 'Initial seed data required for this module',
+					forwards: function () { console.log('alpha forward'); },
+					backwards: function () { console.log('alpha backwards'); }
+				},
+				{
+					name: 'migration_beta',
+					descrption: 'Additional data that should be seeded for this module',
+					dependsOn: 'orm.migration_alpha',
+					forwards: async function () { console.log('beta forwards'); },
+					backwards: function () { console.log('beta backwards'); }
+				},
+				{
+					name: 'migration_delta',
+					descrption: 'More data that should be seeded for this module',
+					dependsOn: 'orm.migration_beta',
+					forwards: async function () { throw new Error('Uh oh...'); },
+					backwards: function () { console.log('beta backwards'); }
+				}
+			];
+			this.mockLoadMigrations = sinon.stub(this.orm, '_loadMigrations').resolves(this.mockMigrations);
+		});
+
+		after(function () {
+			this.mockLoadMigrations.restore();
+		});
+
+		it('it should execute pending migrations scripts for registered modules', async function () {
+			console.log(this.orm);
+			const results = await this.orm.migrate();
+		});
+	});
 });

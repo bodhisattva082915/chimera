@@ -69,6 +69,33 @@ class ORM extends mongoose.constructor {
 		return this._compile(namespace);
 	}
 
+	/**
+	 * Runs migration scripts for all specified modules. Defaults to running pending migrations for all modules.
+	 * @param {[string]} onlyModules - Specified modules to migrate.
+	 */
+	async migrate (options = {}) {
+		const { onlyModules = [] } = options;
+		const { backwards = false } = options;
+
+		let migrationScope = [path.basename(__dirname), ...this._staticModules];
+		if (onlyModules.length) {
+			migrationScope = migrationScope.filter(module => onlyModules.includes(module));
+		}
+
+		const migrations = await this._loadMigrations(migrationScope);
+		const direction = backwards ? 'backwards' : 'forwards';
+		const tasks = migrations.map(async migration => {
+			const executor = migration[direction];
+			if (!executor) {
+				return;
+			}
+
+			return executor();
+		});
+
+		await Promise.all(tasks);
+	}
+
 	isRegistered (namespace) {
 		return !!(namespace in this._registry);
 	}
@@ -139,6 +166,18 @@ class ORM extends mongoose.constructor {
 
 			this._register(chimeraModel.namespace, { schema });
 		});
+	}
+
+	async _loadMigrations (scope) {
+		await Promise.all(scope.map(async module => {
+			const migrationDir = path.resolve(path.dirname(__dirname), module, 'migrations');
+			const migrations = fs.readdirSync(migrationDir);
+
+			for (const migrationFile of migrations) {
+				const migration = await import(path.resolve(migrationDir, migrationFile));
+				return migration;
+			}
+		}));
 	}
 
 	/**
