@@ -205,7 +205,7 @@ class ORM extends mongoose.constructor {
 						this.deleteModel(discrimatorNamespace);
 					}
 
-					registered.model.discriminator(discrimatorNamespace, discrimator);
+					registered.model.discriminator(discrimatorNamespace, discrimator, discrimatorName);
 				});
 			}
 		});

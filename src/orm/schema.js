@@ -197,7 +197,7 @@ class ChimeraSchema extends Schema {
 
 		associations.forEach(assoc => {
 			switch (assoc.type) {
-				case 'chimera.orm.hierarchicalAssociation':
+				case 'HierarchicalAssociation':
 					isDominant(assoc)
 						? this[assoc.many ? 'hasMany' : 'hasOne'](assoc.to.namespace, {
 							foreignField: assoc.toModel.foreignKey || `${camelCase(this.name)}Id`,
@@ -211,7 +211,7 @@ class ChimeraSchema extends Schema {
 						});
 					break;
 
-				case 'chimera.orm.nonHierarchicalAssociation':
+				case 'NonHierarchicalAssociation':
 					const through = this._buildJunction(assoc);
 
 					isDominant(assoc)
