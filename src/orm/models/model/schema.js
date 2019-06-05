@@ -61,6 +61,6 @@ const schema = new ChimeraSchema('Model', {
 	})
 
 	/** Indexing */
-	.index({ name: 1, module: 1 }, { unique: true });
+	.index({ package: 1, module: 1, name: 1 }, { unique: true });
 
 export default schema;
