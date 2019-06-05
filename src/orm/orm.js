@@ -80,27 +80,43 @@ class ORM extends mongoose.constructor {
 
 		const direction = backwards ? 'backwards' : 'forwards';
 		const executed = await Migration.find(filter);
+		const migrations = await this._loadMigrations(filter);
 
-		let migrations = await this._loadMigrations(filter);
-		let tasks = [];
+		const migrationsRan = [];
 		if (direction === 'forwards') {
-			migrations = migrations.filter(migration => !executed.find(e => e.namespace === migration.namespace));
-			tasks = migrations
-				.map(async migration => {
-					const executor = migration[direction];
-					if (!executor) {
-						return;
-					}
+			let migrating = true;
+			while (migrating) {
+				let toInvoke = migrations
+					.filter(migration => {
+						if (executed.find(e => e.namespace === migration.namespace)) {
+							return false;
+						};
 
-					return executor();
-				});
+						if (!migration.dependsOn.every(dep => executed.find(e => e.namespace === dep))) {
+							return false;
+						}
 
-			if (tasks.length) {
-				await Promise.all(tasks);
-				return Migration.create(migrations);
+						return true;
+					});
+
+				let invoking = toInvoke
+					.map(async migration =>
+						migration[direction] && migration[direction] instanceof Function
+							? migration[direction]()
+							: Promise.resolve()
+					);
+
+				if (invoking.length) {
+					await Promise.all(invoking);
+					const invoked = await Migration.create(toInvoke);
+
+					executed.push(...invoked);
+					migrationsRan.push(...invoked);
+				} else {
+					migrating = false;
+				}
 			}
-
-			return [];
+			return migrationsRan;
 		} else {
 			// Need to run backwards migration function + remove records of migrations we are reverting
 		}

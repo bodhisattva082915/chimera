@@ -16,6 +16,12 @@ const schema = new ChimeraSchema('Migration', {
 	description: {
 		type: String
 	},
+	dependsOn: {
+		type: [String],
+		set (value) {
+			return !Array.isArray(value) ? [value] : value;
+		}
+	},
 	namespace: {
 		type: String,
 		get () {

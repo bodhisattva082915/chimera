@@ -109,20 +109,23 @@ describe('ORM', function () {
 	});
 
 	describe('migrate', function () {
-		before(async function () {
-			this.mockMigrations = (await factory.buildMany('chimera.orm.migration', 3))
-				.map(migration => migration.toJSON({ getters: true }));
+		before(function () {
+			this.Migration = this.orm.model('chimera.orm.migration');
 		});
 
 		beforeEach(function () {
 			this.mockLoadMigrations = sinon.stub(this.orm, '_loadMigrations');
 		});
 
-		afterEach(function () {
+		afterEach(async function () {
 			this.mockLoadMigrations.restore();
+			await this.Migration.deleteMany({});
 		});
 
 		it('it should execute pending migrations scripts for registered modules', async function () {
+			this.mockMigrations = (await factory.buildMany('chimera.orm.migration', 3)).map(
+				migration => migration.toJSON({ getters: true })
+			);
 			this.mockLoadMigrations.resolves(this.mockMigrations);
 
 			const migrations = await this.orm.migrate();
@@ -139,6 +142,31 @@ describe('ORM', function () {
 			onlyOneResult[0].namespace.should.equal(additionalMigration.namespace);
 		});
 
-		// it('it should execute pending migrations scripts ordered with respect to ')
+		/**
+		 * Migration Dependency graph
+		 * Based on this dependency chain, migrations alpha and theta should be run first, then
+		 * migrations beta and gamma, then delta, then lastly iota.
+		 *  - alpha
+		 *    - beta
+		 *      - delta
+		 *        - iota (depends on both gamma and delta)
+		 *    - gamma
+		 *  - theta
+		 */
+		it('it should execute pending migrations scripts, ordered by `dependsOn`', async function () {
+			const alpha = await factory.build('chimera.orm.migration', { name: 'alpha' });
+			const beta = await factory.build('chimera.orm.migration', { name: 'beta', dependsOn: alpha.namespace });
+			const delta = await factory.build('chimera.orm.migration', { name: 'delta', dependsOn: beta.namespace });
+			const gamma = await factory.build('chimera.orm.migration', { name: 'gamma', dependsOn: alpha.namespace });
+			const iota = await factory.build('chimera.orm.migration', { name: 'iota', dependsOn: [gamma.namespace, delta.namespace] });
+			const theta = await factory.build('chimera.orm.migration', { name: 'theta' });
+
+			this.mockMigrations = [alpha, beta, delta, gamma, iota, theta].map(migration => {
+				migration = migration.toJSON({ getters: true });
+				return migration;
+			});
+			this.mockLoadMigrations.resolves(this.mockMigrations);
+			const executed = await this.orm.migrate();
+		});
 	});
 });
