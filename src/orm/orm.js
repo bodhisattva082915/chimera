@@ -77,6 +77,7 @@ class ORM extends mongoose.constructor {
 		const Migration = this.model('chimera.orm.migration');
 		const { filter = {} } = options;
 		const { backwards = false } = options;
+		const { logging = true } = options;
 
 		const direction = backwards ? 'backwards' : 'forwards';
 		const executed = await Migration.find(filter);
@@ -100,11 +101,15 @@ class ORM extends mongoose.constructor {
 					});
 
 				let invoking = toInvoke
-					.map(async migration =>
-						migration[direction] && migration[direction] instanceof Function
+					.map(async migration => {
+						if (logging) {
+							console.log(`Migrating ${migration.namespace}...`);
+						}
+
+						return migration[direction] && migration[direction] instanceof Function
 							? migration[direction]()
-							: Promise.resolve()
-					);
+							: Promise.resolve();
+					});
 
 				if (invoking.length) {
 					await Promise.all(invoking);

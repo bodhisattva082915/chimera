@@ -70,7 +70,7 @@ describe('User', function () {
 		});
 	});
 
-	describe('SMTP Methods', function () {
+	describe.skip('SMTP Methods', function () {
 		before(async function () {
 			await util.promisify(this.testSMTP.listen)();
 			await util.promisify(this.testSMTP.deleteAllEmail)();

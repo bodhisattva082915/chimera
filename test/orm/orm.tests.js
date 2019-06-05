@@ -128,16 +128,16 @@ describe('ORM', function () {
 			);
 			this.mockLoadMigrations.resolves(this.mockMigrations);
 
-			const migrations = await this.orm.migrate();
+			const migrations = await this.orm.migrate({ logging: false });
 			migrations.should.have.lengthOf(3);
 			migrations.forEach(tracked => this.mockMigrations.map(migration => migration.namespace).should.include(tracked.namespace));
 
-			const noResults = await this.orm.migrate();
+			const noResults = await this.orm.migrate({ logging: false });
 			noResults.should.have.lengthOf(0);
 
 			const additionalMigration = await factory.build('chimera.orm.migration', { namespace: 'chimera.module.migrationIota' });
 			this.mockLoadMigrations.resolves([...this.mockMigrations, additionalMigration.toJSON({ getters: true })]);
-			const onlyOneResult = await this.orm.migrate();
+			const onlyOneResult = await this.orm.migrate({ logging: false });
 			onlyOneResult.should.have.lengthOf(1);
 			onlyOneResult[0].namespace.should.equal(additionalMigration.namespace);
 		});
@@ -160,13 +160,16 @@ describe('ORM', function () {
 			const gamma = await factory.build('chimera.orm.migration', { name: 'gamma', dependsOn: alpha.namespace });
 			const iota = await factory.build('chimera.orm.migration', { name: 'iota', dependsOn: [gamma.namespace, delta.namespace] });
 			const theta = await factory.build('chimera.orm.migration', { name: 'theta' });
+			const ordering = ['alpha', 'theta', 'beta', 'gamma', 'delta', 'iota'];
 
 			this.mockMigrations = [alpha, beta, delta, gamma, iota, theta].map(migration => {
 				migration = migration.toJSON({ getters: true });
 				return migration;
 			});
 			this.mockLoadMigrations.resolves(this.mockMigrations);
-			const executed = await this.orm.migrate();
+			const executed = await this.orm.migrate({ logging: false });
+			executed.should.have.lengthOf(this.mockMigrations.length);
+			executed.every((e, i) => ordering[i] === e.name).should.be.true;
 		});
 	});
 });
