@@ -109,15 +109,7 @@ describe('ORM', function () {
 	});
 
 	describe('migrate', function () {
-		beforeEach(function () {
-			this.mockLoadMigrations = sinon.stub(this.orm, '_loadMigrations');
-		});
-
-		afterEach(function () {
-			this.mockLoadMigrations.restore();
-		});
-
-		it('it should execute pending migrations scripts for registered modules', async function () {
+		before(function () {
 			this.mockMigrations = [
 				{
 					namespace: 'chimera.module.migrationAlpha',
@@ -137,6 +129,17 @@ describe('ORM', function () {
 					forwards: sinon.spy()
 				}
 			];
+		});
+
+		beforeEach(function () {
+			this.mockLoadMigrations = sinon.stub(this.orm, '_loadMigrations');
+		});
+
+		afterEach(function () {
+			this.mockLoadMigrations.restore();
+		});
+
+		it('it should execute pending migrations scripts for registered modules', async function () {
 			this.mockLoadMigrations.resolves(this.mockMigrations);
 
 			const migrations = await this.orm.migrate();
@@ -145,6 +148,14 @@ describe('ORM', function () {
 
 			const noResults = await this.orm.migrate();
 			noResults.should.have.lengthOf(0);
+
+			const additionalMigration = await factory.build('chimera.orm.migration', { namespace: 'chimera.module.migrationIota' });
+			this.mockLoadMigrations.resolves([...this.mockMigrations, additionalMigration.toJSON({ getters: true })]);
+			const onlyOneResult = await this.orm.migrate();
+			onlyOneResult.should.have.lengthOf(1);
+			onlyOneResult[0].namespace.should.equal(additionalMigration.namespace);
 		});
+
+		// it('it should execute pending migrations scripts ordered with respect to ')
 	});
 });

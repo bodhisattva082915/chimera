@@ -79,12 +79,13 @@ class ORM extends mongoose.constructor {
 		const { backwards = false } = options;
 
 		const direction = backwards ? 'backwards' : 'forwards';
-		const migrations = await this._loadMigrations(filter);
 		const executed = await Migration.find(filter);
 
+		let migrations = await this._loadMigrations(filter);
+		let tasks = [];
 		if (direction === 'forwards') {
-			const tasks = migrations
-				.filter(migration => !executed.find(e => e.namespace === migration.namespace))
+			migrations = migrations.filter(migration => !executed.find(e => e.namespace === migration.namespace));
+			tasks = migrations
 				.map(async migration => {
 					const executor = migration[direction];
 					if (!executor) {
