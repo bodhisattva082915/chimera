@@ -167,6 +167,7 @@ describe('ORM', function () {
 				return migration;
 			});
 			this.mockLoadMigrations.resolves(this.mockMigrations);
+
 			const executed = await this.orm.migrate({ logging: false });
 			executed.should.have.lengthOf(this.mockMigrations.length);
 			executed.every((e, i) => ordering[i] === e.name).should.be.true;
