@@ -74,26 +74,35 @@ class ORM extends mongoose.constructor {
 	 * @param {[string]} onlyModules - Specified modules to migrate.
 	 */
 	async migrate (options = {}) {
-		const { onlyModules = [] } = options;
+		const Migration = this.model('chimera.orm.migration');
+		const { filter = {} } = options;
 		const { backwards = false } = options;
 
-		let migrationScope = [path.basename(__dirname), ...this._staticModules];
-		if (onlyModules.length) {
-			migrationScope = migrationScope.filter(module => onlyModules.includes(module));
-		}
-
-		const migrations = await this._loadMigrations(migrationScope);
 		const direction = backwards ? 'backwards' : 'forwards';
-		const tasks = migrations.map(async migration => {
-			const executor = migration[direction];
-			if (!executor) {
-				return;
+		const migrations = await this._loadMigrations(filter);
+		const executed = await Migration.find(filter);
+
+		if (direction === 'forwards') {
+			const tasks = migrations
+				.filter(migration => !executed.find(e => e.namespace === migration.namespace))
+				.map(async migration => {
+					const executor = migration[direction];
+					if (!executor) {
+						return;
+					}
+
+					return executor();
+				});
+
+			if (tasks.length) {
+				await Promise.all(tasks);
+				return Migration.create(migrations);
 			}
 
-			return executor();
-		});
-
-		await Promise.all(tasks);
+			return [];
+		} else {
+			// Need to run backwards migration function + remove records of migrations we are reverting
+		}
 	}
 
 	isRegistered (namespace) {

@@ -109,39 +109,42 @@ describe('ORM', function () {
 	});
 
 	describe('migrate', function () {
-		before(function () {
-			this.mockMigrations = [
-				{
-					name: 'migration_alpha',
-					description: 'Initial seed data required for this module',
-					forwards: function () { console.log('alpha forward'); },
-					backwards: function () { console.log('alpha backwards'); }
-				},
-				{
-					name: 'migration_beta',
-					descrption: 'Additional data that should be seeded for this module',
-					dependsOn: 'orm.migration_alpha',
-					forwards: async function () { console.log('beta forwards'); },
-					backwards: function () { console.log('beta backwards'); }
-				},
-				{
-					name: 'migration_delta',
-					descrption: 'More data that should be seeded for this module',
-					dependsOn: 'orm.migration_beta',
-					forwards: async function () { throw new Error('Uh oh...'); },
-					backwards: function () { console.log('beta backwards'); }
-				}
-			];
-			this.mockLoadMigrations = sinon.stub(this.orm, '_loadMigrations').resolves(this.mockMigrations);
+		beforeEach(function () {
+			this.mockLoadMigrations = sinon.stub(this.orm, '_loadMigrations');
 		});
 
-		after(function () {
+		afterEach(function () {
 			this.mockLoadMigrations.restore();
 		});
 
 		it('it should execute pending migrations scripts for registered modules', async function () {
-			console.log(this.orm);
-			const results = await this.orm.migrate();
+			this.mockMigrations = [
+				{
+					namespace: 'chimera.module.migrationAlpha',
+					description: 'Initial seed data required for this module',
+					forwards: sinon.spy()
+				},
+				{
+					namespace: 'chimera.module.migrationBeta',
+					descrption: 'Additional data that should be seeded for this module',
+					dependsOn: 'orm.migrationAlpha',
+					forwards: sinon.spy()
+				},
+				{
+					namespace: 'chimera.module.migrationDelta',
+					descrption: 'More data that should be seeded for this module',
+					dependsOn: 'orm.migrationBeta',
+					forwards: sinon.spy()
+				}
+			];
+			this.mockLoadMigrations.resolves(this.mockMigrations);
+
+			const migrations = await this.orm.migrate();
+			migrations.should.have.lengthOf(3);
+			migrations.forEach(tracked => this.mockMigrations.map(migration => migration.namespace).should.include(tracked.namespace));
+
+			const noResults = await this.orm.migrate();
+			noResults.should.have.lengthOf(0);
 		});
 	});
 });
