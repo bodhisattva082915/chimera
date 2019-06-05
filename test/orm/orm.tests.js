@@ -109,26 +109,9 @@ describe('ORM', function () {
 	});
 
 	describe('migrate', function () {
-		before(function () {
-			this.mockMigrations = [
-				{
-					namespace: 'chimera.module.migrationAlpha',
-					description: 'Initial seed data required for this module',
-					forwards: sinon.spy()
-				},
-				{
-					namespace: 'chimera.module.migrationBeta',
-					descrption: 'Additional data that should be seeded for this module',
-					dependsOn: 'orm.migrationAlpha',
-					forwards: sinon.spy()
-				},
-				{
-					namespace: 'chimera.module.migrationDelta',
-					descrption: 'More data that should be seeded for this module',
-					dependsOn: 'orm.migrationBeta',
-					forwards: sinon.spy()
-				}
-			];
+		before(async function () {
+			this.mockMigrations = (await factory.buildMany('chimera.orm.migration', 3))
+				.map(migration => migration.toJSON({ getters: true }));
 		});
 
 		beforeEach(function () {
