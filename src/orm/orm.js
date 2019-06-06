@@ -131,9 +131,9 @@ class ORM extends mongoose.constructor {
 							return false;
 						};
 
-						// if (!migration.dependsOn.every(dep => executed.find(e => e.namespace === dep))) {
-						// 	return false;
-						// }
+						if (executed.find(e => e.dependsOn.includes(migration.namespace))) {
+							return false;
+						}
 
 						return true;
 					});

@@ -123,7 +123,6 @@ describe('ORM', function () {
 			 *    - gamma
 			 *  - theta
 			 */
-			this.ordering = ['alpha', 'theta', 'beta', 'gamma', 'delta', 'iota'];
 			this.makeOrderedMigrations = async (create = false) => {
 				const op = create ? 'create' : 'build';
 				const alpha = await factory[op]('chimera.orm.migration', { name: 'alpha' });
@@ -185,9 +184,10 @@ describe('ORM', function () {
 			});
 			this.mockLoadMigrations.resolves(this.mockMigrations);
 
+			const executionOrder = ['alpha', 'theta', 'beta', 'gamma', 'delta', 'iota'];
 			const executed = await this.orm.migrate({ logging: false });
 			executed.should.have.lengthOf(this.mockMigrations.length);
-			executed.every((e, i) => this.ordering[i] === e.name).should.be.true;
+			executed.every((e, i) => executionOrder[i] === e.name).should.be.true;
 		});
 
 		it('should reverse migration scripts, ordered by `dependsOn`', async function () {
@@ -196,6 +196,11 @@ describe('ORM', function () {
 				return migration;
 			});
 			this.mockLoadMigrations.resolves(this.mockMigrations);
+
+			const reversedOrder = ['iota', 'theta', 'delta', 'gamma', 'beta', 'alpha'];
+			const reversed = await this.orm.migrate({ backwards: true, logging: false });
+			reversed.should.have.lengthOf(this.mockMigrations.length);
+			reversed.every((e, i) => reversedOrder[i] === e.name).should.be.true;
 		});
 	});
 });
