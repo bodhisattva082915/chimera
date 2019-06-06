@@ -111,6 +111,30 @@ describe('ORM', function () {
 	describe('migrate', function () {
 		before(function () {
 			this.Migration = this.orm.model('chimera.orm.migration');
+
+			/**
+			 * Migration Dependency graph
+			 * Based on this dependency chain, migrations alpha and theta should be run first, then
+			 * migrations beta and gamma, then delta, then lastly iota.
+			 *  - alpha
+			 *    - beta
+			 *      - delta
+			 *        - iota (depends on both gamma and delta)
+			 *    - gamma
+			 *  - theta
+			 */
+			this.ordering = ['alpha', 'theta', 'beta', 'gamma', 'delta', 'iota'];
+			this.makeOrderedMigrations = async (create = false) => {
+				const op = create ? 'create' : 'build';
+				const alpha = await factory[op]('chimera.orm.migration', { name: 'alpha' });
+				const beta = await factory[op]('chimera.orm.migration', { name: 'beta', dependsOn: alpha.namespace });
+				const delta = await factory[op]('chimera.orm.migration', { name: 'delta', dependsOn: beta.namespace });
+				const gamma = await factory[op]('chimera.orm.migration', { name: 'gamma', dependsOn: alpha.namespace });
+				const iota = await factory[op]('chimera.orm.migration', { name: 'iota', dependsOn: [gamma.namespace, delta.namespace] });
+				const theta = await factory[op]('chimera.orm.migration', { name: 'theta' });
+
+				return [alpha, beta, delta, gamma, iota, theta];
+			};
 		});
 
 		beforeEach(function () {
@@ -154,27 +178,8 @@ describe('ORM', function () {
 			(await this.Migration.countDocuments()).should.equal(0);
 		});
 
-		/**
-		 * Migration Dependency graph
-		 * Based on this dependency chain, migrations alpha and theta should be run first, then
-		 * migrations beta and gamma, then delta, then lastly iota.
-		 *  - alpha
-		 *    - beta
-		 *      - delta
-		 *        - iota (depends on both gamma and delta)
-		 *    - gamma
-		 *  - theta
-		 */
 		it('should execute pending migration scripts, ordered by `dependsOn`', async function () {
-			const alpha = await factory.build('chimera.orm.migration', { name: 'alpha' });
-			const beta = await factory.build('chimera.orm.migration', { name: 'beta', dependsOn: alpha.namespace });
-			const delta = await factory.build('chimera.orm.migration', { name: 'delta', dependsOn: beta.namespace });
-			const gamma = await factory.build('chimera.orm.migration', { name: 'gamma', dependsOn: alpha.namespace });
-			const iota = await factory.build('chimera.orm.migration', { name: 'iota', dependsOn: [gamma.namespace, delta.namespace] });
-			const theta = await factory.build('chimera.orm.migration', { name: 'theta' });
-			const ordering = ['alpha', 'theta', 'beta', 'gamma', 'delta', 'iota'];
-
-			this.mockMigrations = [alpha, beta, delta, gamma, iota, theta].map(migration => {
+			this.mockMigrations = (await this.makeOrderedMigrations()).map(migration => {
 				migration = migration.toJSON({ getters: true });
 				return migration;
 			});
@@ -182,11 +187,15 @@ describe('ORM', function () {
 
 			const executed = await this.orm.migrate({ logging: false });
 			executed.should.have.lengthOf(this.mockMigrations.length);
-			executed.every((e, i) => ordering[i] === e.name).should.be.true;
+			executed.every((e, i) => this.ordering[i] === e.name).should.be.true;
 		});
 
 		it('should reverse migration scripts, ordered by `dependsOn`', async function () {
-
+			this.mockMigrations = (await this.makeOrderedMigrations(true)).map(migration => {
+				migration = migration.toJSON({ getters: true });
+				return migration;
+			});
+			this.mockLoadMigrations.resolves(this.mockMigrations);
 		});
 	});
 });
