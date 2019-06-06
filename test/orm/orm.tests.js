@@ -149,6 +149,8 @@ describe('ORM', function () {
 			this.mockLoadMigrations.resolves(this.mockMigrations);
 
 			const reversed = await this.orm.migrate({ backwards: true });
+			reversed.should.have.lengthOf(5);
+			reversed.forEach(reverse => this.mockMigrations.map(migration => migration.namespace).should.include(reverse.namespace));
 
 			await factory.cleanUp();
 		});
