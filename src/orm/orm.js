@@ -80,12 +80,13 @@ class ORM extends mongoose.constructor {
 		const { logging = true } = options;
 
 		const direction = backwards ? 'backwards' : 'forwards';
-		const executed = await Migration.find(filter);
 		const migrations = await this._loadMigrations(filter);
-
 		const migrationsRan = [];
+		const migrationsReversed = [];
+
+		let executed = await Migration.find();
+		let migrating = true;
 		if (direction === 'forwards') {
-			let migrating = true;
 			while (migrating) {
 				let toInvoke = migrations
 					.filter(migration => {
@@ -123,7 +124,48 @@ class ORM extends mongoose.constructor {
 			}
 			return migrationsRan;
 		} else {
-			// Need to run backwards migration function + remove records of migrations we are reverting
+			while (migrating) {
+				let toInvoke = migrations
+					.filter(migration => {
+						if (!executed.find(e => e.namespace === migration.namespace)) {
+							return false;
+						};
+
+						// if (!migration.dependsOn.every(dep => executed.find(e => e.namespace === dep))) {
+						// 	return false;
+						// }
+
+						return true;
+					});
+
+				let invoking = toInvoke
+					.map(async migration => {
+						if (logging) {
+							console.log(`Reversing ${migration.namespace}...`);
+						}
+
+						return migration[direction] && migration[direction] instanceof Function
+							? migration[direction]()
+							: Promise.resolve();
+					});
+
+				if (invoking.length) {
+					const toDelete = executed.filter(e => toInvoke.map(m => m.namespace).includes(e.namespace));
+
+					await Promise.all(invoking);
+					await Migration.deleteMany({
+						_id: {
+							$in: toDelete.map(d => d.id)
+						}
+					});
+
+					executed = executed.filter(e => !toDelete.map(d => d.id).includes(e.id));
+					migrationsReversed.push(...toDelete);
+				} else {
+					migrating = false;
+				}
+			}
+			return migrationsReversed;
 		}
 	}
 

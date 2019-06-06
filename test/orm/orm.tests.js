@@ -122,7 +122,7 @@ describe('ORM', function () {
 			await this.Migration.deleteMany({});
 		});
 
-		it('it should execute pending migrations scripts for registered modules', async function () {
+		it('should execute pending migration scripts', async function () {
 			this.mockMigrations = (await factory.buildMany('chimera.orm.migration', 3)).map(
 				migration => migration.toJSON({ getters: true })
 			);
@@ -142,6 +142,17 @@ describe('ORM', function () {
 			onlyOneResult[0].namespace.should.equal(additionalMigration.namespace);
 		});
 
+		it('should reverse migration scripts', async function () {
+			this.mockMigrations = (await factory.createMany('chimera.orm.migration', 5)).map(
+				migration => migration.toJSON({ getters: true })
+			);
+			this.mockLoadMigrations.resolves(this.mockMigrations);
+
+			const reversed = await this.orm.migrate({ backwards: true });
+
+			await factory.cleanUp();
+		});
+
 		/**
 		 * Migration Dependency graph
 		 * Based on this dependency chain, migrations alpha and theta should be run first, then
@@ -153,7 +164,7 @@ describe('ORM', function () {
 		 *    - gamma
 		 *  - theta
 		 */
-		it('it should execute pending migrations scripts, ordered by `dependsOn`', async function () {
+		it('should execute pending migration scripts, ordered by `dependsOn`', async function () {
 			const alpha = await factory.build('chimera.orm.migration', { name: 'alpha' });
 			const beta = await factory.build('chimera.orm.migration', { name: 'beta', dependsOn: alpha.namespace });
 			const delta = await factory.build('chimera.orm.migration', { name: 'delta', dependsOn: beta.namespace });
