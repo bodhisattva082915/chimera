@@ -148,11 +148,10 @@ describe('ORM', function () {
 			);
 			this.mockLoadMigrations.resolves(this.mockMigrations);
 
-			const reversed = await this.orm.migrate({ backwards: true });
+			const reversed = await this.orm.migrate({ backwards: true, logging: false });
 			reversed.should.have.lengthOf(5);
 			reversed.forEach(reverse => this.mockMigrations.map(migration => migration.namespace).should.include(reverse.namespace));
-
-			await factory.cleanUp();
+			(await this.Migration.countDocuments()).should.equal(0);
 		});
 
 		/**
@@ -184,6 +183,10 @@ describe('ORM', function () {
 			const executed = await this.orm.migrate({ logging: false });
 			executed.should.have.lengthOf(this.mockMigrations.length);
 			executed.every((e, i) => ordering[i] === e.name).should.be.true;
+		});
+
+		it('should reverse migration scripts, ordered by `dependsOn`', async function () {
+
 		});
 	});
 });
