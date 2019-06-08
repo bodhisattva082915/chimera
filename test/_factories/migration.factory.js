@@ -1,10 +1,16 @@
 import factory from 'factory-girl';
 import orm from 'chimera/orm';
 
-const model = orm.model('chimera.orm.migration');
+const migration = orm.model('chimera.orm.migration');
+const migrationTemplate = orm.model('chimera.orm.migrationTemplate');
 
-factory.define(model.modelName, model, {
+const common = {
 	package: factory.chance('word', { length: 5 }),
 	module: factory.chance('word', { length: 5 }),
 	name: factory.chance('word', { length: 5 })
+};
+
+factory.define(migration.modelName, migration, common);
+factory.define(migrationTemplate.modelName, migrationTemplate, {
+	...common
 });

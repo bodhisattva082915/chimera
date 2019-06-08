@@ -111,6 +111,7 @@ describe('ORM', function () {
 	describe('migrate', function () {
 		before(function () {
 			this.Migration = this.orm.model('chimera.orm.migration');
+			this.testModel = this.orm.model('tests.migrate.testModel', new this.orm.Schema({ data: String }));
 
 			/**
 			 * Migration Dependency graph
@@ -125,15 +126,19 @@ describe('ORM', function () {
 			 */
 			this.makeOrderedMigrations = async (create = false) => {
 				const op = create ? 'create' : 'build';
-				const alpha = await factory[op]('chimera.orm.migration', { name: 'alpha' });
-				const beta = await factory[op]('chimera.orm.migration', { name: 'beta', dependsOn: alpha.namespace });
-				const delta = await factory[op]('chimera.orm.migration', { name: 'delta', dependsOn: beta.namespace });
-				const gamma = await factory[op]('chimera.orm.migration', { name: 'gamma', dependsOn: alpha.namespace });
-				const iota = await factory[op]('chimera.orm.migration', { name: 'iota', dependsOn: [gamma.namespace, delta.namespace] });
-				const theta = await factory[op]('chimera.orm.migration', { name: 'theta' });
+				const alpha = await factory[op]('chimera.orm.migrationTemplate', { name: 'alpha' });
+				const beta = await factory[op]('chimera.orm.migrationTemplate', { name: 'beta', dependsOn: alpha.namespace });
+				const delta = await factory[op]('chimera.orm.migrationTemplate', { name: 'delta', dependsOn: beta.namespace });
+				const gamma = await factory[op]('chimera.orm.migrationTemplate', { name: 'gamma', dependsOn: alpha.namespace });
+				const iota = await factory[op]('chimera.orm.migrationTemplate', { name: 'iota', dependsOn: [gamma.namespace, delta.namespace] });
+				const theta = await factory[op]('chimera.orm.migrationTemplate', { name: 'theta' });
 
 				return [alpha, beta, delta, gamma, iota, theta];
 			};
+		});
+
+		after(function () {
+			this.orm.deleteModel('tests.migrate.testModel');
 		});
 
 		beforeEach(function () {
@@ -146,7 +151,7 @@ describe('ORM', function () {
 		});
 
 		it('should execute pending migration scripts', async function () {
-			this.mockMigrations = (await factory.buildMany('chimera.orm.migration', 3)).map(
+			this.mockMigrations = (await factory.buildMany('chimera.orm.migrationTemplate', 3)).map(
 				migration => migration.toJSON({ getters: true })
 			);
 			this.mockLoadMigrations.resolves(this.mockMigrations);
@@ -158,23 +163,11 @@ describe('ORM', function () {
 			const noResults = await this.orm.migrate({ logging: false });
 			noResults.should.have.lengthOf(0);
 
-			const additionalMigration = await factory.build('chimera.orm.migration', { namespace: 'chimera.module.migrationIota' });
+			const additionalMigration = await factory.build('chimera.orm.migrationTemplate', { namespace: 'chimera.module.migrationIota' });
 			this.mockLoadMigrations.resolves([...this.mockMigrations, additionalMigration.toJSON({ getters: true })]);
 			const onlyOneResult = await this.orm.migrate({ logging: false });
 			onlyOneResult.should.have.lengthOf(1);
 			onlyOneResult[0].namespace.should.equal(additionalMigration.namespace);
-		});
-
-		it('should reverse migration scripts', async function () {
-			this.mockMigrations = (await factory.createMany('chimera.orm.migration', 5)).map(
-				migration => migration.toJSON({ getters: true })
-			);
-			this.mockLoadMigrations.resolves(this.mockMigrations);
-
-			const reversed = await this.orm.migrate({ backwards: true, logging: false });
-			reversed.should.have.lengthOf(5);
-			reversed.forEach(reverse => this.mockMigrations.map(migration => migration.namespace).should.include(reverse.namespace));
-			(await this.Migration.countDocuments()).should.equal(0);
 		});
 
 		it('should execute pending migration scripts, ordered by `dependsOn`', async function () {
@@ -190,6 +183,18 @@ describe('ORM', function () {
 			executed.every((e, i) => executionOrder[i] === e.name).should.be.true;
 		});
 
+		it('should reverse migration scripts', async function () {
+			this.mockMigrations = (await factory.createMany('chimera.orm.migrationTemplate', 5)).map(
+				migration => migration.toJSON({ getters: true })
+			);
+			this.mockLoadMigrations.resolves(this.mockMigrations);
+
+			const reversed = await this.orm.migrate({ backwards: true, logging: false });
+			reversed.should.have.lengthOf(5);
+			reversed.forEach(reverse => this.mockMigrations.map(migration => migration.namespace).should.include(reverse.namespace));
+			(await this.Migration.countDocuments()).should.equal(0);
+		});
+
 		it('should reverse migration scripts, ordered by `dependsOn`', async function () {
 			this.mockMigrations = (await this.makeOrderedMigrations(true)).map(migration => {
 				migration = migration.toJSON({ getters: true });
@@ -201,6 +206,15 @@ describe('ORM', function () {
 			const reversed = await this.orm.migrate({ backwards: true, logging: false });
 			reversed.should.have.lengthOf(this.mockMigrations.length);
 			reversed.every((e, i) => reversedOrder[i] === e.name).should.be.true;
+		});
+
+		it('should execute migrations within an atomic transaction', async function () {
+			this.mockMigrationSuccess = await factory.build('chimera.orm.migrationTemplate');
+			this.mockMigrationFailure = await factory.build('chimera.orm.migrationTemplate');
+			this.mockLoadMigrations.resolves(this.mockMigrations);
+
+			// const executed = await this.orm.migrate({ });
+
 		});
 	});
 });
