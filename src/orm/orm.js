@@ -71,7 +71,6 @@ class ORM extends mongoose.constructor {
 
 	/**
 	 * Runs migration scripts for all specified modules. Defaults to running pending migrations for all modules.
-	 * @param {[string]} onlyModules - Specified modules to migrate.
 	 */
 	async migrate (options = {}) {
 		const Migration = this.model('chimera.orm.migration');
@@ -82,91 +81,78 @@ class ORM extends mongoose.constructor {
 		const direction = backwards ? 'backwards' : 'forwards';
 		const migrations = await this._loadMigrations(filter);
 		const migrationsRan = [];
-		const migrationsReversed = [];
+
+		let invocationsFilter;
+		let invocationsSuccessHandler;
+		if (!backwards) {
+			invocationsFilter = migration => {
+				if (executed.find(e => e.namespace === migration.namespace)) {
+					return false;
+				};
+
+				if (!migration.dependsOn.every(dep => executed.find(e => e.namespace === dep))) {
+					return false;
+				}
+
+				return true;
+			};
+			invocationsSuccessHandler = async migrations => {
+				const invoked = await Migration.create(migrations);
+
+				executed.push(...invoked);
+				migrationsRan.push(...invoked);
+			};
+		} else {
+			invocationsFilter = migration => {
+				if (!executed.find(e => e.namespace === migration.namespace)) {
+					return false;
+				};
+
+				if (executed.find(e => e.dependsOn.includes(migration.namespace))) {
+					return false;
+				}
+
+				return true;
+			};
+			invocationsSuccessHandler = async migrations => {
+				const toDelete = executed.filter(e => migrations.map(m => m.namespace).includes(e.namespace));
+				await Migration.deleteMany({
+					_id: {
+						$in: toDelete.map(d => d.id)
+					}
+				});
+
+				executed = executed.filter(e => !toDelete.map(d => d.id).includes(e.id));
+				migrationsRan.push(...toDelete);
+			};
+		}
 
 		let executed = await Migration.find();
 		let migrating = true;
-		if (direction === 'forwards') {
-			while (migrating) {
-				let toInvoke = migrations
-					.filter(migration => {
-						if (executed.find(e => e.namespace === migration.namespace)) {
-							return false;
-						};
 
-						if (!migration.dependsOn.every(dep => executed.find(e => e.namespace === dep))) {
-							return false;
-						}
+		while (migrating) {
+			let toInvoke = migrations.filter(invocationsFilter);
 
-						return true;
-					});
+			let invoking = toInvoke
+				.map(async migration => {
+					if (logging) {
+						console.log(`${direction === 'forwards' ? 'Migrating' : 'reversing'} ${migration.namespace}...`);
+					}
 
-				let invoking = toInvoke
-					.map(async migration => {
-						if (logging) {
-							console.log(`Migrating ${migration.namespace}...`);
-						}
+					return migration[direction] && migration[direction] instanceof Function
+						? migration[direction]()
+						: Promise.resolve();
+				});
 
-						return migration[direction] && migration[direction] instanceof Function
-							? migration[direction]()
-							: Promise.resolve();
-					});
-
-				if (invoking.length) {
-					await Promise.all(invoking);
-					const invoked = await Migration.create(toInvoke);
-
-					executed.push(...invoked);
-					migrationsRan.push(...invoked);
-				} else {
-					migrating = false;
-				}
+			if (invoking.length) {
+				await Promise.all(invoking);
+				await invocationsSuccessHandler(toInvoke);
+			} else {
+				migrating = false;
 			}
-			return migrationsRan;
-		} else {
-			while (migrating) {
-				let toInvoke = migrations
-					.filter(migration => {
-						if (!executed.find(e => e.namespace === migration.namespace)) {
-							return false;
-						};
-
-						if (executed.find(e => e.dependsOn.includes(migration.namespace))) {
-							return false;
-						}
-
-						return true;
-					});
-
-				let invoking = toInvoke
-					.map(async migration => {
-						if (logging) {
-							console.log(`Reversing ${migration.namespace}...`);
-						}
-
-						return migration[direction] && migration[direction] instanceof Function
-							? migration[direction]()
-							: Promise.resolve();
-					});
-
-				if (invoking.length) {
-					const toDelete = executed.filter(e => toInvoke.map(m => m.namespace).includes(e.namespace));
-
-					await Promise.all(invoking);
-					await Migration.deleteMany({
-						_id: {
-							$in: toDelete.map(d => d.id)
-						}
-					});
-
-					executed = executed.filter(e => !toDelete.map(d => d.id).includes(e.id));
-					migrationsReversed.push(...toDelete);
-				} else {
-					migrating = false;
-				}
-			}
-			return migrationsReversed;
 		}
+
+		return migrationsRan;
 	}
 
 	isRegistered (namespace) {
