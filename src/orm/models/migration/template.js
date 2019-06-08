@@ -7,9 +7,7 @@ const MigrationTemplate = new ChimeraSchema('MigrationTemplate', {
 		set (value) {
 			return !Array.isArray(value) ? [value] : value;
 		}
-	},
-	forwards: String,
-	backwards: String
+	}
 });
 
 export default MigrationTemplate;
