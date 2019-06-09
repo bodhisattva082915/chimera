@@ -72,7 +72,10 @@ class Migrator {
 
 	async _postMigrationHandler (direction, previouslyExecuted, currentlyExecuted) {
 		if (direction === 'forwards') {
-			return this.Migration.create(currentlyExecuted);
+			return this.Migration.create(currentlyExecuted.map(migration => {
+				delete migration[this.Migration.schema.options.discriminatorKey];
+				return migration;
+			}));
 		} else {
 			const untracked = previouslyExecuted.filter(e => currentlyExecuted.map(m => m.namespace).includes(e.namespace));
 			await this.Migration.deleteMany({
