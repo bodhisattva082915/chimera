@@ -14,9 +14,8 @@ class Migrator {
 		let migrating = true;
 		while (migrating) {
 			let executed = await this.Migration.find();
-			let toInvoke = migrations.filter(this._toMigrateFilter(direction, executed));
-
-			let invoking = toInvoke
+			let toExecute = migrations.filter(this._toMigrateFilter(direction, executed));
+			let executing = toExecute
 				.map(async migration => {
 					if (this.logging) {
 						console.log(`${direction === 'forwards' ? 'Migrating' : 'Reversing'} ${migration.namespace}...`);
@@ -27,9 +26,9 @@ class Migrator {
 						: Promise.resolve();
 				});
 
-			if (invoking.length) {
-				await Promise.all(invoking);
-				const results = await this._postMigrationHandler(direction, executed, toInvoke);
+			if (executing.length) {
+				await Promise.all(executing);
+				const results = await this._postMigrationHandler(direction, executed, toExecute);
 				migrationEvents.push(...results);
 			} else {
 				migrating = false;
@@ -43,14 +42,14 @@ class Migrator {
 
 	}
 
-	_toMigrateFilter (direction, executed) {
+	_toMigrateFilter (direction, previouslyExecuted) {
 		if (direction === 'forwards') {
 			return migration => {
-				if (executed.find(e => e.namespace === migration.namespace)) {
+				if (previouslyExecuted.find(e => e.namespace === migration.namespace)) {
 					return false;
 				};
 
-				if (!migration.dependsOn.every(dep => executed.find(e => e.namespace === dep))) {
+				if (!migration.dependsOn.every(dep => previouslyExecuted.find(e => e.namespace === dep))) {
 					return false;
 				}
 
@@ -58,11 +57,11 @@ class Migrator {
 			};
 		} else {
 			return migration => {
-				if (!executed.find(e => e.namespace === migration.namespace)) {
+				if (!previouslyExecuted.find(e => e.namespace === migration.namespace)) {
 					return false;
 				};
 
-				if (executed.find(e => e.dependsOn.includes(migration.namespace))) {
+				if (previouslyExecuted.find(e => e.dependsOn.includes(migration.namespace))) {
 					return false;
 				}
 
@@ -71,19 +70,16 @@ class Migrator {
 		}
 	}
 
-	async _postMigrationHandler (direction, executed, invoked) {
+	async _postMigrationHandler (direction, previouslyExecuted, currentlyExecuted) {
 		if (direction === 'forwards') {
-			const tracked = await this.Migration.create(invoked);
-
-			return tracked;
+			return this.Migration.create(currentlyExecuted);
 		} else {
-			const untracked = executed.filter(e => invoked.map(m => m.namespace).includes(e.namespace));
+			const untracked = previouslyExecuted.filter(e => currentlyExecuted.map(m => m.namespace).includes(e.namespace));
 			await this.Migration.deleteMany({
 				_id: {
 					$in: untracked.map(d => d.id)
 				}
 			});
-
 			return untracked;
 		}
 	}
