@@ -5,6 +5,7 @@ import pickBy from 'lodash/pickBy';
 import camelCase from 'lodash/camelCase';
 import mongoose from 'mongoose';
 import ChimeraSchema from './schema';
+import ChimeraModel from './model';
 
 /**
  * An extended version of mongoose for registering and compiling models. This class handles bundling together common
@@ -13,7 +14,6 @@ import ChimeraSchema from './schema';
 class ORM extends mongoose.constructor {
 
 	constructor (options = {}) {
-
 		super(options);
 
 		this.verbose = options.verbose || false;
@@ -22,6 +22,7 @@ class ORM extends mongoose.constructor {
 		this._registry = {};
 
 		this.Schema = ChimeraSchema;
+		this.Model = ChimeraModel;
 	}
 
 	/**
@@ -75,6 +76,13 @@ class ORM extends mongoose.constructor {
 
 	isCompiled (namespace) {
 		return this.modelNames().includes(namespace);
+	}
+
+	/**
+	 * Overrides the original mongoose.model() method to ensure all models inherit from our custom model class.
+	 */
+	model (...args) {
+		return Object.setPrototypeOf(super.model(...args), this.Model);
 	}
 
 	/**
@@ -194,7 +202,6 @@ class ORM extends mongoose.constructor {
 		const scope = this._namespaceToScope(namespace);
 		const compiled = [];
 
-		// For some reason, the User schema in the registry changes back into a regular Schema inisde this loop
 		scope.forEach(namespace => {
 			const registered = this._registry[namespace];
 
@@ -202,7 +209,7 @@ class ORM extends mongoose.constructor {
 				this.deleteModel(namespace);
 			}
 
-			if (registered.modelClass && registered.modelClass.prototype instanceof mongoose.Model) {
+			if (registered.modelClass && registered.modelClass.prototype instanceof this.Model) {
 				registered.schema.loadClass(registered.modelClass);
 			}
 
