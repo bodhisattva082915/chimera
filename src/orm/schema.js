@@ -32,6 +32,7 @@ class ChimeraSchema extends Schema {
 
 		options = {
 			timestamps: true,
+			autoCreate: true,
 			...options
 		};
 
