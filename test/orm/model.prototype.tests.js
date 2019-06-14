@@ -55,4 +55,8 @@ describe('Prototype Model', function () {
 			(await this.Animal.countDocuments()).should.equal(3);
 		});
 	});
+
+	describe('save', function () {
+
+	});
 });

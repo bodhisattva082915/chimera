@@ -276,6 +276,20 @@ class ChimeraSchema extends Schema {
 
 		return junction;
 	};
+
+	/**
+	 * Suppresses warnings for overriding the 'save' method for model isntances
+	 */
+	method (...args) {
+		super.method(...args);
+
+		this.methodOptions = {
+			...this.methodOptions,
+			save: {
+				suppressWarning: true
+			}
+		};
+	}
 }
 
 export default ChimeraSchema;
