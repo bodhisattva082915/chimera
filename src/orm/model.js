@@ -2,6 +2,9 @@ import Model from 'mongoose/lib/model';
 
 class PrototypeModel extends Model {
 
+	/**
+	 * Injects a default session into the method call, if one exists
+	 */
 	static create (doc, options, callback) {
 		const defaultSession = this.base.options.defaultSession;
 		const session = options ? options.session : undefined;
