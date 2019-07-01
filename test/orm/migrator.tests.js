@@ -10,7 +10,7 @@ describe('Migrator', function () {
 
 		this.Migrator = new Migrator(this.orm, { logging: false });
 		this.Migration = this.orm.model('chimera.orm.migration');
-		this.testModel = this.orm.model('tests.migrate.testModel', new this.orm.Schema({ data: String }));
+		this.TestModel = this.orm.model('tests.migrate.testModel', new this.orm.Schema({ data: String }));
 
 		/**
          * Migration Dependency graph
@@ -49,7 +49,7 @@ describe('Migrator', function () {
 		await this.Migration.deleteMany({});
 	});
 
-	it('should execute pending migration scripts', async function () {
+	it('should execute pending migration scripts, no ordering', async function () {
 		this.mockMigrations = (await factory.buildMany('chimera.orm.migrationTemplate', 3)).map(
 			migration => migration.toJSON({ getters: true })
 		);
@@ -107,26 +107,33 @@ describe('Migrator', function () {
 		reversed.every((e, i) => reversedOrder[i] === e.name).should.be.true;
 	});
 
-	// it('should execute migrations within an atomic transaction', async function () {
-	// 	this.mockMigrationSuccess = await factory.build('chimera.orm.migrationTemplate', { namespace: 'test.migrate.success' });
-	// 	this.mockMigrationSuccess.forwards = async () => {
-	// 		await this.testModel.create([
-	// 			{ data: 'This should persist' },
-	// 			{ data: 'This should also persist' }
-	// 		]);
-	// 	};
-	// 	this.mockMigrationFailure = await factory.build('chimera.orm.migrationTemplate', { namespace: 'test.migrate.failure' });
-	// 	this.mockMigrationFailure.forwards = async () => {
-	// 		await this.testModel.create([
-	// 			{ data: 'This should get rolled back' },
-	// 			{ data: 'This should also get rolled back' }
-	// 		]);
-	// 		throw new Error('Uh oh... Something went wrong');
-	// 	};
-	// 	this.mockLoadMigrations.resolves([this.mockMigrationSuccess, this.mockMigrationFailure]);
+	it('should execute migrations, handling failed migrations gracefully', async function () {
+		this.mockMigrationSuccess = await factory.build('chimera.orm.migrationTemplate', { namespace: 'test.migrate.success' });
+		this.mockMigrationSuccess.forwards = async () => {
+			await this.TestModel.create([
+				{ data: 'This should persist' },
+				{ data: 'This should also persist' }
+			]);
+		};
+		this.mockMigrationFailure = await factory.build('chimera.orm.migrationTemplate', { namespace: 'test.migrate.failure' });
+		this.mockMigrationFailure.forwards = async () => {
+			await this.TestModel.create([
+				{ data: 'This should get rolled back' },
+				{ data: 'This should also get rolled back' }
+			]);
+			throw new Error('Uh oh... Something went wrong');
+		};
+		this.mockLoadMigrations.resolves([this.mockMigrationSuccess, this.mockMigrationFailure]);
 
-	// 	const executed = await this.Migrator.run({ });
-	// 	const documents = await this.testModel.countDocuments();
-	// 	console.log(documents);
-	// });
+		let expectedErr;
+		try {
+			await this.Migrator.run();
+		} catch (err) {
+			expectedErr = err;
+		}
+
+		should.exist(expectedErr);
+		expectedErr.message.should.equal('Uh oh... Something went wrong');
+		(await this.TestModel.countDocuments()).should.equal(0);
+	});
 });

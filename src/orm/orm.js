@@ -16,13 +16,14 @@ class ORM extends mongoose.constructor {
 	constructor (options = {}) {
 		super(options);
 
-		this.verbose = options.verbose || false;
 		this._staticModules = options.staticModules || [];
 		this._modelCache = {};
 		this._registry = {};
 
 		this.Schema = ChimeraSchema;
 		this.Model = ChimeraModel;
+
+		this.set('debug', options.debug || false);
 	}
 
 	/**
@@ -42,14 +43,14 @@ class ORM extends mongoose.constructor {
 			`${process.env.CHIMERADB_HOST}:` +
 			`${process.env.CHIMERADB_PORT}/` +
 			`${process.env.CHIMERADB_NAME}?` +
-			`replicaSet=${process.env.CHIMERARS_NAME}`, {
+			`${process.env.CHIMERARS_NAME ? 'replicaSet=' + process.env.CHIMERARS_NAME : ''}`, {
 				useNewUrlParser: true,
 				useCreateIndex: true,
 				autoReconnect: true,
 				reconnectTries: 30
 			});
 
-		if (this.verbose) {
+		if (this.options.debug) {
 			console.info('Chimera DB connection open...');
 		}
 	}

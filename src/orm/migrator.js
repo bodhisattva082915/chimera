@@ -1,6 +1,7 @@
 
 class Migrator {
 	constructor (orm, config = {}) {
+		this.orm = orm;
 		this.filter = config.filter || {};
 		this.logging = config.logging !== false;
 		this.Migration = orm.model('chimera.orm.migration');
@@ -20,14 +21,19 @@ class Migrator {
 					if (this.logging) {
 						console.log(`${direction === 'forwards' ? 'Migrating' : 'Reversing'} ${migration.namespace}...`);
 					}
-
 					return migration[direction] && migration[direction] instanceof Function
 						? migration[direction]()
 						: Promise.resolve();
-				});
+				})
+				.map(migration => migration.catch(err => Promise.resolve(err)));
 
 			if (executing.length) {
-				await Promise.all(executing);
+				const resolutions = await Promise.all(executing);
+				const migrationError = resolutions.find(res => res instanceof Error);
+				if (migrationError) {
+					throw migrationError;
+				}
+
 				const results = await this._postMigrationHandler(direction, executed, toExecute);
 				migrationEvents.push(...results);
 			} else {
@@ -72,10 +78,10 @@ class Migrator {
 
 	async _postMigrationHandler (direction, previouslyExecuted, currentlyExecuted) {
 		if (direction === 'forwards') {
-			return this.Migration.create(currentlyExecuted.map(migration => {
+			return this.Migration.insertMany(currentlyExecuted.map(migration => {
 				delete migration[this.Migration.schema.options.discriminatorKey];
 				return migration;
-			}));
+			}), { session: this.orm.options.defaultSession });
 		} else {
 			const untracked = previouslyExecuted.filter(e => currentlyExecuted.map(m => m.namespace).includes(e.namespace));
 			await this.Migration.deleteMany({

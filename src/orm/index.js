@@ -10,4 +10,5 @@ const orm = new ORM({
  */
 orm.plugin(uniqueValidator);
 
+export { ORM };
 export default orm;

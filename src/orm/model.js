@@ -1,8 +1,10 @@
 import Model from 'mongoose/lib/model';
+import { withDefaultSession } from './utils';
 
 /**
  * Enhances upon the standard mongoose model by:
- * * Injecting a default session into standard CRUD operation, if one exists
+ * TODO: Override further options that require default setssion.
+ * * Injecting a default session into standard CRUD operations, if one exists
  */
 class PrototypeModel extends Model {
 
@@ -10,23 +12,6 @@ class PrototypeModel extends Model {
 		options = withDefaultSession(options, this.base.options.defaultSession);
 		return super.create(doc, options, callback);
 	}
-
-	save (options, fn) {
-		options = withDefaultSession(options, this.base.options.defaultSession);
-		return super.save(options, fn);
-	}
-}
-
-function withDefaultSession (options, defaultSession) {
-	const session = options ? options.session : undefined;
-	if (defaultSession && !session) {
-		options = {
-			...options,
-			session: defaultSession
-		};
-	}
-
-	return options;
 }
 
 export default PrototypeModel;
