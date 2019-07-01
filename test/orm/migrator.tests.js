@@ -125,6 +125,27 @@ describe('Migrator', function () {
 		const executed = await this.Migrator.run();
 		Object.keys(executed.successes).should.have.lengthOf(1);
 		Object.keys(executed.errors).should.have.lengthOf(1);
+		Object.values(executed.errors).forEach(err => err.should.be.instanceOf(Error));
 		(await this.Migration.countDocuments()).should.equal(1);
+	});
+
+	it('should execute migrations, handling failed migrations gracefully that occurr within a dependency chain', async function () {
+		this.mockMigrations = (await this.makeOrderedMigrations()).map(migration => {
+			migration = migration.toJSON({ getters: true });
+			if (migration.name === 'beta' || migration.name === 'theta') {
+				migration.forwards = () => {
+					throw new Error('Uh oh... Something went wrong');
+				};
+			}
+			return migration;
+		});
+		this.mockLoadMigrations.resolves(this.mockMigrations);
+
+		const executionOrder = ['alpha', 'gamma'];
+		const executed = await this.Migrator.run();
+		Object.keys(executed.successes).should.have.lengthOf(2);
+		Object.values(executed.successes).every((e, i) => executionOrder[i] === e.name).should.be.true;
+		Object.keys(executed.errors).should.have.lengthOf(2);
+		Object.values(executed.errors).forEach(err => err.should.be.instanceOf(Error));
 	});
 });

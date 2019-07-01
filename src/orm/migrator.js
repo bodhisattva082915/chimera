@@ -47,7 +47,7 @@ class Migrator {
 				));
 
 				Object.assign(migrationEvents, zipObject(Object.keys(successes), events));
-				Object.assign(migrationErrors, zipObject(Object.keys(errors), errors));
+				Object.assign(migrationErrors, errors);
 			} else {
 				migrating = false;
 			}
