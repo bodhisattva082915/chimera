@@ -125,5 +125,6 @@ describe('Migrator', function () {
 		const executed = await this.Migrator.run();
 		Object.keys(executed.successes).should.have.lengthOf(1);
 		Object.keys(executed.errors).should.have.lengthOf(1);
+		(await this.Migration.countDocuments()).should.equal(1);
 	});
 });
