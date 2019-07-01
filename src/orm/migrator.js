@@ -1,3 +1,5 @@
+import pickBy from 'lodash/pickBy';
+import zipObject from 'lodash/zipObject';
 
 class Migrator {
 	constructor (orm, config = {}) {
@@ -10,38 +12,51 @@ class Migrator {
 	async run (options = {}) {
 		const direction = options.backwards ? 'backwards' : 'forwards';
 		const migrations = await this._loadMigrations(this.filter);
-		const migrationEvents = [];
+		const migrationEvents = {};
+		const migrationErrors = {};
 
 		let migrating = true;
 		while (migrating) {
 			let executed = await this.Migration.find();
-			let toExecute = migrations.filter(this._toMigrateFilter(direction, executed));
-			let executing = toExecute
-				.map(async migration => {
-					if (this.logging) {
-						console.log(`${direction === 'forwards' ? 'Migrating' : 'Reversing'} ${migration.namespace}...`);
-					}
-					return migration[direction] && migration[direction] instanceof Function
-						? migration[direction]()
-						: Promise.resolve();
-				})
-				.map(migration => migration.catch(err => Promise.resolve(err)));
+			let toExecute = migrations
+				.filter(migration => !Object.keys(migrationErrors).includes(migration.namespace))
+				.filter(this._toMigrateFilter(direction, executed));
 
-			if (executing.length) {
-				const resolutions = await Promise.all(executing);
-				const migrationError = resolutions.find(res => res instanceof Error);
-				if (migrationError) {
-					throw migrationError;
-				}
+			if (toExecute.length) {
+				let executing = toExecute.reduce((acc, migration) => ({
+					...acc,
+					[migration.namespace]: (async () => {
+						if (this.logging) {
+							console.log(`${direction === 'forwards' ? 'Migrating' : 'Reversing'} ${migration.namespace}...`);
+						}
+						return migration[direction] && migration[direction] instanceof Function
+							? migration[direction]()
+							: Promise.resolve();
+					})().catch(err => Promise.resolve(err))
+				}), {});
 
-				const results = await this._postMigrationHandler(direction, executed, toExecute);
-				migrationEvents.push(...results);
+				Object.assign(executing, zipObject(
+					Object.keys(executing),
+					await Promise.all(Object.values(executing))
+				));
+
+				const successes = pickBy(executing, result => !(result instanceof Error));
+				const errors = pickBy(executing, result => result instanceof Error);
+				const events = await this._postMigrationHandler(direction, executed, toExecute.filter(migration =>
+					Object.keys(successes).includes(migration.namespace)
+				));
+
+				Object.assign(migrationEvents, zipObject(Object.keys(successes), events));
+				Object.assign(migrationErrors, zipObject(Object.keys(errors), errors));
 			} else {
 				migrating = false;
 			}
 		}
 
-		return migrationEvents;
+		return {
+			successes: migrationEvents,
+			errors: migrationErrors
+		};
 	}
 
 	async _loadMigrations () {
@@ -78,10 +93,10 @@ class Migrator {
 
 	async _postMigrationHandler (direction, previouslyExecuted, currentlyExecuted) {
 		if (direction === 'forwards') {
-			return this.Migration.insertMany(currentlyExecuted.map(migration => {
+			return this.Migration.create(currentlyExecuted.map(migration => {
 				delete migration[this.Migration.schema.options.discriminatorKey];
 				return migration;
-			}), { session: this.orm.options.defaultSession });
+			}));
 		} else {
 			const untracked = previouslyExecuted.filter(e => currentlyExecuted.map(m => m.namespace).includes(e.namespace));
 			await this.Migration.deleteMany({
